@@ -9,11 +9,14 @@ use App\Http\Controllers\VideoController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Auth;
 
 // Customer-facing routes
-Route::get('/', [VideoController::class, 'index'])->name('videos.index');
-Route::get('/videos/{video}', [VideoController::class, 'show'])->name('videos.show');
+Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
+Route::get('/videos/{video}', [VideoController::class, 'show'])->name('video.show');
 
 // Payment routes
 Route::get('/payment/{video}/form', [PaymentController::class, 'form'])->name('payment.form');
@@ -28,6 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // User purchases route
+    Route::get('/purchases', [PaymentController::class, 'index'])->name('purchases.index');
 });
 
 // Admin-only routes
@@ -70,6 +76,16 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/purchases/{purchase}/update-notes', [\App\Http\Controllers\Admin\PurchaseController::class, 'updateNotes'])->name('admin.purchases.update-notes');
     Route::post('/admin/purchases/{purchase}/update-username', [\App\Http\Controllers\Admin\PurchaseController::class, 'updateTelegramUsername'])->name('admin.purchases.update-username');
     Route::post('/admin/purchases/fix-stuck-deliveries', [\App\Http\Controllers\Admin\PurchaseController::class, 'fixStuckDeliveries'])->name('admin.purchases.fix-stuck-deliveries');
+
+    // Category management routes
+    Route::get('/admin/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('admin.categories.manage');
+    Route::post('/admin/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::post('/admin/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+
+    // Telegram Bot Settings routes
+    Route::get('/admin/settings/telegram-bot', [\App\Http\Controllers\SettingController::class, 'telegramBot'])->name('settings.telegram-bot');
+    Route::post('/admin/settings/telegram-bot', [\App\Http\Controllers\SettingController::class, 'updateTelegramBot'])->name('settings.telegram-bot.update');
 });
 
 // Telegram webhook (must be accessible without auth)
@@ -82,6 +98,38 @@ Route::get('/bot-test', [TelegramController::class, 'botEmulator']); // Alias
 
 // System status
 Route::get('/system-status', [TelegramController::class, 'systemStatus']);
+
+// One-time migration for categories
+Route::get('/run-category-migration', function () {
+    try {
+        // Check if the categories table already exists to prevent re-running
+        if (Schema::hasTable('categories')) {
+            return response()->json([
+                'status' => 'already_completed',
+                'message' => 'Category migration appears to have been completed already.',
+            ], 403);
+        }
+
+        Artisan::call('migrate', [
+            '--path' => 'database/migrations/2025_07_05_100000_create_categories_table_and_add_category_id_to_videos.php',
+            '--force' => true
+        ]);
+        $output = Artisan::output();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category migration completed successfully!',
+            'output' => $output
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Category migration failed: ' . $e->getMessage(),
+        ], 500);
+    }
+});
+
 
 // One-time migration and setup route (REMOVE AFTER FIRST USE)
 Route::get('/run-migrations-setup-once', function () {
@@ -117,11 +165,13 @@ Route::get('/run-migrations-setup-once', function () {
             } catch (\Exception $regularError) {
                 // Method 3: For Supabase - simple schema reset
                 try {
+                    // Ensure all existing tables are dropped first
+                    Schema::dropAllTables();
+
                     // Supabase-compatible schema reset (no Neon-specific commands)
-                    DB::statement('DROP SCHEMA IF EXISTS public CASCADE');
-                    DB::statement('CREATE SCHEMA public');
-                    DB::statement('GRANT USAGE ON SCHEMA public TO public');
-                    DB::statement('GRANT CREATE ON SCHEMA public TO public');
+                    // Use unprepared to avoid issues with transaction poolers like pgbouncer
+                    DB::unprepared('DROP SCHEMA IF EXISTS public CASCADE;');
+                    DB::unprepared('CREATE SCHEMA public;');
 
                     Artisan::call('migrate', ['--force' => true]);
                     $migrationOutput = Artisan::output();

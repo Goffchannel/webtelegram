@@ -19,21 +19,14 @@ class Video extends Model
         'description',
         'price',
         'telegram_file_id',
-        'telegram_group_chat_id',
-        'telegram_message_id',
-        'telegram_message_data',
-        'video_type',
-        'file_unique_id',
-        'file_size',
-        'duration',
-        'width',
-        'height',
+        'filename',
         'thumbnail_path',
         'thumbnail_url',
         'thumbnail_blob_url',
         'show_blurred_thumbnail',
         'blur_intensity',
         'allow_preview',
+        'category_id',
     ];
 
     /**
@@ -49,6 +42,14 @@ class Video extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the category that the video belongs to.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     /**
      * Get the formatted price with currency symbol.

@@ -6,7 +6,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow">
-                <div class="card-header bg-success text-white">
+                <div class="card-header">
                     <h4 class="mb-0"><i class="fas fa-check-circle"></i> Payment Successful!</h4>
                 </div>
                 <div class="card-body text-center">
@@ -21,7 +21,7 @@
                     @if($bot['is_configured'])
                         <!-- Next Steps -->
                         <div class="card border-primary mb-4">
-                            <div class="card-header bg-primary text-white">
+                            <div class="card-header">
                                 <h6 class="mb-0"><i class="fas fa-rocket"></i> Next Steps:</h6>
                             </div>
                             <div class="card-body text-start">
@@ -65,7 +65,7 @@
                         </div>
 
                         <!-- Helpful Commands -->
-                        <div class="card bg-light">
+                        <div class="card">
                             <div class="card-header">
                                 <h6 class="mb-0"><i class="fas fa-robot"></i> Helpful Bot Commands:</h6>
                             </div>
@@ -81,7 +81,7 @@
                     @else
                         <!-- Bot Not Configured Message -->
                         <div class="card border-warning mb-4">
-                            <div class="card-header bg-warning text-dark">
+                            <div class="card-header">
                                 <h6 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Setup in Progress</h6>
                             </div>
                             <div class="card-body">

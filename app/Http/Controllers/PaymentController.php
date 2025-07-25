@@ -164,6 +164,20 @@ class PaymentController extends Controller
     }
 
     /**
+     * Display a listing of the user's purchases.
+     */
+    public function index()
+    {
+        $user = Auth::user();
+        $purchases = Purchase::where('user_id', $user->id)
+                             ->with('video')
+                             ->latest()
+                             ->paginate(10);
+
+        return view('payment.purchases', compact('purchases'));
+    }
+
+    /**
      * Show purchase details (secure with UUID)
      */
     public function viewPurchase(string $uuid)

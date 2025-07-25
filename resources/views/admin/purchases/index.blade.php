@@ -16,7 +16,7 @@
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
                     <div class="col-md-3">
-                        <div class="card bg-primary text-white">
+                        <div class="card text-white" style="background-color: #0d6efd;">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -31,7 +31,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card bg-success text-white">
+                        <div class="card text-white" style="background-color: #198754;">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card bg-warning text-white">
+                        <div class="card text-white" style="background-color: #ffc107;">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card bg-danger text-white">
+                        <div class="card text-white" style="background-color: #dc3545;">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -148,7 +148,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th>Purchase Info</th>
@@ -171,7 +171,7 @@
                                                 </div>
                                                 <div class="mt-1">
                                                     <span
-                                                        class="badge bg-{{ $purchase->purchase_status === 'completed' ? 'success' : 'warning' }}">
+                                                        class="badge {{ $purchase->purchase_status === 'completed' ? 'text-bg-success' : 'text-bg-warning' }}">
                                                         {{ ucfirst($purchase->purchase_status) }}
                                                     </span>
                                                 </div>
@@ -199,30 +199,30 @@
                                             </td>
                                             <td>
                                                 @if ($purchase->verification_status === 'pending')
-                                                    <span class="badge bg-warning">Pending</span>
+                                                    <span class="badge text-bg-warning">Pending</span>
                                                 @elseif($purchase->verification_status === 'verified')
-                                                    <span class="badge bg-success">Verified</span>
+                                                    <span class="badge text-bg-success">Verified</span>
                                                 @else
-                                                    <span class="badge bg-danger">Invalid</span>
+                                                    <span class="badge text-bg-danger">Invalid</span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($purchase->delivery_status === 'pending')
-                                                    <span class="badge bg-info">Pending</span>
+                                                    <span class="badge text-bg-info">Pending</span>
                                                 @elseif($purchase->delivery_status === 'delivered')
-                                                    <span class="badge bg-success">Delivered</span>
+                                                    <span class="badge text-bg-success">Delivered</span>
                                                     @if ($purchase->delivered_at)
                                                         <br><small
                                                             class="text-muted">{{ $purchase->delivered_at->format('M d, H:i') }}</small>
                                                     @endif
                                                 @elseif($purchase->delivery_status === 'failed')
-                                                    <span class="badge bg-danger">Failed</span>
+                                                    <span class="badge text-bg-danger">Failed</span>
                                                     @if ($purchase->delivery_attempts > 0)
                                                         <br><small class="text-muted">{{ $purchase->delivery_attempts }}
                                                             attempts</small>
                                                     @endif
                                                 @else
-                                                    <span class="badge bg-warning">Retrying</span>
+                                                    <span class="badge text-bg-warning">Retrying</span>
                                                 @endif
                                             </td>
                                             <td>

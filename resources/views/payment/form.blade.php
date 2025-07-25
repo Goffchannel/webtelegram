@@ -11,10 +11,29 @@
                 </div>
                 <div class="card-body">
                     <!-- Video Details with Thumbnail -->
-                    <div class="card bg-light mb-4">
+                    <div class="card mb-4">
                         @if ($video->hasThumbnail())
-                            <img src="{{ $video->getThumbnailUrl() }}" class="card-img-top" alt="Video thumbnail" style="height: 300px; object-fit: cover; filter: blur(2px);">
-                        @endif
+                        <div class="position-relative" style="height: 500px;">
+                            <img src="{{ $video->getThumbnailUrl() }}" class="card-img-top" alt="Video thumbnail"
+                                style="height: 500px; object-fit: cover; object-position: top; {{ $video->shouldShowBlurred() ? $video->getBlurredThumbnailStyle() : '' }}{{ $video->allow_preview ? ' cursor: pointer;' : '' }}"
+                                @if ($video->allow_preview) onclick="toggleThumbnailBlur(this, {{ $video->blur_intensity }})"
+                                    title="Click to preview" @endif>
+                            @if ($video->shouldShowBlurred())
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <div class="text-center text-white bg-dark bg-opacity-75 px-4 py-3 rounded">
+                                        <i class="fas fa-lock fa-3x mb-3"></i>
+                                        <div class="h6">Video Preview</div>
+                                        <div class="small">
+                                            @if ($video->allow_preview)
+                                                Click to preview •
+                                            @endif
+                                            Purchase to see full video
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                         <div class="card-body">
                             <h5 class="card-title">{{ $video->title }}</h5>
                             <p class="card-text">{{ $video->description }}</p>

@@ -26,7 +26,7 @@ chmod +x deploy-telebot.sh
 
 -   ✅ Install Docker (if needed)
 -   ✅ Clone the repository
--   ✅ Configure all credentials securely
+-   ✅ Configure all credentials securely.
 -   ✅ Set up SSL certificates automatically
 -   ✅ Start your TeleBot with Nginx Proxy Manager
 

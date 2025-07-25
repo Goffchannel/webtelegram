@@ -8,9 +8,9 @@
             <div class="col-md-8">
                 <div class="card shadow-lg">
                     @if ($video->hasThumbnail())
-                        <div class="position-relative" style="height: 300px;">
+                        <div class="position-relative" style="height: 500px;">
                             <img src="{{ $video->getThumbnailUrl() }}" class="card-img-top" alt="Video thumbnail"
-                                style="height: 300px; object-fit: cover; {{ $video->shouldShowBlurred() ? $video->getBlurredThumbnailStyle() : '' }}{{ $video->allow_preview ? ' cursor: pointer;' : '' }}"
+                                style="height: 500px; object-fit: cover; object-position: top; {{ $video->shouldShowBlurred() ? $video->getBlurredThumbnailStyle() : '' }}{{ $video->allow_preview ? ' cursor: pointer;' : '' }}"
                                 @if ($video->allow_preview) onclick="toggleThumbnailBlur(this, {{ $video->blur_intensity }})"
                                     title="Click to preview" @endif>
                             @if ($video->shouldShowBlurred())
@@ -43,7 +43,7 @@
 
                             @if ($video->duration)
                                 <div class="mb-3">
-                                    <span class="badge bg-info fs-6">
+                                    <span class="badge text-bg-info fs-6">
                                         <i class="fas fa-clock"></i> Duration: {{ gmdate('i:s', $video->duration) }}
                                     </span>
                                 </div>

@@ -9,16 +9,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto p-6 max-w-4xl">
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">🤖 Telegram Bot Emulator</h1>
-            <p class="text-gray-600 mb-6">Test bot commands locally without webhook setup</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">🤖 Telegram Bot Emulator</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Test bot commands locally without webhook setup</p>
 
             <!-- Test Info -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h3 class="font-semibold text-blue-800 mb-2">📋 Test Configuration:</h3>
-                <ul class="text-blue-700 text-sm space-y-1">
+            <div class="bg-blue-50 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <h3 class="font-semibold text-blue-800 dark:text-blue-300 mb-2">📋 Test Configuration:</h3>
+                <ul class="text-blue-700 dark:text-blue-400 text-sm space-y-1">
                     <li><strong>Test User:</strong> @Salesmanp2p (ID: 5928450281)</li>
                     <li><strong>Bot:</strong> {{ $bot['username'] }}</li>
                     <li><strong>Test Video:</strong> ID 11 - "Science Video - Research Lab"</li>
@@ -43,13 +43,13 @@
 
             <!-- Custom Command Input -->
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Custom Command:</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Custom Command:</label>
                 <div class="flex gap-2">
                     <input
                         type="text"
                         id="customCommand"
                         placeholder="/getvideo 11"
-                        class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                     >
                     <button
                         onclick="testCustomCommand()"
@@ -61,17 +61,17 @@
             </div>
 
             <!-- Response Area -->
-            <div class="bg-gray-50 border rounded-lg p-4 mb-6">
-                <h3 class="font-semibold text-gray-800 mb-2">Response:</h3>
-                <div id="response" class="text-gray-600 text-sm">
+            <div class="bg-gray-50 dark:bg-gray-700 border rounded-lg p-4 mb-6">
+                <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Response:</h3>
+                <div id="response" class="text-gray-600 dark:text-gray-300 text-sm">
                     Click a button above to test bot commands...
                 </div>
             </div>
 
             <!-- System Status -->
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 class="font-semibold text-yellow-800 mb-2">📊 System Status</h3>
-                <div id="systemStatus" class="text-yellow-700 text-sm">
+            <div class="bg-yellow-50 dark:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                <h3 class="font-semibold text-yellow-800 dark:text-yellow-300 mb-2">📊 System Status</h3>
+                <div id="systemStatus" class="text-yellow-700 dark:text-yellow-400 text-sm">
                     Loading...
                 </div>
             </div>
@@ -119,15 +119,15 @@
 
         // Show loading state
         function showLoading() {
-            document.getElementById('response').innerHTML = '<div class="text-blue-600">⏳ Processing command...</div>';
+            document.getElementById('response').innerHTML = '<div class="text-blue-600 dark:text-blue-400">⏳ Processing command...</div>';
         }
 
         // Show successful response
         function showResponse(data) {
             const html = `
                 <div class="space-y-2">
-                    <div class="text-green-600 font-semibold">✅ Command sent: ${data.command}</div>
-                    <div class="text-gray-700">${data.message}</div>
+                    <div class="text-green-600 dark:text-green-400 font-semibold">✅ Command sent: ${data.command}</div>
+                    <div class="text-gray-700 dark:text-gray-300">${data.message}</div>
                     <div class="text-xs text-gray-500 mt-2">
                         Check your Telegram ({{ $bot['username'] }}) for the actual bot response.
                     </div>
@@ -138,7 +138,7 @@
 
         // Show error
         function showError(message) {
-            document.getElementById('response').innerHTML = `<div class="text-red-600">❌ ${message}</div>`;
+            document.getElementById('response').innerHTML = `<div class="text-red-600 dark:text-red-400">❌ ${message}</div>`;
         }
 
         // Load system status
@@ -148,8 +148,8 @@
                 const data = await response.json();
 
                 const status = data.system_ready ?
-                    '<span class="text-green-600">✅ Ready</span>' :
-                    '<span class="text-red-600">❌ Not Ready</span>';
+                    '<span class="text-green-600 dark:text-green-400">✅ Ready</span>' :
+                    '<span class="text-red-600 dark:text-red-400">❌ Not Ready</span>';
 
                 const html = `
                     <div class="space-y-1">
@@ -163,7 +163,7 @@
 
                 document.getElementById('systemStatus').innerHTML = html;
             } catch (error) {
-                document.getElementById('systemStatus').innerHTML = '<span class="text-red-600">❌ Failed to load status</span>';
+                document.getElementById('systemStatus').innerHTML = '<span class="text-red-600 dark:text-red-400">❌ Failed to load status</span>';
             }
         }
 

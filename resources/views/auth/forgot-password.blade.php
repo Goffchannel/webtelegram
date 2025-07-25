@@ -6,7 +6,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4">
             <div class="card shadow">
-                <div class="card-header bg-warning text-dark text-center">
+                <div class="card-header text-center">
                     <h4 class="mb-0">
                         <i class="fas fa-key"></i> Forgot Password
                     </h4>

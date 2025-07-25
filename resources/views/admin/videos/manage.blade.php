@@ -6,14 +6,18 @@
     <div class="container-fluid">
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">
+                <div class="overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
                         <div class="d-flex justify-content-between align-items-center mb-6">
                             <h2 class="text-2xl font-bold mb-0">Telebot Admin Panel</h2>
                             <div class="btn-group" role="group">
                                 <a href="{{ route('admin.videos.manage') }}"
                                     class="btn btn-outline-primary {{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
                                     <i class="fas fa-video me-1"></i>Videos
+                                </a>
+                                <a href="{{ route('admin.categories.manage') }}"
+                                    class="btn btn-outline-primary {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                                    <i class="fas fa-layer-group me-1"></i>Categories
                                 </a>
                                 <a href="{{ route('admin.purchases.index') }}"
                                     class="btn btn-outline-success {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}">
@@ -23,9 +27,9 @@
                         </div>
 
                         <!-- Token Management Section -->
-                        <div class="mb-6 border-b pb-6">
+                        <div class="mb-6 border-b pb-6 dark:border-gray-700">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-blue-600">📋 API Configuration</h3>
+                                <h3 class="text-lg font-semibold text-blue-600 dark:text-blue-400">📋 API Configuration</h3>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#tokenModal">
                                     <i class="fas fa-cog"></i> Configure API Keys
@@ -159,7 +163,7 @@
                 <div class="col-md-8">
                                         <div class="d-flex align-items-center">
                                             <span><strong>Webhook Status:</strong></span>
-                                            <span id="webhook-status" class="ms-2 badge bg-secondary">Checking...</span>
+                                            <span id="webhook-status" class="ms-2 badge text-bg-secondary">Checking...</span>
                     </div>
                                         <small class="text-muted">
                                             <strong>Active:</strong> Auto-capture videos when sent to bot<br>
@@ -201,7 +205,7 @@
                                 {{-- Test Results Display --}}
                                 <div id="test-results" class="mt-4" style="display: none;">
                                     <h6>Bot Connection Test Results:</h6>
-                                    <div id="test-content" class="border p-3 bg-light"
+                                    <div id="test-content" class="border p-3"
                                         style="max-height: 400px; overflow-y: auto;">
                                         <!-- Test results will be populated here -->
                                     </div>
@@ -278,6 +282,7 @@
                                                     <th>Title</th>
                                                     <th>Description</th>
                             <th>Price</th>
+                                                    <th>Category</th>
                                                     <th>Thumbnail</th>
                                                     <th>File ID</th>
                             <th>Actions</th>
@@ -300,10 +305,13 @@
                                 <td>
                                     @if ($video->price > 0)
                                                                 <span
-                                                                    class="badge bg-success">${{ number_format($video->price, 2) }}</span>
+                                                                    class="badge text-bg-success">${{ number_format($video->price, 2) }}</span>
                                                             @else
-                                                                <span class="badge bg-warning">Free</span>
+                                                                <span class="badge text-bg-warning">Free</span>
                                                             @endif
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge text-bg-info">{{ $video->category->name ?? 'N/A' }}</span>
                                                         </td>
                                                         <td>
                                                             @if ($video->hasThumbnail())
@@ -313,9 +321,9 @@
                                                                         style="width: 40px; height: 30px; object-fit: cover;"
                                                                         class="rounded me-2">
                                                                     @if ($video->shouldShowBlurred())
-                                                                        <span class="badge bg-warning">Blurred</span>
+                                                                        <span class="badge text-bg-warning">Blurred</span>
                                                                     @else
-                                                                        <span class="badge bg-success">Clear</span>
+                                                                        <span class="badge text-bg-success">Clear</span>
                                                                     @endif
                                                                 </div>
                                     @else
@@ -330,12 +338,12 @@
                                     <div class="btn-group btn-group-sm">
                                                                 <!-- Edit Video Details Button -->
                                                                 <button type="button" class="btn btn-outline-primary" title="Edit Video Details"
-                                                                    onclick="editVideoDetails({{ $video->id }}, '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->blur_intensity }}, {{ $video->allow_preview ? 'true' : 'false' }})">
+                                                                    onclick="editVideoDetails({{ $video->id }}, '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->blur_intensity }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
                                                                     <i class="fas fa-edit"></i>
                                                                 </button>
                                                                 <!-- Edit Thumbnail Button -->
                                                                 <button type="button" class="btn btn-outline-info" title="Edit Thumbnail"
-                                                                    onclick="editVideoThumbnail({{ $video->id }}, '{{ $video->getThumbnailUrl() }}', '{{ $video->thumbnail_url }}', '{{ $video->thumbnail_blob_url }}', '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->blur_intensity }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->allow_preview ? 'true' : 'false' }})">
+                                                                    onclick="editVideoThumbnail({{ $video->id }}, '{{ $video->getThumbnailUrl() }}', '{{ $video->thumbnail_url }}', '{{ $video->thumbnail_blob_url }}', '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->blur_intensity }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
                                                                     <i class="fas fa-image"></i>
                                                                 </button>
                                                                 @if ($syncUserTelegramId)
@@ -380,7 +388,7 @@
     </div>
 
     {{-- Token Management Modal --}}
-    <div class="modal fade" id="tokenModal" tabindex="-1">
+    <div class="modal fade " id="tokenModal" tabindex="-1" style="margin-bottom: 8px;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -522,6 +530,14 @@
                             <input type="number" class="form-control" id="edit-details-price" name="price"
                                 step="0.01" min="0" required>
                         </div>
+                        <div class="mb-3">
+                            <label for="edit-details-category" class="form-label">Category</label>
+                            <select class="form-select" id="edit-details-category" name="category_id" required>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
                         <hr>
 
@@ -587,6 +603,7 @@
                     <input type="hidden" id="hidden-title" name="title" value="">
                     <input type="hidden" id="hidden-description" name="description" value="">
                     <input type="hidden" id="hidden-price" name="price" value="">
+                    <input type="hidden" id="hidden-category" name="category_id" value="">
                     <input type="hidden" id="hidden-blur-intensity" name="blur_intensity" value="">
                     <input type="hidden" id="hidden-show-blurred" name="show_blurred" value="">
                     <input type="hidden" id="hidden-allow-preview" name="allow_preview" value="">
@@ -665,19 +682,19 @@
                     if (data.success) {
                         isWebhookActive = data.webhook_info.url && data.webhook_info.url.length > 0;
                         statusBadge.textContent = isWebhookActive ? 'Active' : 'Disabled';
-                        statusBadge.className = isWebhookActive ? 'ms-2 badge bg-success' : 'ms-2 badge bg-warning';
+                        statusBadge.className = isWebhookActive ? 'ms-2 badge text-bg-success' : 'ms-2 badge text-bg-warning';
 
                         // Update manual import section visibility
                         updateManualImportVisibility();
                     } else {
                         statusBadge.textContent = 'Error';
-                        statusBadge.className = 'ms-2 badge bg-danger';
+                        statusBadge.className = 'ms-2 badge text-bg-danger';
                     }
                 })
                 .catch(error => {
                     const statusBadge = document.getElementById('webhook-status');
                     statusBadge.textContent = 'Error';
-                    statusBadge.className = 'ms-2 badge bg-danger';
+                    statusBadge.className = 'ms-2 badge text-bg-danger';
                     console.error('Failed to check webhook status:', error);
                 });
         }
@@ -1024,11 +1041,12 @@
         }
 
         // Edit Video Details Functions
-        function editVideoDetails(id, title, description, price, showBlurred, blurIntensity, allowPreview) {
+        function editVideoDetails(id, title, description, price, showBlurred, blurIntensity, allowPreview, categoryId) {
             // Set basic video fields
             document.getElementById('edit-details-title').value = title;
             document.getElementById('edit-details-description').value = description;
             document.getElementById('edit-details-price').value = price;
+            document.getElementById('edit-details-category').value = categoryId;
 
             // Set blur settings - convert string 'true'/'false' to boolean
             const isBlurredEnabled = showBlurred === true || showBlurred === 'true';
@@ -1050,7 +1068,7 @@
         }
 
         // Edit Video Thumbnail Functions
-        function editVideoThumbnail(id, thumbnailPath, thumbnailUrl, thumbnailBlobUrl, title, description, price, blurIntensity, showBlurred, allowPreview) {
+        function editVideoThumbnail(id, thumbnailPath, thumbnailUrl, thumbnailBlobUrl, title, description, price, blurIntensity, showBlurred, allowPreview, categoryId) {
             // Set thumbnail fields
             document.getElementById('edit-thumbnail-url').value = thumbnailUrl || '';
 
@@ -1077,6 +1095,7 @@
             document.getElementById('hidden-title').value = title || '';
             document.getElementById('hidden-description').value = description || '';
             document.getElementById('hidden-price').value = price || '0';
+            document.getElementById('hidden-category').value = categoryId || '1';
             document.getElementById('hidden-blur-intensity').value = blurIntensity || '10';
             document.getElementById('hidden-show-blurred').value = showBlurred === true || showBlurred === 'true' ? '1' : '0';
             document.getElementById('hidden-allow-preview').value = allowPreview === true || allowPreview === 'true' ? '1' : '0';
@@ -1111,6 +1130,7 @@
                     const blurIntensityEl = form.querySelector('[name="blur_intensity"]');
                     const showBlurredEl = form.querySelector('[name="show_blurred"]');
                     const allowPreviewEl = form.querySelector('[name="allow_preview"]');
+                    const categoryEl = form.querySelector('[name="category_id"]');
 
                     if (!titleEl || !priceEl) {
                         throw new Error('Required form fields not found');
@@ -1120,6 +1140,7 @@
                         title: titleEl.value,
                         description: descriptionEl ? descriptionEl.value : '',
                         price: priceEl.value,
+                        category_id: categoryEl ? categoryEl.value : 1,
                         blur_intensity: blurIntensityEl ? blurIntensityEl.value : 10,
                         show_blurred: showBlurredEl ? (showBlurredEl.checked ? 1 : 0) : 0,
                         allow_preview: allowPreviewEl ? (allowPreviewEl.checked ? 1 : 0) : 0,

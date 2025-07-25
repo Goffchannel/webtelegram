@@ -21,7 +21,7 @@
             <tr>
                 <td><strong>Purchase Status:</strong></td>
                 <td>
-                    <span class="badge bg-{{ $purchase->purchase_status === 'completed' ? 'success' : 'warning' }}">
+                    <span class="badge {{ $purchase->purchase_status === 'completed' ? 'text-bg-success' : 'text-bg-warning' }}">
                         {{ ucfirst($purchase->purchase_status) }}
                     </span>
                 </td>
@@ -30,11 +30,11 @@
                 <td><strong>Verification:</strong></td>
                 <td>
                     @if ($purchase->verification_status === 'pending')
-                        <span class="badge bg-warning">Pending</span>
+                        <span class="badge text-bg-warning">Pending</span>
                     @elseif($purchase->verification_status === 'verified')
-                        <span class="badge bg-success">Verified</span>
+                        <span class="badge text-bg-success">Verified</span>
                     @else
-                        <span class="badge bg-danger">Invalid</span>
+                        <span class="badge text-bg-danger">Invalid</span>
                     @endif
                 </td>
             </tr>
@@ -98,13 +98,13 @@
             <div class="card-body">
                 <div class="mb-2">
                     @if ($purchase->delivery_status === 'pending')
-                        <span class="badge bg-info">Pending</span>
+                        <span class="badge text-bg-info">Pending</span>
                     @elseif($purchase->delivery_status === 'delivered')
-                        <span class="badge bg-success">Delivered</span>
+                        <span class="badge text-bg-success">Delivered</span>
                     @elseif($purchase->delivery_status === 'failed')
-                        <span class="badge bg-danger">Failed</span>
+                        <span class="badge text-bg-danger">Failed</span>
                     @else
-                        <span class="badge bg-warning">Retrying</span>
+                        <span class="badge text-bg-warning">Retrying</span>
                     @endif
                 </div>
 
@@ -191,7 +191,7 @@
                     <div class="row mt-2">
                         <div class="col-12">
                             <small class="text-muted"><strong>Delivery Metadata:</strong></small><br>
-                            <pre class="small bg-light p-2 rounded">{{ json_encode($purchase->delivery_metadata, JSON_PRETTY_PRINT) }}</pre>
+                            <pre class="small p-2 rounded">{{ json_encode($purchase->delivery_metadata, JSON_PRETTY_PRINT) }}</pre>
                         </div>
                     </div>
                 @endif

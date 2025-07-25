@@ -7,7 +7,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow">
-                    <div class="card-header bg-warning text-dark">
+                    <div class="card-header">
                         <h4 class="mb-0"><i class="fas fa-times-circle"></i> Payment Cancelled</h4>
                     </div>
                     <div class="card-body text-center">

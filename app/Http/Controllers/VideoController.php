@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Video;
 use App\Models\Setting;
 use App\Models\TelegramBot;
+use App\Models\Category;
 use App\Services\TelegramBotService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +40,14 @@ class VideoController extends Controller
     public function manage()
     {
         try {
-            $videos = Video::orderBy('created_at', 'desc')->paginate(15);
+            $videos = Video::with('category')->orderBy('created_at', 'desc')->paginate(15);
+            $categories = Category::orderBy('name')->get();
+
+            // Initialize $bot array
+            $bot = [
+                'is_configured' => false,
+                'url' => '#',
+            ];
 
             // Get webhook status
             $isWebhookActive = false;
@@ -47,6 +55,7 @@ class VideoController extends Controller
 
             // Get tokens from settings
             $telegramToken = Setting::get('telegram_bot_token');
+            $telegramBotUsername = Setting::get('telegram_bot_username');
             $stripeKey = Setting::get('stripe_key');
             $stripeSecret = Setting::get('stripe_secret');
             $stripeWebhookSecret = Setting::get('stripe_webhook_secret');
@@ -65,6 +74,12 @@ class VideoController extends Controller
                         $isWebhookActive = !empty($webhookInfo['result']['url']);
                         $webhookUrl = $webhookInfo['result']['url'] ?? '';
                     }
+
+                    // Update $bot array with configuration status and URL
+                    if ($telegramBotUsername) {
+                        $bot['is_configured'] = true;
+                        $bot['url'] = "https://t.me/{$telegramBotUsername}";
+                    }
                 }
             } catch (Exception $e) {
                 Log::warning('Failed to get webhook status: ' . $e->getMessage());
@@ -72,6 +87,7 @@ class VideoController extends Controller
 
             return view('admin.videos.manage', compact(
                 'videos',
+                'categories',
                 'isWebhookActive',
                 'webhookUrl',
                 'telegramToken',
@@ -80,7 +96,8 @@ class VideoController extends Controller
                 'stripeWebhookSecret',
                 'vercelBlobToken',
                 'vercelBlobStoreId',
-                'vercelBlobBaseUrl'
+                'vercelBlobBaseUrl',
+                'bot' // Pass the $bot variable to the view
             ));
         } catch (Exception $e) {
             Log::error('Error loading admin videos: ' . $e->getMessage());
@@ -129,6 +146,7 @@ class VideoController extends Controller
                     'title' => 'required|string|max:255',
                     'description' => 'nullable|string|max:2000',
                     'price' => 'required|numeric|min:0|max:9999.99',
+                    'category_id' => 'required|exists:categories,id',
                     'thumbnail_url' => 'nullable|url|max:500',
                     'thumbnail_blob_url' => 'nullable|url|max:500',
                     'blur_intensity' => 'nullable|integer|min:1|max:20',
@@ -168,6 +186,7 @@ class VideoController extends Controller
             if ($request->has('title')) $updateData['title'] = $request->input('title');
             if ($request->has('description')) $updateData['description'] = $request->input('description');
             if ($request->has('price')) $updateData['price'] = (float) $request->input('price');
+            if ($request->has('category_id')) $updateData['category_id'] = (int) $request->input('category_id');
             if ($request->has('blur_intensity')) $updateData['blur_intensity'] = (int) $request->input('blur_intensity');
 
             // Handle external thumbnail URL - store it in thumbnail_path since thumbnail_url column doesn't exist

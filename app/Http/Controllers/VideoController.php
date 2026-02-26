@@ -513,7 +513,7 @@ class VideoController extends Controller
             $response = Http::post("https://api.telegram.org/bot{$botToken}/sendVideo", [
                 'chat_id' => $syncUserTelegramId,
                 'video' => $video->telegram_file_id,
-                'caption' => "🧪 Test Video\n\n📹 {$video->title}\n💰 Price: $" . number_format($video->price, 2) . "\n🆔 ID: {$video->id}"
+                'caption' => "🧪 Test Video\n\n📹 {$video->title}\n💰 Precio: $" . number_format($video->price, 2) . "\n🆔 ID: {$video->id}"
             ]);
 
             if ($response->successful()) {
@@ -1191,10 +1191,10 @@ class VideoController extends Controller
 
                     $this->sendTelegramMessage(
                         $fromUserId,
-                        "✅ Video captured successfully!\n\n" .
-                            "📹 Title: {$caption}\n" .
-                            "💰 Price: $" . number_format($defaultPrice, 2) . "\n" .
-                            "🆔 Video ID: {$videoRecord->id}"
+                        "✅ Video capturado correctamente!\n\n" .
+                            "📹 Titulo: {$caption}\n" .
+                            "💰 Precio: $" . number_format($defaultPrice, 2) . "\n" .
+                            "🆔 ID de video: {$videoRecord->id}"
                     );
 
                     Log::info("Video auto-captured from uploader: {$fromUserId}", [
@@ -1210,9 +1210,9 @@ class VideoController extends Controller
                 if (strtolower($text) === '/start') {
                     $this->sendTelegramMessage(
                         $fromUserId,
-                        "👋 Hello Admin! I'm ready to capture videos.\n\n" .
-                            "🎥 Send me videos and I'll add them to your store!\n" .
-                            "💡 Type /help for more information."
+                        "👋 Hola Admin! Estoy listo para capturar videos.\n\n" .
+                            "🎥 Enviame videos y los agregare a tu tienda!\n" .
+                            "💡 Escribe /help para mas informacion."
                     );
                     return response()->json(['ok' => true]);
                 } elseif (strtolower($text) === '/help') {
@@ -1237,13 +1237,13 @@ class VideoController extends Controller
                     // Non-sync user sent video
                     $this->sendTelegramMessage(
                         $fromUserId,
-                        "Thanks for the video! However, only admin videos are captured automatically. You can use customer commands like /start, /mypurchases, or /getvideo <id> for your purchases! 😊"
+                        "Gracias por el video. Solo los videos del admin o creadores activos se capturan automaticamente.\n\nUsa /start, /mypurchases o /getvideo <id> para tus compras."
                     );
                 } else {
                     // Non-command text from customer
                     $this->sendTelegramMessage(
                         $fromUserId,
-                        "Hello! I'm the video store bot. Use /start to verify purchases, /help for commands, or /mypurchases to see your videos. 🎬"
+                        "Hola. Soy el bot de la tienda de videos.\nUsa /start para verificar compras, /help para comandos o /mypurchases para ver tus videos."
                     );
                 }
             }
@@ -1310,12 +1310,12 @@ class VideoController extends Controller
                 if (count($args) > 0) {
                     $this->handleCustomerGetVideoCommand($chatId, $telegramUserId, $username, $args[0]);
                 } else {
-                    $this->sendTelegramMessage($chatId, "❌ Please provide a video ID. Usage: /getvideo <id>\n\nUse /mypurchases to see your available videos.");
+                    $this->sendTelegramMessage($chatId, "❌ Debes indicar un ID de video. Uso: /getvideo <id>\n\nUsa /mypurchases para ver tus videos disponibles.");
                 }
                 break;
 
             default:
-                $this->sendTelegramMessage($chatId, "❓ Unknown command. Type /help to see available commands.");
+                $this->sendTelegramMessage($chatId, "❓ Comando desconocido. Escribe /help para ver los comandos disponibles.");
         }
     }
 
@@ -1390,15 +1390,15 @@ class VideoController extends Controller
         }
 
         if ($userPurchases->isEmpty()) {
-            $message = "👋 *Welcome to Video Store Bot!*\n\n";
-            $message .= "❌ No purchases found for your account.\n\n";
-            $message .= "🛒 *To purchase videos:*\n";
-            $message .= "1. Visit our website\n";
+            $message = "👋 *Bienvenido al bot de la tienda de videos!*\n\n";
+            $message .= "❌ No se encontraron compras para tu cuenta.\n\n";
+            $message .= "🛒 *Para comprar videos:*\n";
+            $message .= "1. Visita nuestra web\n";
             if ($username) {
-                $message .= "2. Purchase with username: @{$username}\n";
+                $message .= "2. Compra con el usuario: @{$username}\n";
             }
-            $message .= "3. Return here and use /start to access your videos\n\n";
-            $message .= "💡 Type /help for more commands.";
+            $message .= "3. Vuelve aqui y usa /start para acceder a tus videos\n\n";
+            $message .= "💡 Escribe /help para mas comandos.";
 
             $this->sendTelegramMessage($chatId, $message);
             return;
@@ -1443,29 +1443,29 @@ class VideoController extends Controller
 
         // Send summary message
         if ($deliveredCount > 0) {
-            $message = "🎉 *Welcome to Video Store Bot!*\n\n";
-            $message .= "✅ Found and delivered {$deliveredCount} video(s)!\n\n";
+            $message = "🎉 *Bienvenido al bot de la tienda de videos!*\n\n";
+            $message .= "✅ Encontrados y entregados {$deliveredCount} video(s)!\n\n";
 
             foreach ($deliveredVideos as $purchase) {
                 $status = $purchase->delivery_status === 'delivered' ? '✅' : '🆕';
                 $message .= "📹 *{$purchase->video->title}* {$status}\n";
-                $message .= "🆔 Video ID: {$purchase->video_id} | Price: {$purchase->formatted_amount}\n\n";
+                $message .= "🆔 ID de video: {$purchase->video_id} | Precio: {$purchase->formatted_amount}\n\n";
             }
         } else {
-            $message = "👋 *Welcome back to Video Store Bot!*\n\n";
-            $message .= "📋 You have {$alreadyDeliveredCount} video(s) in your library.\n\n";
+            $message = "👋 *Bienvenido de nuevo al bot de la tienda de videos!*\n\n";
+            $message .= "📋 Tienes {$alreadyDeliveredCount} video(s) en tu biblioteca.\n\n";
 
             foreach ($deliveredVideos as $purchase) {
                 $message .= "📹 *{$purchase->video->title}* ✅\n";
-                $message .= "🆔 Video ID: {$purchase->video_id} | Price: {$purchase->formatted_amount}\n\n";
+                $message .= "🆔 ID de video: {$purchase->video_id} | Precio: {$purchase->formatted_amount}\n\n";
             }
         }
 
-        $message .= "🤖 *Available Commands:*\n";
-        $message .= "/mypurchases - See ALL your videos\n";
-        $message .= "/getvideo <id> - Get any video instantly\n";
-        $message .= "/help - Get help\n\n";
-        $message .= "💡 Save this chat - you can download your videos anytime!";
+        $message .= "🤖 *Comandos disponibles:*\n";
+        $message .= "/mypurchases - Ver todos tus videos\n";
+        $message .= "/getvideo <id> - Recibir cualquier video al instante\n";
+        $message .= "/help - Ver ayuda\n\n";
+        $message .= "💡 Guarda este chat: puedes descargar tus videos cuando quieras!";
 
         $this->sendTelegramMessage($chatId, $message);
     }
@@ -1475,25 +1475,25 @@ class VideoController extends Controller
      */
     private function handleCustomerHelpCommand($chatId)
     {
-        $message = "🤖 *Video Store Bot Help*\n\n";
-        $message .= "*Available Commands:*\n";
+        $message = "🤖 *Ayuda del bot de la tienda de videos*\n\n";
+        $message .= "*Comandos disponibles:*\n";
         $message .= "/start - Verify purchases & get videos\n";
         $message .= "/mypurchases - Show ALL purchased videos\n";
         $message .= "/getvideo <id> - Download specific video\n";
         $message .= "/help - Show this help\n\n";
         $message .= "*🎁 Free Videos:*\n";
-        $message .= "Some videos are FREE! Use `/getvideo <ID>` with any free video ID to download instantly - no purchase required!\n\n";
-        $message .= "*How to Purchase:*\n";
-        $message .= "1. Visit our website video store\n";
-        $message .= "2. Choose a video & enter your Telegram username\n";
-        $message .= "3. Complete payment\n";
-        $message .= "4. Return here and type /start to verify\n\n";
-        $message .= "*How to Download:*\n";
-        $message .= "1. Use /mypurchases to see your videos\n";
+        $message .= "Algunos videos son GRATIS. Usa `/getvideo <ID>` con el ID de un video gratis para descargar al instante, sin compra.\n\n";
+        $message .= "Algunos videos son GRATIS. Usa `/getvideo <ID>` con el ID de un video gratis para descargar al instante, sin compra.\n\n";
+        $message .= "1. Visita nuestra web\n";
+        $message .= "2. Elige un video e introduce tu usuario de Telegram\n";
+        $message .= "3. Completa el pago\n";
+        $message .= "4. Vuelve aqui y escribe /start para verificar\n\n";
+        $message .= "*Como descargar:*\n";
+        $message .= "1. Usa /mypurchases para ver tus videos\n";
         $message .= "2. Use `/getvideo <ID>` to download\n";
-        $message .= "3. You have unlimited access!\n\n";
-        $message .= "*Need Support?*\n";
-        $message .= "Contact us if you have issues with purchases or delivery.";
+        $message .= "3. Tienes acceso ilimitado\n\n";
+        $message .= "*Necesitas soporte?*\n";
+        $message .= "Contactanos si tienes problemas con compras o entregas.";
 
         $this->sendTelegramMessage($chatId, $message);
     }
@@ -1504,7 +1504,7 @@ class VideoController extends Controller
     private function handleCustomerMyPurchasesCommand($chatId, $telegramUserId, $username)
     {
         if (!$username) {
-            $this->sendTelegramMessage($chatId, "❌ You need a Telegram username to use this bot. Please set one in your Telegram settings.");
+            $this->sendTelegramMessage($chatId, "❌ Necesitas un usuario de Telegram para usar este bot. Configuralo en ajustes de Telegram.");
             return;
         }
 
@@ -1521,15 +1521,15 @@ class VideoController extends Controller
             ->get();
 
         if ($userPurchases->isEmpty()) {
-            $message = "📋 *Your Purchased Videos*\n\n";
-            $message .= "❌ No purchases found.\n\n";
-            $message .= "🛒 *To purchase videos:*\n";
-            $message .= "1. Visit our website\n";
-            $message .= "2. Purchase with username: @{$username}\n";
-            $message .= "3. Return here and use /start to verify\n\n";
+            $message = "📋 *Tus videos comprados*\n\n";
+            $message .= "❌ No se encontraron compras.\n\n";
+            $message .= "🛒 *Para comprar videos:*\n";
+            $message .= "1. Visita nuestra web\n";
+            $message .= "2. Compra con el usuario: @{$username}\n";
+            $message .= "3. Vuelve aqui y usa /start para verificar\n\n";
             $message .= "💡 Make sure you use the exact username: *{$username}*";
         } else {
-            $message = "📋 *Your Purchased Videos* ({$userPurchases->count()})\n\n";
+            $message = "📋 *Tus videos comprados* ({$userPurchases->count()})\n\n";
 
             foreach ($userPurchases as $purchase) {
                 $video = $purchase->video;
@@ -1537,12 +1537,12 @@ class VideoController extends Controller
 
                 $message .= "🎬 *{$video->title}*\n";
                 $message .= "💰 {$purchase->formatted_amount} {$deliveryStatus}\n";
-                $message .= "🆔 Video ID: *{$video->id}*\n";
-                $message .= "📅 Purchased: {$purchase->created_at->format('M d, Y')}\n";
+                $message .= "🆔 ID de video: *{$video->id}*\n";
+                $message .= "📅 Comprado: {$purchase->created_at->format('M d, Y')}\n";
                 $message .= "🔗 Use: `/getvideo {$video->id}`\n\n";
             }
 
-            $message .= "💡 *Tip:* Use `/getvideo <ID>` to download any video instantly!";
+            $message .= "💡 *Consejo:* Use `/getvideo <ID>` to download any video instantly!";
         }
 
         $this->sendTelegramMessage($chatId, $message);
@@ -1561,7 +1561,7 @@ class VideoController extends Controller
         ]);
 
         if (!$username) {
-            $this->sendTelegramMessage($chatId, "❌ You need a Telegram username to use this bot. Please set one in Telegram settings.");
+            $this->sendTelegramMessage($chatId, "❌ Necesitas un usuario de Telegram para usar este bot. Configuralo en ajustes de Telegram.");
             return;
         }
 
@@ -1569,7 +1569,7 @@ class VideoController extends Controller
         $video = \App\Models\Video::find($videoId);
 
         if (!$video) {
-            $this->sendTelegramMessage($chatId, "❌ *Video Not Found*\n\nVideo #{$videoId} doesn't exist.\n\nUse /mypurchases to see available videos.");
+            $this->sendTelegramMessage($chatId, "❌ *Video no encontrado*\n\nEl video #{$videoId} no existe.\n\nUsa /mypurchases para ver videos disponibles.");
             return;
         }
 
@@ -1618,7 +1618,7 @@ class VideoController extends Controller
         ]);
 
         if (!$purchase) {
-            $this->sendTelegramMessage($chatId, "❌ *Access Denied*\n\nYou haven't purchased video #{$videoId} ({$video->formatted_price}).\n\nUse /mypurchases to see available videos or /start to check for new purchases.");
+            $this->sendTelegramMessage($chatId, "❌ *Acceso denegado*\n\nNo has comprado el video #{$videoId} ({$video->formatted_price}).\n\nUsa /mypurchases para ver videos disponibles o /start para revisar compras nuevas.");
             return;
         }
 
@@ -1675,10 +1675,10 @@ class VideoController extends Controller
                         'response' => $response->body()
                     ]);
 
-                    $this->sendTelegramMessage($chatId, "❌ *Delivery Error*\n\nSorry, there was an issue delivering the free video. Please try again or contact support.");
+                    $this->sendTelegramMessage($chatId, "❌ *Error de entrega*\n\nHubo un problema al entregar el video gratis. Intentalo de nuevo o contacta soporte.");
                 }
             } else {
-                $this->sendTelegramMessage($chatId, "❌ *Video Unavailable*\n\nThis free video is not ready for delivery yet. Please try again later.");
+                $this->sendTelegramMessage($chatId, "❌ *Video no disponible*\n\nEste video gratis aun no esta listo para entrega. Intentalo mas tarde.");
             }
         } catch (\Exception $e) {
             Log::error('Exception during free video delivery', [
@@ -1687,7 +1687,7 @@ class VideoController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            $this->sendTelegramMessage($chatId, "❌ *Delivery Error*\n\nSorry, there was an issue delivering the free video. Please try again or contact support.");
+            $this->sendTelegramMessage($chatId, "❌ *Error de entrega*\n\nHubo un problema al entregar el video gratis. Intentalo de nuevo o contacta soporte.");
         }
     }
 
@@ -1709,8 +1709,8 @@ class VideoController extends Controller
                     'video' => $video->telegram_file_id,
                     'caption' => "🎬 *{$video->title}*\n\n" .
                         "📝 {$video->description}\n\n" .
-                        "✅ Delivered successfully!\n" .
-                        "💡 Use /getvideo {$video->id} anytime for unlimited access.",
+                        "✅ Entregado correctamente!\n" .
+                        "💡 Usa /getvideo {$video->id} cuando quieras para acceso ilimitado.",
                     'parse_mode' => 'Markdown'
                 ]);
 
@@ -1728,11 +1728,11 @@ class VideoController extends Controller
                         'response' => $response->body()
                     ]);
 
-                    $this->sendTelegramMessage($chatId, "❌ Failed to deliver video. Our team has been notified. Please try again in a few minutes.");
+                    $this->sendTelegramMessage($chatId, "❌ No se pudo entregar el video. El equipo fue notificado. Intentalo de nuevo en unos minutos.");
                 }
             } else {
                 Log::error('Video has no telegram_file_id', ['video_id' => $video->id]);
-                $this->sendTelegramMessage($chatId, "❌ Video file not available. Our team has been notified.");
+                $this->sendTelegramMessage($chatId, "❌ El archivo de video no esta disponible. El equipo fue notificado.");
             }
         } catch (\Exception $e) {
             Log::error('Video delivery error', [
@@ -1740,7 +1740,7 @@ class VideoController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            $this->sendTelegramMessage($chatId, "❌ Delivery error occurred. Please try again or contact support.");
+            $this->sendTelegramMessage($chatId, "❌ Ocurrio un error de entrega. Intentalo de nuevo o contacta soporte.");
         }
     }
 

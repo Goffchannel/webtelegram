@@ -1,8 +1,11 @@
 @extends('layout')
 
-@section('title', 'Purchase Successful')
+@section('title', 'Compra completada')
 
 @section('content')
+    @php
+        $isManualCreatorFlow = $purchase->creator_id && $purchase->creator && !$purchase->creator->is_admin;
+    @endphp
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -10,7 +13,7 @@
                     <div class="card-header">
                         <h4 class="mb-0">
                             <i class="fas fa-check-circle me-2"></i>
-                            Purchase Successful!
+                            Compra completada
                         </h4>
                     </div>
                     <div class="card-body">
@@ -18,9 +21,9 @@
                         <div class="alert alert-success">
                             <h5 class="alert-heading">
                                 <i class="fas fa-shopping-cart me-2"></i>
-                                Payment Confirmed
+                                Pago confirmado
                             </h5>
-                            <p class="mb-0">Your payment has been successfully processed. Your purchase details are below.
+                            <p class="mb-0">Tu pago se proceso correctamente. Debajo tienes los detalles de tu compra.
                             </p>
                         </div>
 
@@ -31,7 +34,7 @@
                                     <div class="card-body">
                                         <h6 class="card-title">
                                             <i class="fas fa-video me-2"></i>
-                                            Video Details
+                                            Detalles del video
                                         </h6>
                                         <h5>{{ $purchase->video->title }}</h5>
                                         @if ($purchase->video->description)
@@ -47,11 +50,11 @@
                                     <div class="card-body">
                                         <h6 class="card-title">
                                             <i class="fas fa-receipt me-2"></i>
-                                            Purchase Information
+                                            Informacion de la compra
                                         </h6>
-                                        <p><strong>Purchase ID:</strong> {{ $purchase->purchase_uuid }}</p>
+                                        <p><strong>ID de compra:</strong> {{ $purchase->purchase_uuid }}</p>
                                         <p><strong>Date:</strong> {{ $purchase->created_at->format('M d, Y H:i:s') }}</p>
-                                        <p><strong>Status:</strong>
+                                        <p><strong>Estado:</strong>
                                             <span class="badge bg-success">{{ ucfirst($purchase->purchase_status) }}</span>
                                         </p>
                                         @if ($purchase->customer_email)
@@ -67,66 +70,66 @@
                             <div class="card-body">
                                 <h6 class="card-title">
                                     <i class="fas fa-truck me-2"></i>
-                                    Delivery Status
+                                    Estado de entrega
                                 </h6>
 
                                 @if ($purchase->verification_status === 'pending')
                                     <div class="alert alert-warning">
                                         <h6 class="alert-heading">
                                             <i class="fas fa-clock me-2"></i>
-                                            @if($purchase->creator_id)
+                                            @if($isManualCreatorFlow)
                                                 Pendiente de aprobacion del creador
                                             @else
-                                                Waiting for Telegram Verification
+                                                Esperando verificacion en Telegram
                                             @endif
                                         </h6>
-                                        @if($purchase->creator_id)
+                                        @if($isManualCreatorFlow)
                                             <p class="mb-2">Tu solicitud fue enviada al creador. Cuando valide tu pago, el acceso quedara activo para tu usuario de Telegram.</p>
                                         @else
-                                            <p class="mb-2">To receive your video, please follow these steps:</p>
+                                            <p class="mb-2">Para recibir tu video, sigue estos pasos:</p>
                                         @endif
                                         <ol>
-                                            @if($purchase->creator_id)
+                                            @if($isManualCreatorFlow)
                                                 <li>Guarda este enlace de compra para volver luego:
                                                     <code>{{ route('purchase.view', $purchase->purchase_uuid) }}</code>
                                                 </li>
                                                 <li>Cuando el creador apruebe, vuelve a este mismo enlace y sigue las instrucciones de entrega.</li>
                                             @endif
                                             @if(!$purchase->creator_id)
-                                                <li>Open Telegram and search for our bot</li>
-                                                <li>Send the command <code>/start</code> to the bot</li>
+                                                <li>Abre Telegram y busca nuestro bot</li>
+                                                <li>Envia el comando <code>/start</code> al bot</li>
                                             @endif
                                             @if ($purchase->telegram_username)
-                                                <li>Make sure your Telegram username is:
+                                                <li>Asegurate de que tu usuario de Telegram es:
                                                     <strong><span>@</span><span id="telegram-username-display">{{ $purchase->telegram_username }}</span></strong>
                                                     <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="editTelegramUsername()">
-                                                        <i class="fas fa-edit"></i> Edit
+                                                        <i class="fas fa-edit"></i> Editar
                                                     </button>
                                                 </li>
                                             @endif
                                         </ol>
-                                        @if($purchase->creator_id)
+                                        @if($isManualCreatorFlow)
                                             <small class="text-muted">Si el creador rechaza el pago, deberas contactar directamente con ese creador para cualquier reembolso. Si tienes problemas, usa el boton "Reportar creador".</small>
                                         @else
                                             <small class="text-muted">
-                                                Once you start the bot with the same username you used during purchase,
-                                                your video will be automatically delivered to you. This page will automatically
-                                                refresh when your video is delivered.
+                                                Cuando inicies el bot con el mismo usuario usado en la compra,
+                                                tu video se entregara automaticamente. Esta pagina se actualiza sola
+                                                cuando el video se entregue.
                                             </small>
 
                                             <!-- Bot Conversation Button -->
                                             <div class="mt-3 text-center">
                                                 @if($bot['is_configured'])
                                                     <a href="{{ $bot['url'] }}?start=getvideo_{{ $purchase->video_id }}" target="_blank" class="btn btn-success btn-lg">
-                                                    <i class="fab fa-telegram me-2"></i>Get Your Video Now
+                                                    <i class="fab fa-telegram me-2"></i>Recibir video ahora
                                                 </a>
                                                 @else
                                                     <a href="{{ route('login') }}" class="btn btn-warning btn-lg">
-                                                        <i class="fas fa-cog me-2"></i>Bot Setup Required
+                                                        <i class="fas fa-cog me-2"></i>Falta configurar bot
                                                     </a>
                                                 @endif
                                                 <p class="text-muted mt-2 mb-0">
-                                                    <small><i class="fas fa-info-circle me-1"></i>Click this button to get your video via `/getvideo {{ $purchase->video_id }}` command!</small>
+                                                    <small><i class="fas fa-info-circle me-1"></i>Pulsa este boton para recibir tu video con el comando <code>/getvideo {{ $purchase->video_id }}</code>.</small>
                                                 </p>
                                             </div>
                                         @endif
@@ -136,29 +139,28 @@
                                         <div class="alert alert-success">
                                             <h6 class="alert-heading">
                                                 <i class="fas fa-check-circle me-2"></i>
-                                                Video Delivered!
+                                                Video entregado
                                             </h6>
-                                            <p class="mb-1">Your video has been successfully delivered to your Telegram
-                                                account.</p>
+                                            <p class="mb-1">Tu video se entrego correctamente en tu cuenta de Telegram.</p>
                                             @if($purchase->creator_id)
                                                 <p class="mb-1">Si necesitas volver a recibirlo, abre el bot y usa <code>/getvideo {{ $purchase->video_id }}</code>.</p>
                                             @endif
-                                            <small class="text-muted">Delivered on:
+                                            <small class="text-muted">Entregado el:
                                                 {{ $purchase->delivered_at->format('M d, Y H:i:s') }}</small>
 
                                             <!-- Bot Access Button -->
                                             <div class="mt-3">
                                                 @if($bot['is_configured'])
                                                     <a href="{{ $bot['url'] }}" target="_blank" class="btn btn-success">
-                                                    <i class="fab fa-telegram me-2"></i>Open Bot Chat
+                                                    <i class="fab fa-telegram me-2"></i>Abrir chat del bot
                                                 </a>
                                                 @else
                                                     <a href="{{ route('login') }}" class="btn btn-warning">
-                                                        <i class="fas fa-cog me-2"></i>Setup Required
+                                                        <i class="fas fa-cog me-2"></i>Falta configuracion
                                                     </a>
                                                 @endif
                                                 <p class="text-muted mt-2 mb-0">
-                                                    <small><i class="fas fa-video me-1"></i>Use <code>/getvideo {{ $purchase->video_id }}</code> anytime to get your video again!</small>
+                                                    <small><i class="fas fa-video me-1"></i>Usa <code>/getvideo {{ $purchase->video_id }}</code> cuando quieras para recibirlo otra vez.</small>
                                                 </p>
                                             </div>
                                         </div>
@@ -166,9 +168,9 @@
                                         <div class="alert alert-info">
                                             <h6 class="alert-heading">
                                                 <i class="fas fa-spinner fa-spin me-2"></i>
-                                                Preparing Delivery
+                                                Preparando entrega
                                             </h6>
-                                            @if($purchase->creator_id)
+                                            @if($isManualCreatorFlow)
                                                 <p class="mb-2">Pago aprobado por el creador. Sigue estos pasos para recibir tu video:</p>
                                                 <ol class="mb-2">
                                                     <li>Abre Telegram y entra al bot.</li>
@@ -177,18 +179,16 @@
                                                 </ol>
                                                 <small class="text-muted">Si no llega en 1-2 minutos, actualiza esta pagina y vuelve a ejecutar <code>/getvideo {{ $purchase->video_id }}</code>.</small>
                                             @else
-                                                <p class="mb-0">Your video is being prepared for delivery. You'll receive it
-                                                    shortly on Telegram.</p>
+                                                <p class="mb-0">Tu video se esta preparando para entrega. Lo recibiras en breve en Telegram.</p>
                                             @endif
                                         </div>
                                     @elseif($purchase->delivery_status === 'failed')
                                         <div class="alert alert-danger">
                                             <h6 class="alert-heading">
                                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                                Delivery Issue
+                                                Problema de entrega
                                             </h6>
-                                            <p class="mb-1">There was an issue delivering your video. Our team has been
-                                                notified.</p>
+                                            <p class="mb-1">Hubo un problema al entregar tu video. El equipo ya fue notificado.</p>
                                             @if ($purchase->delivery_notes)
                                                 <small class="text-muted">{{ $purchase->delivery_notes }}</small>
                                             @endif
@@ -198,7 +198,7 @@
                             </div>
                         </div>
 
-                        @if($purchase->creator_id)
+                        @if($isManualCreatorFlow)
                             <div class="card mb-3 border-danger">
                                 <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                                     <div>
@@ -216,14 +216,14 @@
                         <div class="text-center">
                             <a href="{{ route('videos.index') }}" class="btn btn-primary">
                                 <i class="fas fa-arrow-left me-2"></i>
-                                Browse More Videos
+                                Ver mas videos
                             </a>
                         </div>
 
                         <!-- Support Information -->
                         <div class="mt-4 text-center">
                             <small class="text-muted">
-                                Need help? Contact our support team with your Purchase ID:
+                                Necesitas ayuda? Contacta soporte con tu ID de compra:
                                 <strong>{{ $purchase->purchase_uuid }}</strong>
                             </small>
                         </div>
@@ -238,36 +238,36 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Telegram Username</h5>
+                    <h5 class="modal-title">Editar usuario de Telegram</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editUsernameForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="new_telegram_username" class="form-label">Telegram Username</label>
+                            <label for="new_telegram_username" class="form-label">Usuario de Telegram</label>
                             <div class="input-group">
                                 <span class="input-group-text">@</span>
                                 <input type="text" class="form-control" id="new_telegram_username"
                                        name="telegram_username" value="{{ $purchase->telegram_username }}" required>
                             </div>
-                            <div class="form-text">Enter your correct Telegram username (without the @ symbol)</div>
+                            <div class="form-text">Escribe tu usuario correcto de Telegram (sin @)</div>
                         </div>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>Important:</strong> Make sure this matches exactly with your Telegram username.
-                            You'll need to contact our bot with this username to receive your video.
+                            <strong>Importante:</strong> Debe coincidir exactamente con tu usuario de Telegram.
+                            Tienes que escribir al bot con ese mismo usuario para recibir el video.
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Username</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Actualizar usuario</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    @if($purchase->creator_id)
+    @if($isManualCreatorFlow)
         <div class="modal fade" id="reportCreatorModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -361,7 +361,7 @@
             const originalText = submitButton.innerHTML;
 
             // Show loading state
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Actualizando...';
             submitButton.disabled = true;
 
             fetch(`/purchase/{{ $purchase->purchase_uuid }}/update-username`, {
@@ -378,17 +378,17 @@
                     document.getElementById('telegram-username-display').textContent = data.username;
 
                     // Show success message
-                    showAlert('success', 'Telegram username updated successfully!');
+                    showAlert('success', 'Usuario de Telegram actualizado correctamente.');
 
                     // Close modal
                     bootstrap.Modal.getInstance(document.getElementById('editUsernameModal')).hide();
                 } else {
-                    showAlert('error', data.message || 'Failed to update username');
+                    showAlert('error', data.message || 'No se pudo actualizar el usuario');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('error', 'An error occurred while updating the username');
+                showAlert('error', 'Ocurrio un error al actualizar el usuario');
             })
             .finally(() => {
                 // Reset button state
@@ -415,7 +415,7 @@
             }, 5000);
         }
 
-        @if($purchase->creator_id)
+        @if($isManualCreatorFlow)
         function openCreatorReportModal() {
             new bootstrap.Modal(document.getElementById('reportCreatorModal')).show();
         }

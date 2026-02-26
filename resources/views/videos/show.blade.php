@@ -22,7 +22,7 @@
                                             @if ($video->allow_preview)
                                                 Click to preview •
                                             @endif
-                                            Purchase to see full video
+                                            Compra para ver el video completo
                                         </div>
                                     </div>
                                 </div>
@@ -74,12 +74,12 @@
 
                                         @if($bot['is_configured'])
                                             <a href="{{ $bot['url'] }}?start=getvideo_{{ $video->id }}" target="_blank" class="btn btn-success btn-lg mb-3">
-                                            <i class="fab fa-telegram me-2"></i>Get Free Video Now
+                                            <i class="fab fa-telegram me-2"></i>Recibir video gratis ahora
                                         </a>
 
                                         <div class="mt-3">
                                             <small class="text-muted">
-                                                <strong>Manual Steps:</strong><br>
+                                                <strong>Pasos manuales:</strong><br>
                                                     1. Start chat with <a href="{{ $bot['url'] }}" target="_blank">{{ $bot['username'] }}</a><br>
                                                 2. Send command: <code>/getvideo {{ $video->id }}</code><br>
                                                 3. Get your video instantly!
@@ -87,11 +87,11 @@
                                         </div>
                                         @else
                                             <div class="alert alert-warning">
-                                                <i class="fas fa-cog"></i> <strong>Bot Setup Required</strong><br>
-                                                The admin needs to configure the Telegram bot before videos can be delivered.
+                                                <i class="fas fa-cog"></i> <strong>Falta configurar el bot</strong><br>
+                                                El admin debe configurar el bot de Telegram antes de poder entregar videos.
                                                 <div class="mt-2">
                                                     <a href="{{ route('login') }}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-cog"></i> Admin Setup
+                                                        <i class="fas fa-cog"></i> Configuracion admin
                                                     </a>
                                                 </div>
                                             </div>
@@ -104,13 +104,13 @@
                                             <i class="fas fa-shopping-cart"></i> Comprar al creador
                                         </a>
                                     @else
-                                        <a href="{{ route('payment.form', $video) }}" class="btn btn-success btn-lg mb-3">
-                                            <i class="fas fa-shopping-cart"></i> Purchase Now
+                                    <a href="{{ route('payment.form', $video) }}" class="btn btn-success btn-lg mb-3">
+                                            <i class="fas fa-shopping-cart"></i> Comprar ahora
                                         </a>
                                     @endif
                                     <br>
                                     <a href="{{ route('videos.index') }}" class="btn btn-outline-primary">
-                                        <i class="fas fa-arrow-left"></i> Back to Store
+                                        <i class="fas fa-arrow-left"></i> Volver a la tienda
                                     </a>
                                 @endif
                             @else
@@ -119,7 +119,7 @@
                                     soon.
                                 </div>
                                 <a href="{{ route('videos.index') }}" class="btn btn-outline-primary">
-                                    <i class="fas fa-arrow-left"></i> Back to Store
+                                    <i class="fas fa-arrow-left"></i> Volver a la tienda
                                 </a>
                             @endif
                         </div>

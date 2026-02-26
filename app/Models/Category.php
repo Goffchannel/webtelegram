@@ -17,9 +17,14 @@ class Category extends Model
     protected $fillable = [
         'name',
         'creator_id',
+        'is_hidden',
         'image_path',
         'image_url',
         'image_blob_url',
+    ];
+
+    protected $casts = [
+        'is_hidden' => 'boolean',
     ];
 
     /**

@@ -43,7 +43,7 @@
                             @if ($video->creator && $video->creator->isCreatorActive() && $video->creator->creator_slug)
                                 <p class="mb-3">
                                     <span class="badge text-bg-secondary">Creador: {{ $video->creator->creator_store_name ?? $video->creator->name }}</span>
-                                    <a class="ms-2" href="{{ route('creator.storefront', $video->creator->creator_slug) }}">Ver tienda</a>
+                                    <a class="ms-2" href="{{ route('creator.storefront.categories', $video->creator->creator_slug) }}">Ver tienda</a>
                                 </p>
                             @endif
 
@@ -98,7 +98,7 @@
                                         @endif
                                     </div>
                                 @else
-                                    @if ($video->creator && $video->creator->isCreatorActive() && $video->creator->creator_slug)
+                                    @if ($video->creator && !$video->creator->is_admin && $video->creator->isCreatorActive() && $video->creator->creator_slug)
                                         <a href="{{ route('creator.checkout.form', ['creator' => $video->creator->creator_slug, 'video' => $video->id]) }}"
                                             class="btn btn-success btn-lg mb-3">
                                             <i class="fas fa-shopping-cart"></i> Comprar al creador

@@ -60,9 +60,15 @@
                                 <i class="fas fa-download"></i> Get Free Video
                             </a>
                         @else
-                            <a href="{{ route('creator.checkout.form', ['creator' => $creator->creator_slug, 'video' => $video->id]) }}" class="btn btn-primary w-100">
-                                <i class="fas fa-shopping-cart"></i> Comprar video
-                            </a>
+                            @if($creator->is_admin)
+                                <a href="{{ route('payment.form', $video) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-shopping-cart"></i> Comprar con Stripe
+                                </a>
+                            @else
+                                <a href="{{ route('creator.checkout.form', ['creator' => $creator->creator_slug, 'video' => $video->id]) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-shopping-cart"></i> Comprar video
+                                </a>
+                            @endif
                         @endif
                     @else
                         <button class="btn btn-secondary w-100" disabled>

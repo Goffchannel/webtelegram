@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use VercelBlobPhp\Client as BlobClient;
@@ -19,8 +20,26 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::withCount('videos')->orderBy('name')->get();
-        return view('admin.categories.manage', compact('categories'));
+        $creators = User::query()
+            ->whereNotNull('creator_slug')
+            ->where(function ($query) {
+                $query->where('is_creator', true)->orWhere('is_admin', true);
+            })
+            ->withCount(['creatorCategories as categories_count'])
+            ->orderByRaw('COALESCE(creator_store_name, name) asc')
+            ->get();
+
+        return view('admin.categories.manage', compact('creators'));
+    }
+
+    public function showCreator(User $creator)
+    {
+        $categories = Category::where('creator_id', $creator->id)
+            ->withCount('videos')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.categories.creator', compact('creator', 'categories'));
     }
 
     /**
@@ -29,15 +48,16 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, User $creator)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
+            'name' => 'required|string|max:255|unique:categories,name,NULL,id,creator_id,' . $creator->id,
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image_url' => 'nullable|url',
         ]);
 
         $category = new Category();
+        $category->creator_id = $creator->id;
         $category->name = $request->name;
 
         if ($request->hasFile('image')) {
@@ -48,7 +68,7 @@ class CategoryController extends Controller
 
         $category->save();
 
-        return redirect()->route('admin.categories.manage')->with('success', 'Category created successfully.');
+        return redirect()->route('admin.categories.creator', $creator)->with('success', 'Category created successfully.');
     }
 
 
@@ -59,10 +79,14 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, User $creator, Category $category)
     {
+        if ((int) $category->creator_id !== (int) $creator->id) {
+            return response()->json(['success' => false, 'message' => 'Category does not belong to selected creator.'], 422);
+        }
+
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id . ',id,creator_id,' . $creator->id,
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image_url' => 'nullable|url',
         ]);
@@ -90,23 +114,39 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy(User $creator, Category $category)
     {
-        // Do not delete category with ID 1 (General)
-        if ($category->id === 1) {
-            return response()->json(['success' => false, 'message' => 'Cannot delete the default General category.'], 403);
+        if ((int) $category->creator_id !== (int) $creator->id) {
+            return response()->json(['success' => false, 'message' => 'Category does not belong to selected creator.'], 422);
         }
 
-        // Move videos to the 'General' category before deleting
-        $generalCategory = Category::find(1);
-        if ($generalCategory) {
-            $category->videos()->update(['category_id' => $generalCategory->id]);
-        }
+        // Move videos to creator's "General" category if it exists, otherwise null.
+        $generalCategory = Category::where('creator_id', $creator->id)->where('name', 'General')->first();
+        $newCategoryId = $generalCategory && $generalCategory->id !== $category->id ? $generalCategory->id : null;
+        $category->videos()->update(['category_id' => $newCategoryId]);
 
         $this->deleteImage($category);
         $category->delete();
 
         return response()->json(['success' => true, 'message' => 'Category deleted successfully.']);
+    }
+
+    public function toggleHide(User $creator, Category $category)
+    {
+        if ((int) $category->creator_id !== (int) $creator->id) {
+            return response()->json(['success' => false, 'message' => 'Category does not belong to selected creator.'], 422);
+        }
+
+        $category->is_hidden = !$category->is_hidden;
+        $category->save();
+
+        return response()->json([
+            'success' => true,
+            'is_hidden' => $category->is_hidden,
+            'message' => $category->is_hidden
+                ? 'Categoria marcada como HIDE. No se mostrara en la tienda publica.'
+                : 'Categoria visible en la tienda publica.',
+        ]);
     }
 
     private function uploadImage(Request $request, Category $category)

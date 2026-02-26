@@ -38,7 +38,7 @@ class PaymentController extends Controller
      */
     public function form(Video $video)
     {
-        if ($video->creator_id && $video->creator && $video->creator->isCreatorActive() && $video->creator->creator_slug) {
+        if ($video->creator_id && $video->creator && !$video->creator->is_admin && $video->creator->isCreatorActive() && $video->creator->creator_slug) {
             return redirect()->route('creator.checkout.form', [
                 'creator' => $video->creator->creator_slug,
                 'video' => $video->id,

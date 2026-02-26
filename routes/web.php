@@ -115,9 +115,11 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
 
     // Category management routes
     Route::get('/admin/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('admin.categories.manage');
-    Route::post('/admin/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('admin.categories.store');
-    Route::post('/admin/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('admin.categories.update');
-    Route::delete('/admin/categories/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+    Route::get('/admin/categories/{creator}', [\App\Http\Controllers\Admin\CategoryController::class, 'showCreator'])->name('admin.categories.creator');
+    Route::post('/admin/categories/{creator}', [\App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::post('/admin/categories/{creator}/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{creator}/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+    Route::post('/admin/categories/{creator}/{category}/toggle-hide', [\App\Http\Controllers\Admin\CategoryController::class, 'toggleHide'])->name('admin.categories.toggle-hide');
 
     // Telegram Bot Settings routes
     Route::get('/admin/settings/telegram-bot', [\App\Http\Controllers\SettingController::class, 'telegramBot'])->name('settings.telegram-bot');

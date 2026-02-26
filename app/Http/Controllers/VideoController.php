@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Exception;
 use VercelBlobPhp\Client as BlobClient;
 use VercelBlobPhp\CommonCreateBlobOptions;
@@ -53,6 +54,20 @@ class VideoController extends Controller
         );
 
         return $category->id;
+    }
+
+    private function generateUniqueCreatorSlug(string $name, int $userId): string
+    {
+        $base = Str::slug($name) ?: 'adminuser';
+        $slug = $base;
+        $i = 1;
+
+        while (User::where('creator_slug', $slug)->where('id', '!=', $userId)->exists()) {
+            $slug = $base . '-' . $i;
+            $i++;
+        }
+
+        return $slug;
     }
 
     /**
@@ -1100,18 +1115,47 @@ class VideoController extends Controller
             ]);
 
             $syncUserTelegramId = Setting::get('sync_user_telegram_id');
+            $isSyncUser = ($fromUserId == $syncUserTelegramId);
+
             $creatorUser = User::where('telegram_user_id', (string) $fromUserId)
                 ->where('is_creator', true)
                 ->where('creator_subscription_status', 'active')
                 ->first();
-            $isSyncUser = ($fromUserId == $syncUserTelegramId);
+
+            $ownerCreator = User::where('telegram_user_id', (string) $fromUserId)
+                ->where('is_admin', true)
+                ->first();
+
+            if (!$ownerCreator && $isSyncUser) {
+                $ownerCreator = User::where('is_admin', true)->orderBy('id')->first();
+            }
+
+            if ($ownerCreator) {
+                $ownerUpdates = [
+                    'is_creator' => true,
+                    'creator_subscription_status' => 'active',
+                ];
+
+                if (!$ownerCreator->creator_slug) {
+                    $ownerUpdates['creator_slug'] = $this->generateUniqueCreatorSlug($ownerCreator->name ?: 'AdminUser', $ownerCreator->id);
+                }
+                if (!$ownerCreator->creator_store_name) {
+                    $ownerUpdates['creator_store_name'] = $ownerCreator->name ?: 'AdminUser';
+                }
+
+                if (!empty($ownerUpdates)) {
+                    $ownerCreator->update($ownerUpdates);
+                }
+            }
+
             $isActiveCreator = $creatorUser !== null;
+            $uploaderCreator = $isActiveCreator ? $creatorUser : ($isSyncUser ? $ownerCreator : null);
 
             Log::info('Sync user check', [
                 'sync_user_telegram_id' => $syncUserTelegramId,
                 'is_sync_user' => $isSyncUser,
                 'is_active_creator' => $isActiveCreator,
-                'creator_id' => $creatorUser?->id,
+                'creator_id' => $uploaderCreator?->id,
             ]);
 
             // **UPLOAD FLOW** - Handle video uploads from admin sync user or active creators
@@ -1141,8 +1185,8 @@ class VideoController extends Controller
                         'description' => "Auto-captured from Telegram",
                         'telegram_file_id' => $fileId,
                         'price' => $defaultPrice,
-                        'creator_id' => $creatorUser?->id,
-                        'category_id' => $this->resolveDefaultCategoryId($creatorUser),
+                        'creator_id' => $uploaderCreator?->id,
+                        'category_id' => $this->resolveDefaultCategoryId($uploaderCreator),
                     ]);
 
                     $this->sendTelegramMessage(
@@ -1156,7 +1200,7 @@ class VideoController extends Controller
                     Log::info("Video auto-captured from uploader: {$fromUserId}", [
                         'video_id' => $videoRecord->id,
                         'file_id' => $fileId,
-                        'creator_id' => $creatorUser?->id,
+                        'creator_id' => $uploaderCreator?->id,
                     ]);
 
                     return response()->json(['ok' => true]);

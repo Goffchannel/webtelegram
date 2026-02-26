@@ -12,10 +12,26 @@ class CategoryController extends Controller
     public function index()
     {
         $creators = User::query()
-            ->where('is_creator', true)
-            ->where('creator_subscription_status', 'active')
             ->whereNotNull('creator_slug')
-            ->withCount('creatorVideos as videos_count')
+            ->where(function ($query) {
+                $query->where(function ($inner) {
+                    $inner->where('is_creator', true)
+                        ->where('creator_subscription_status', 'active');
+                })->orWhere(function ($inner) {
+                    $inner->where('is_admin', true)
+                        ->where('is_creator', true);
+                });
+            })
+            ->whereHas('creatorVideos', function ($query) {
+                $query->whereHas('category', function ($categoryQuery) {
+                    $categoryQuery->where('is_hidden', false);
+                });
+            })
+            ->withCount(['creatorVideos as videos_count' => function ($query) {
+                $query->whereHas('category', function ($categoryQuery) {
+                    $categoryQuery->where('is_hidden', false);
+                });
+            }])
             ->with('latestCreatorVideo')
             ->orderByRaw('COALESCE(creator_store_name, name) asc')
             ->get();

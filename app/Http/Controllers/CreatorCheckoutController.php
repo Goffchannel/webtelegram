@@ -11,8 +11,12 @@ class CreatorCheckoutController extends Controller
 {
     public function form(User $creator, Video $video)
     {
-        if ($video->creator_id !== $creator->id || !$creator->is_creator || !$creator->subscribed('creator')) {
+        if ($video->creator_id !== $creator->id || !$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
             abort(404);
+        }
+
+        if ($creator->is_admin) {
+            return redirect()->route('payment.form', $video);
         }
 
         $methods = $creator->creator_payment_methods ?? [];
@@ -22,8 +26,12 @@ class CreatorCheckoutController extends Controller
 
     public function submit(Request $request, User $creator, Video $video)
     {
-        if ($video->creator_id !== $creator->id || !$creator->is_creator || !$creator->subscribed('creator')) {
+        if ($video->creator_id !== $creator->id || !$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
             abort(404);
+        }
+
+        if ($creator->is_admin) {
+            return redirect()->route('payment.form', $video);
         }
 
         $validated = $request->validate([

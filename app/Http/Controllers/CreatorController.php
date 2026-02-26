@@ -20,11 +20,12 @@ class CreatorController extends Controller
 {
     public function storefront(User $creator)
     {
-        if (!$creator->is_creator || !$creator->subscribed('creator')) {
+        if (!$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
             abort(404);
         }
 
         $categories = Category::where('creator_id', $creator->id)
+            ->where('is_hidden', false)
             ->withCount(['videos' => function ($query) use ($creator) {
                 $query->where('creator_id', $creator->id);
             }])
@@ -36,7 +37,7 @@ class CreatorController extends Controller
 
     public function storefrontCategory(User $creator, Category $category)
     {
-        if (!$creator->is_creator || !$creator->subscribed('creator')) {
+        if (!$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
             abort(404);
         }
 

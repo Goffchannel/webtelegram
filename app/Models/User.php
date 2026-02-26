@@ -68,7 +68,11 @@ class User extends Authenticatable
 
     public function latestCreatorVideo()
     {
-        return $this->hasOne(Video::class, 'creator_id')->latestOfMany();
+        return $this->hasOne(Video::class, 'creator_id')
+            ->whereHas('category', function ($query) {
+                $query->where('is_hidden', false);
+            })
+            ->latestOfMany();
     }
 
     public function creatorCategories()
@@ -88,6 +92,6 @@ class User extends Authenticatable
 
     public function isCreatorActive(): bool
     {
-        return $this->is_creator && $this->subscribed('creator');
+        return $this->is_creator && ($this->is_admin || $this->subscribed('creator'));
     }
 }

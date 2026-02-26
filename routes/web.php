@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 // Customer-facing routes
 Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
-Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
+Route::redirect('/videos', '/')->name('videos.index');
 Route::get('/videos/{video}', [VideoController::class, 'show'])->name('video.show');
 // Payment routes
 Route::get('/payment/{video}/form', [PaymentController::class, 'form'])->name('payment.form');
@@ -65,6 +65,9 @@ Route::middleware(['auth', 'verified', 'creator'])->group(function () {
     Route::get('/creator/videos', [CreatorController::class, 'videos'])->name('creator.videos');
     Route::put('/creator/videos/{video}', [CreatorController::class, 'updateVideo'])->name('creator.videos.update');
     Route::delete('/creator/videos/{video}', [CreatorController::class, 'deleteVideo'])->name('creator.videos.delete');
+    Route::post('/creator/categories', [CreatorController::class, 'storeCategory'])->name('creator.categories.store');
+    Route::post('/creator/categories/{category}', [CreatorController::class, 'updateCategory'])->name('creator.categories.update');
+    Route::delete('/creator/categories/{category}', [CreatorController::class, 'deleteCategory'])->name('creator.categories.delete');
     Route::get('/creator/purchases', [CreatorController::class, 'purchases'])->name('creator.purchases');
     Route::post('/creator/purchases/{purchase}/approve', [CreatorController::class, 'approvePurchase'])->name('creator.purchases.approve');
     Route::post('/creator/purchases/{purchase}/reject', [CreatorController::class, 'rejectPurchase'])->name('creator.purchases.reject');
@@ -267,6 +270,8 @@ Route::post('/api/create-payment-intent', [PaymentController::class, 'createPaym
 
 // Public creator storefront routes (use /store/* to avoid conflicts with /creator/subscription)
 Route::get('/store/{creator:creator_slug}', [CreatorController::class, 'storefront'])->name('creator.storefront');
+Route::get('/store/{creator:creator_slug}/categories', [CreatorController::class, 'storefront'])->name('creator.storefront.categories');
+Route::get('/store/{creator:creator_slug}/categories/{category}', [CreatorController::class, 'storefrontCategory'])->name('creator.storefront.category');
 Route::get('/store/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'form'])->name('creator.checkout.form');
 Route::post('/store/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'submit'])->name('creator.checkout.submit');
 

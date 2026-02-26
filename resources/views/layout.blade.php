@@ -67,7 +67,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="exploreDropdown">
                             <li><a class="dropdown-item" href="{{ route('categories.index') }}">
-                                <i class="fas fa-video"></i> Browse Videos
+                                <i class="fas fa-store"></i> Ver creadores
                             </a></li>
                             @auth
                             {{-- <li><a class="dropdown-item" href="{{ route('purchases.index') }}">

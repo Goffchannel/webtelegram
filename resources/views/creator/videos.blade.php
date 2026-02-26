@@ -27,8 +27,8 @@
                             <input class="form-control form-control-sm" style="max-width:220px" name="title" value="{{ $video->title }}" required>
                             <input class="form-control form-control-sm" style="max-width:120px" name="price" type="number" min="0" step="0.01" value="{{ $video->price }}" required>
                             <input type="hidden" name="description" value="{{ $video->description }}">
-                            <input type="hidden" name="category_id" value="{{ $video->category_id ?? 1 }}">
-                            <button class="btn btn-sm btn-primary">Guardar</button>
+                            <input type="hidden" name="category_id" value="{{ $video->category_id ?? $defaultCategoryId }}">
+                            <button class="btn btn-sm btn-primary" @disabled(empty($video->category_id) && empty($defaultCategoryId))>Guardar</button>
                         </form>
                         <form method="POST" action="{{ route('creator.videos.delete', $video) }}" class="d-inline" onsubmit="return confirm('Eliminar video?')">
                             @csrf

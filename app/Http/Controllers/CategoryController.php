@@ -2,28 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use Illuminate\Http\Request;
+use App\Models\User;
 
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of all categories.
-     * This will be the new home page.
+     * Home page: list active creators.
      */
     public function index()
     {
-        $categories = Category::withCount('videos')->orderBy('name')->get();
-        return view('categories.index', compact('categories'));
+        $creators = User::query()
+            ->where('is_creator', true)
+            ->where('creator_subscription_status', 'active')
+            ->whereNotNull('creator_slug')
+            ->withCount('creatorVideos as videos_count')
+            ->with('latestCreatorVideo')
+            ->orderByRaw('COALESCE(creator_store_name, name) asc')
+            ->get();
+
+        return view('categories.index', compact('creators'));
     }
 
     /**
-     * Display all videos for a specific category.
-     * Reuses the main video listing view.
+     * Legacy category route no longer used.
      */
-    public function show(Category $category)
+    public function show($category)
     {
-        $videos = $category->videos()->orderBy('created_at', 'desc')->paginate(12);
-        return view('videos.index', compact('videos', 'category'));
+        return redirect()->route('categories.index');
     }
 }

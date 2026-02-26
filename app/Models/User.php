@@ -66,6 +66,16 @@ class User extends Authenticatable
         return $this->hasMany(Video::class, 'creator_id');
     }
 
+    public function latestCreatorVideo()
+    {
+        return $this->hasOne(Video::class, 'creator_id')->latestOfMany();
+    }
+
+    public function creatorCategories()
+    {
+        return $this->hasMany(Category::class, 'creator_id');
+    }
+
     public function creatorPurchases()
     {
         return $this->hasMany(Purchase::class, 'creator_id');

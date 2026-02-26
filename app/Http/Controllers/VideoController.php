@@ -35,6 +35,26 @@ class VideoController extends Controller
         return view('videos.show', compact('video'));
     }
 
+    private function resolveDefaultCategoryId(?User $creatorUser): ?int
+    {
+        if (!$creatorUser) {
+            return null;
+        }
+
+        $category = Category::firstOrCreate(
+            [
+                'creator_id' => $creatorUser->id,
+                'name' => 'General',
+            ],
+            [
+                'creator_id' => $creatorUser->id,
+                'name' => 'General',
+            ]
+        );
+
+        return $category->id;
+    }
+
     /**
      * Admin: Display captured videos for management.
      */
@@ -1122,6 +1142,7 @@ class VideoController extends Controller
                         'telegram_file_id' => $fileId,
                         'price' => $defaultPrice,
                         'creator_id' => $creatorUser?->id,
+                        'category_id' => $this->resolveDefaultCategoryId($creatorUser),
                     ]);
 
                     $this->sendTelegramMessage(

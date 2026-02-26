@@ -16,6 +16,7 @@ class Category extends Model
      */
     protected $fillable = [
         'name',
+        'creator_id',
         'image_path',
         'image_url',
         'image_blob_url',
@@ -27,6 +28,11 @@ class Category extends Model
     public function videos()
     {
         return $this->hasMany(Video::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     /**

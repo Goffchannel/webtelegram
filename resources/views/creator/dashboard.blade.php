@@ -8,7 +8,7 @@
         <h2 class="mb-0">Panel de Creador</h2>
         <small class="text-muted">Gestiona tu tienda, pagos y contenido</small>
     </div>
-    <a class="btn btn-outline-primary" href="{{ route('creator.storefront', $creator->creator_slug) }}" target="_blank">Ver tienda publica</a>
+    <a class="btn btn-outline-primary" href="{{ route('creator.storefront.categories', $creator->creator_slug) }}" target="_blank">Ver tienda publica</a>
 </div>
 
 <div class="row g-3 mb-4">
@@ -54,6 +54,107 @@
             </div>
             <button class="btn btn-primary mt-3" type="submit">Guardar configuracion</button>
         </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-plus-circle text-success"></i> Crear categoria</h5>
+    </div>
+    <div class="card-body">
+        <form action="{{ route('creator.categories.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Subir imagen</label>
+                    <input type="file" class="form-control" name="image">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">O URL de imagen</label>
+                    <input type="url" class="form-control" name="image_url" placeholder="https://...">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Crear categoria</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-layer-group"></i> Categorias ({{ $categories->count() }})</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Videos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($categories as $category)
+                        <tr>
+                            <td>
+                                @if($category->hasImage())
+                                    <img src="{{ $category->getImageUrl() }}" alt="Category" style="width: 52px; height: 40px; object-fit: cover;" class="rounded">
+                                @else
+                                    <span class="text-muted">No image</span>
+                                @endif
+                            </td>
+                            <td>{{ $category->name }}</td>
+                            <td>{{ $category->videos_count }}</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#edit-category-{{ $category->id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="POST" action="{{ route('creator.categories.delete', $category) }}" onsubmit="return confirm('Eliminar categoria? Los videos quedaran sin categoria.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="collapse" id="edit-category-{{ $category->id }}">
+                            <td colspan="4">
+                                <form method="POST" action="{{ route('creator.categories.update', $category) }}" enctype="multipart/form-data" class="border rounded p-3 bg-body-tertiary">
+                                    @csrf
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <label class="form-label mb-1">Nombre</label>
+                                            <input class="form-control form-control-sm" name="name" value="{{ $category->name }}" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label mb-1">Nueva imagen</label>
+                                            <input type="file" class="form-control form-control-sm" name="image">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label mb-1">URL de imagen</label>
+                                            <input class="form-control form-control-sm" name="image_url" value="{{ $category->image_url }}" placeholder="https://...">
+                                        </div>
+                                        <div class="col-12">
+                                            <button class="btn btn-sm btn-primary" type="submit">Guardar categoria</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" class="text-center text-muted py-3">Aun no tienes categorias.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -141,11 +242,15 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label mb-1">Categoria</label>
-                                            <select name="category_id" class="form-select form-select-sm" required>
-                                                @foreach($categories as $category)
-                                                    <option value="{{ $category->id }}" @selected($video->category_id == $category->id)>{{ $category->name }}</option>
-                                                @endforeach
-                                            </select>
+                                            @if($categories->count() > 0)
+                                                <select name="category_id" class="form-select form-select-sm" required>
+                                                    @foreach($categories as $category)
+                                                        <option value="{{ $category->id }}" @selected($video->category_id == $category->id)>{{ $category->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @else
+                                                <input class="form-control form-control-sm" value="Primero crea una categoria" disabled>
+                                            @endif
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label mb-1">Blur</label>
@@ -170,7 +275,7 @@
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <button class="btn btn-sm btn-primary" type="submit">Guardar cambios</button>
+                                            <button class="btn btn-sm btn-primary" type="submit" @disabled($categories->count() === 0)>Guardar cambios</button>
                                         </div>
                                     </div>
                                 </form>

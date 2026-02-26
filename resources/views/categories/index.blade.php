@@ -1,11 +1,11 @@
 @extends('layout')
 
-@section('title', 'Browse Categories')
+@section('title', 'Explorar Creadores')
 
 @section('content')
     <div class="text-center mb-5">
-        <h1><i class="fas fa-layer-group text-primary"></i> Browse Categories</h1>
-        <p class="lead text-muted">Select a category to view videos</p>
+        <h1><i class="fas fa-store text-primary"></i> Explorar Creadores</h1>
+        <p class="lead text-muted">Selecciona un creador para ver su tienda</p>
         <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
             @guest
                 <a href="{{ route('logincreator') }}" class="btn btn-outline-primary">Login</a>
@@ -20,15 +20,15 @@
         </div>
     </div>
 
-    @if ($categories->count() > 0)
+    @if ($creators->count() > 0)
         <div class="row">
-            @foreach ($categories as $category)
+            @foreach ($creators as $creator)
                 <div class="col-md-6 col-lg-4 mb-4">
-                    <a href="{{ route('categories.show', $category) }}" class="text-decoration-none text-dark">
+                    <a href="{{ route('creator.storefront.categories', $creator->creator_slug) }}" class="text-decoration-none text-dark">
                         <div class="card h-100 shadow-sm category-card">
-                            @if ($category->hasImage())
+                            @if ($creator->latestCreatorVideo && $creator->latestCreatorVideo->hasThumbnail())
                                 <div class="position-relative" style="height: 300px;">
-                                    <img src="{{ $category->getImageUrl() }}" class="card-img-top" alt="{{ $category->name }} thumbnail "
+                                    <img src="{{ $creator->latestCreatorVideo->getThumbnailUrl() }}" class="card-img-top" alt="{{ $creator->creator_store_name ?? $creator->name }} thumbnail "
                                         style="height: 300px; object-fit: cover; object-position: top; ">
                                 </div>
                             @else
@@ -39,10 +39,13 @@
                             @endif
 
                             <div class="card-body d-flex flex-column text-center">
-                                <h5 class="card-title">{{ $category->name }}</h5>
+                                <h5 class="card-title">{{ $creator->creator_store_name ?? $creator->name }}</h5>
                                 <p class="card-text text-muted flex-grow-1">
-                                    {{ $category->videos_count }} {{ Str::plural('video', $category->videos_count) }}
+                                    {{ $creator->videos_count }} {{ Str::plural('video', $creator->videos_count) }}
                                 </p>
+                                @if($creator->creator_bio)
+                                    <small class="text-muted">{{ Str::limit($creator->creator_bio, 85) }}</small>
+                                @endif
                             </div>
                         </div>
                     </a>
@@ -51,9 +54,9 @@
         </div>
     @else
         <div class="text-center py-5">
-            <i class="fas fa-layer-group fa-4x text-muted mb-3"></i>
-            <h4 class="text-muted">No categories available yet</h4>
-            <p class="text-muted">Check back soon!</p>
+            <i class="fas fa-store fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No hay creadores disponibles</h4>
+            <p class="text-muted">Vuelve pronto.</p>
         </div>
     @endif
 @endsection

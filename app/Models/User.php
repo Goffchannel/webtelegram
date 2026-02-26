@@ -25,6 +25,13 @@ class User extends Authenticatable
         'telegram_username',
         'telegram_user_id',
         'is_admin',
+        'is_creator',
+        'creator_slug',
+        'creator_store_name',
+        'creator_bio',
+        'creator_subscription_status',
+        'creator_subscription_ends_at',
+        'creator_payment_methods',
     ];
 
     /**
@@ -48,6 +55,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_creator' => 'boolean',
+            'creator_subscription_ends_at' => 'datetime',
+            'creator_payment_methods' => 'array',
         ];
+    }
+
+    public function creatorVideos()
+    {
+        return $this->hasMany(Video::class, 'creator_id');
+    }
+
+    public function creatorPurchases()
+    {
+        return $this->hasMany(Purchase::class, 'creator_id');
+    }
+
+    public function isCreatorActive(): bool
+    {
+        return $this->is_creator && $this->subscribed('creator');
     }
 }

@@ -10,6 +10,9 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CreatorController;
+use App\Http\Controllers\CreatorCheckoutController;
+use App\Http\Controllers\CreatorSubscriptionController;
 use Illuminate\Support\Facades\Auth;
 
 // Customer-facing routes
@@ -17,6 +20,9 @@ Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
 Route::get('/videos/{video}', [VideoController::class, 'show'])->name('video.show');
+Route::get('/creator/{creator:creator_slug}', [CreatorController::class, 'storefront'])->name('creator.storefront');
+Route::get('/creator/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'form'])->name('creator.checkout.form');
+Route::post('/creator/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'submit'])->name('creator.checkout.submit');
 
 // Payment routes
 Route::get('/payment/{video}/form', [PaymentController::class, 'form'])->name('payment.form');
@@ -28,20 +34,47 @@ Route::post('/purchase/{uuid}/update-username', [PaymentController::class, 'upda
 
 // Authentication routes (profile management)
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+
+        if ($user->is_admin) {
+            return redirect()->route('admin.videos.manage');
+        }
+
+        if ($user->is_creator && $user->subscribed('creator')) {
+            return redirect()->route('creator.dashboard');
+        }
+
+        return redirect()->route('categories.index');
+    })->name('dashboard');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // User purchases route
     Route::get('/purchases', [PaymentController::class, 'index'])->name('purchases.index');
+
+    // Creator subscription onboarding
+    Route::get('/creator/subscription', [CreatorSubscriptionController::class, 'show'])->name('creator.subscription.show');
+    Route::post('/creator/subscription/checkout', [CreatorSubscriptionController::class, 'checkout'])->name('creator.subscription.checkout');
+    Route::get('/creator/subscription/success', [CreatorSubscriptionController::class, 'success'])->name('creator.subscription.success');
+    Route::get('/creator/subscription/portal', [CreatorSubscriptionController::class, 'billingPortal'])->name('creator.subscription.portal');
+});
+
+Route::middleware(['auth', 'verified', 'creator'])->group(function () {
+    Route::get('/creator/dashboard', [CreatorController::class, 'dashboard'])->name('creator.dashboard');
+    Route::post('/creator/profile', [CreatorController::class, 'updateProfile'])->name('creator.profile.update');
+    Route::get('/creator/videos', [CreatorController::class, 'videos'])->name('creator.videos');
+    Route::put('/creator/videos/{video}', [CreatorController::class, 'updateVideo'])->name('creator.videos.update');
+    Route::delete('/creator/videos/{video}', [CreatorController::class, 'deleteVideo'])->name('creator.videos.delete');
+    Route::get('/creator/purchases', [CreatorController::class, 'purchases'])->name('creator.purchases');
+    Route::post('/creator/purchases/{purchase}/approve', [CreatorController::class, 'approvePurchase'])->name('creator.purchases.approve');
+    Route::post('/creator/purchases/{purchase}/reject', [CreatorController::class, 'rejectPurchase'])->name('creator.purchases.reject');
 });
 
 // Admin-only routes
 Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
-    Route::get('/dashboard', function () {
-        return redirect()->route('admin.videos.manage');
-    })->name('dashboard');
-
     // Admin video management routes
     Route::get('/admin/videos', [VideoController::class, 'manage'])->name('admin.videos.manage');
     Route::put('/admin/videos/{video}', [VideoController::class, 'update'])->name('admin.videos.update');

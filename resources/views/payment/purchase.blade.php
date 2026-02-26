@@ -74,12 +74,22 @@
                                     <div class="alert alert-warning">
                                         <h6 class="alert-heading">
                                             <i class="fas fa-clock me-2"></i>
-                                            Waiting for Telegram Verification
+                                            @if($purchase->creator_id)
+                                                Pendiente de aprobacion del creador
+                                            @else
+                                                Waiting for Telegram Verification
+                                            @endif
                                         </h6>
-                                        <p class="mb-2">To receive your video, please follow these steps:</p>
+                                        @if($purchase->creator_id)
+                                            <p class="mb-2">Tu solicitud fue enviada al creador. Cuando valide tu pago, el acceso quedara activo para tu usuario de Telegram:</p>
+                                        @else
+                                            <p class="mb-2">To receive your video, please follow these steps:</p>
+                                        @endif
                                         <ol>
-                                            <li>Open Telegram and search for our bot</li>
-                                            <li>Send the command <code>/start</code> to the bot</li>
+                                            @if(!$purchase->creator_id)
+                                                <li>Open Telegram and search for our bot</li>
+                                                <li>Send the command <code>/start</code> to the bot</li>
+                                            @endif
                                             @if ($purchase->telegram_username)
                                                 <li>Make sure your Telegram username is:
                                                     <strong><span>@</span><span id="telegram-username-display">{{ $purchase->telegram_username }}</span></strong>
@@ -89,27 +99,31 @@
                                                 </li>
                                             @endif
                                         </ol>
-                                        <small class="text-muted">
-                                            Once you start the bot with the same username you used during purchase,
-                                            your video will be automatically delivered to you. This page will automatically
-                                            refresh when your video is delivered.
-                                        </small>
+                                        @if($purchase->creator_id)
+                                            <small class="text-muted">Si el creador rechaza el pago, deberas contactar directamente con ese creador para cualquier reembolso.</small>
+                                        @else
+                                            <small class="text-muted">
+                                                Once you start the bot with the same username you used during purchase,
+                                                your video will be automatically delivered to you. This page will automatically
+                                                refresh when your video is delivered.
+                                            </small>
 
-                                        <!-- Bot Conversation Button -->
-                                        <div class="mt-3 text-center">
-                                            @if($bot['is_configured'])
-                                                <a href="{{ $bot['url'] }}?start=getvideo_{{ $purchase->video_id }}" target="_blank" class="btn btn-success btn-lg">
-                                                <i class="fab fa-telegram me-2"></i>Get Your Video Now
-                                            </a>
-                                            @else
-                                                <a href="{{ route('login') }}" class="btn btn-warning btn-lg">
-                                                    <i class="fas fa-cog me-2"></i>Bot Setup Required
+                                            <!-- Bot Conversation Button -->
+                                            <div class="mt-3 text-center">
+                                                @if($bot['is_configured'])
+                                                    <a href="{{ $bot['url'] }}?start=getvideo_{{ $purchase->video_id }}" target="_blank" class="btn btn-success btn-lg">
+                                                    <i class="fab fa-telegram me-2"></i>Get Your Video Now
                                                 </a>
-                                            @endif
-                                            <p class="text-muted mt-2 mb-0">
-                                                <small><i class="fas fa-info-circle me-1"></i>Click this button to get your video via `/getvideo {{ $purchase->video_id }}` command!</small>
-                                            </p>
-                                        </div>
+                                                @else
+                                                    <a href="{{ route('login') }}" class="btn btn-warning btn-lg">
+                                                        <i class="fas fa-cog me-2"></i>Bot Setup Required
+                                                    </a>
+                                                @endif
+                                                <p class="text-muted mt-2 mb-0">
+                                                    <small><i class="fas fa-info-circle me-1"></i>Click this button to get your video via `/getvideo {{ $purchase->video_id }}` command!</small>
+                                                </p>
+                                            </div>
+                                        @endif
                                     </div>
                                 @elseif($purchase->verification_status === 'verified')
                                     @if ($purchase->delivery_status === 'delivered')

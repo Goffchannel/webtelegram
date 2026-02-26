@@ -40,6 +40,12 @@
                             @if ($video->description)
                                 <p class="text-muted lead">{{ $video->description }}</p>
                             @endif
+                            @if ($video->creator && $video->creator->isCreatorActive() && $video->creator->creator_slug)
+                                <p class="mb-3">
+                                    <span class="badge text-bg-secondary">Creador: {{ $video->creator->creator_store_name ?? $video->creator->name }}</span>
+                                    <a class="ms-2" href="{{ route('creator.storefront', $video->creator->creator_slug) }}">Ver tienda</a>
+                                </p>
+                            @endif
 
                             @if ($video->duration)
                                 <div class="mb-3">
@@ -92,9 +98,16 @@
                                         @endif
                                     </div>
                                 @else
-                                    <a href="{{ route('payment.form', $video) }}" class="btn btn-success btn-lg mb-3">
-                                        <i class="fas fa-shopping-cart"></i> Purchase Now
-                                    </a>
+                                    @if ($video->creator && $video->creator->isCreatorActive() && $video->creator->creator_slug)
+                                        <a href="{{ route('creator.checkout.form', ['creator' => $video->creator->creator_slug, 'video' => $video->id]) }}"
+                                            class="btn btn-success btn-lg mb-3">
+                                            <i class="fas fa-shopping-cart"></i> Comprar al creador
+                                        </a>
+                                    @else
+                                        <a href="{{ route('payment.form', $video) }}" class="btn btn-success btn-lg mb-3">
+                                            <i class="fas fa-shopping-cart"></i> Purchase Now
+                                        </a>
+                                    @endif
                                     <br>
                                     <a href="{{ route('videos.index') }}" class="btn btn-outline-primary">
                                         <i class="fas fa-arrow-left"></i> Back to Store

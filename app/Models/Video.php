@@ -27,6 +27,7 @@ class Video extends Model
         'blur_intensity',
         'allow_preview',
         'category_id',
+        'creator_id',
     ];
 
     /**
@@ -49,6 +50,11 @@ class Video extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     /**

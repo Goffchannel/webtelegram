@@ -37,6 +37,13 @@ class PaymentController extends Controller
      */
     public function form(Video $video)
     {
+        if ($video->creator_id && $video->creator && $video->creator->isCreatorActive() && $video->creator->creator_slug) {
+            return redirect()->route('creator.checkout.form', [
+                'creator' => $video->creator->creator_slug,
+                'video' => $video->id,
+            ]);
+        }
+
         // Check if Stripe keys are configured
         $stripeKey = $this->getStripePublishableKey();
         $stripeSecret = $this->getStripeSecretKey();
@@ -98,6 +105,7 @@ class PaymentController extends Controller
                 'success_url' => route('payment.success', ['video' => $video->id]) . '?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('payment.cancel', ['video' => $video->id]) . '?session_id={CHECKOUT_SESSION_ID}',
                 'metadata' => [
+                    'purchase_type' => 'video',
                     'video_id' => $video->id,
                     'telegram_username' => $telegramUsername,
                 ],
@@ -286,6 +294,7 @@ class PaymentController extends Controller
                 'currency' => $session->currency,
                 'customer_email' => $session->customer_details->email ?? $user?->email,
                 'telegram_username' => $telegramUsername,
+                'creator_id' => $video->creator_id,
                 'purchase_status' => 'completed',
                 'delivery_status' => 'pending',
                 'delivery_attempts' => 0,
@@ -378,6 +387,7 @@ class PaymentController extends Controller
                 'success_url' => route('payment.success', ['video' => $video->id]) . '?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('payment.cancel', ['video' => $video->id]),
                 'metadata' => [
+                    'purchase_type' => 'video',
                     'video_id' => $video->id,
                     'telegram_username' => $telegramUsername,
                     'user_id' => $user?->id,

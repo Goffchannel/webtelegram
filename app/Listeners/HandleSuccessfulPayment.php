@@ -22,16 +22,46 @@ class HandleSuccessfulPayment
     {
         if ($event->payload['type'] === 'checkout.session.completed') {
             $session = $event->payload['data']['object'];
+            $metadata = $session['metadata'] ?? [];
+            $purchaseType = $metadata['purchase_type'] ?? null;
+
+            if ($purchaseType === 'creator_subscription') {
+                $userId = $metadata['user_id'] ?? null;
+                if ($userId) {
+                    $user = User::find($userId);
+                    if ($user) {
+                        $updates = [
+                            'is_creator' => true,
+                            'creator_subscription_status' => 'active',
+                        ];
+
+                        if (!$user->creator_slug) {
+                            $updates['creator_slug'] = \Illuminate\Support\Str::slug($user->name) . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(5));
+                        }
+
+                        if (!$user->creator_store_name) {
+                            $updates['creator_store_name'] = $user->name;
+                        }
+
+                        $user->update($updates);
+                    }
+                }
+                return;
+            }
+
+            if ($purchaseType !== 'video') {
+                return;
+            }
 
             Log::info('Processing successful payment', [
                 'session_id' => $session['id'],
                 'amount' => $session['amount_total'],
-                'metadata' => $session['metadata'] ?? []
+                'metadata' => $metadata
             ]);
 
             // Extract metadata
-            $videoId = $session['metadata']['video_id'] ?? null;
-            $telegramUsername = $session['metadata']['telegram_username'] ?? null;
+            $videoId = $metadata['video_id'] ?? null;
+            $telegramUsername = $metadata['telegram_username'] ?? null;
 
             if (!$videoId || !$telegramUsername) {
                 Log::error('Missing required metadata in payment session', [
@@ -53,15 +83,20 @@ class HandleSuccessfulPayment
             $user = $this->getOrCreateUser($telegramUsername);
 
             // Create purchase record
-            $purchase = Purchase::create([
-                'user_id' => $user->id,
-                'video_id' => $video->id,
-                'amount' => $session['amount_total'],
-                'currency' => $session['currency'],
-                'purchase_status' => 'completed',
-                'stripe_session_id' => $session['id'],
-                'telegram_username' => $telegramUsername,
-            ]);
+            $purchase = Purchase::firstOrCreate(
+                ['stripe_session_id' => $session['id']],
+                [
+                    'user_id' => $user->id,
+                    'video_id' => $video->id,
+                    'creator_id' => $video->creator_id,
+                    'amount' => ($session['amount_total'] ?? 0) / 100,
+                    'currency' => $session['currency'] ?? 'usd',
+                    'purchase_status' => 'completed',
+                    'verification_status' => 'pending',
+                    'delivery_status' => 'pending',
+                    'telegram_username' => $telegramUsername,
+                ]
+            );
 
             Log::info('Purchase record created', [
                 'purchase_id' => $purchase->id,

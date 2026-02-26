@@ -42,6 +42,11 @@ class Purchase extends Model
         'customer_email',
         'telegram_username',
         'telegram_user_id',
+        'creator_id',
+        'payment_method',
+        'payment_instructions',
+        'payment_reference',
+        'proof_url',
         'delivery_status',
         'delivered_at',
         'delivery_notes',
@@ -81,6 +86,11 @@ class Purchase extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     /**

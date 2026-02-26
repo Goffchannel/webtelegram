@@ -6,6 +6,7 @@ use App\Models\Video;
 use App\Models\Setting;
 use App\Models\TelegramBot;
 use App\Models\Category;
+use App\Models\User;
 use App\Services\TelegramBotService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -1062,14 +1063,22 @@ class VideoController extends Controller
             ]);
 
             $syncUserTelegramId = Setting::get('sync_user_telegram_id');
+            $creatorUser = User::where('telegram_user_id', (string) $fromUserId)
+                ->where('is_creator', true)
+                ->where('creator_subscription_status', 'active')
+                ->first();
+            $isSyncUser = ($fromUserId == $syncUserTelegramId);
+            $isActiveCreator = $creatorUser !== null;
 
             Log::info('Sync user check', [
                 'sync_user_telegram_id' => $syncUserTelegramId,
-                'is_sync_user' => ($fromUserId == $syncUserTelegramId)
+                'is_sync_user' => $isSyncUser,
+                'is_active_creator' => $isActiveCreator,
+                'creator_id' => $creatorUser?->id,
             ]);
 
-            // **SYNC USER FLOW** - Handle video uploads from admin
-            if ($fromUserId == $syncUserTelegramId) {
+            // **UPLOAD FLOW** - Handle video uploads from admin sync user or active creators
+            if ($isSyncUser || $isActiveCreator) {
                 // Get video from message
                 $video = null;
                 $fileId = null;
@@ -1087,7 +1096,7 @@ class VideoController extends Controller
                 }
 
                 if ($fileId) {
-                    $caption = $message['caption'] ?? 'Auto-captured Video';
+                    $caption = $message['caption'] ?? 'Video capturado';
                     $defaultPrice = 4.99;
 
                     $videoRecord = Video::create([
@@ -1095,6 +1104,7 @@ class VideoController extends Controller
                         'description' => "Auto-captured from Telegram",
                         'telegram_file_id' => $fileId,
                         'price' => $defaultPrice,
+                        'creator_id' => $creatorUser?->id,
                     ]);
 
                     $this->sendTelegramMessage(
@@ -1105,9 +1115,10 @@ class VideoController extends Controller
                             "🆔 Video ID: {$videoRecord->id}"
                     );
 
-                    Log::info("Video auto-captured from sync user: {$fromUserId}", [
+                    Log::info("Video auto-captured from uploader: {$fromUserId}", [
                         'video_id' => $videoRecord->id,
-                        'file_id' => $fileId
+                        'file_id' => $fileId,
+                        'creator_id' => $creatorUser?->id,
                     ]);
 
                     return response()->json(['ok' => true]);
@@ -1247,6 +1258,10 @@ class VideoController extends Controller
             // Get purchases by username
             $purchasesByUsername = \App\Models\Purchase::where('telegram_username', $username)
                 ->where('purchase_status', 'completed')
+                ->where(function ($query) {
+                    $query->whereNull('creator_id')
+                        ->orWhere('verification_status', 'verified');
+                })
                 ->with('video')
                 ->get();
             $userPurchases = $userPurchases->merge($purchasesByUsername);
@@ -1255,6 +1270,10 @@ class VideoController extends Controller
         // Get purchases by telegram_user_id (if they exist)
         $purchasesByTelegramId = \App\Models\Purchase::where('telegram_user_id', $telegramUserId)
             ->where('purchase_status', 'completed')
+            ->where(function ($query) {
+                $query->whereNull('creator_id')
+                    ->orWhere('verification_status', 'verified');
+            })
             ->with('video')
             ->get();
         $userPurchases = $userPurchases->merge($purchasesByTelegramId);
@@ -1268,6 +1287,25 @@ class VideoController extends Controller
             'total_purchases' => $userPurchases->count(),
             'purchase_ids' => $userPurchases->pluck('id')->toArray()
         ]);
+
+        $pendingCreatorPurchases = \App\Models\Purchase::where('purchase_status', 'completed')
+            ->where('verification_status', 'pending')
+            ->whereNotNull('creator_id')
+            ->where(function ($query) use ($telegramUserId, $username) {
+                $query->where('telegram_user_id', $telegramUserId);
+                if ($username) {
+                    $query->orWhere('telegram_username', $username);
+                }
+            })
+            ->count();
+
+        if ($userPurchases->isEmpty() && $pendingCreatorPurchases > 0) {
+            $this->sendTelegramMessage(
+                $chatId,
+                "Tu pago fue registrado, pero el creador aun no lo aprueba.\n\nCompras pendientes: {$pendingCreatorPurchases}\n\nCuando el creador apruebe, podras usar /getvideo <id>."
+            );
+            return;
+        }
 
         if ($userPurchases->isEmpty()) {
             $message = "👋 *Welcome to Video Store Bot!*\n\n";
@@ -1293,9 +1331,10 @@ class VideoController extends Controller
             try {
                 // Link telegram_user_id if not already linked
                 if (!$purchase->telegram_user_id) {
+                    $verificationStatus = $purchase->creator_id ? $purchase->verification_status : 'verified';
                     $purchase->update([
                         'telegram_user_id' => $telegramUserId,
-                        'verification_status' => 'verified'
+                        'verification_status' => $verificationStatus
                     ]);
                     Log::info('Linked telegram_user_id to purchase', [
                         'purchase_id' => $purchase->id,
@@ -1474,6 +1513,7 @@ class VideoController extends Controller
 
         // For paid videos, find purchase by EITHER telegram_user_id OR username
         $purchase = \App\Models\Purchase::where('purchase_status', 'completed')
+            ->where('verification_status', 'verified')
             ->where('video_id', $videoId)
             ->where(function ($query) use ($telegramUserId, $username) {
                 $query->where('telegram_user_id', $telegramUserId);

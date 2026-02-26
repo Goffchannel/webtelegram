@@ -107,6 +107,19 @@
                                         <i class="fas fa-user-edit"></i> Profile
                                     </a>
                                 </li>
+                                @if (Auth::user()->is_creator && Auth::user()->subscribed('creator'))
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('creator.dashboard') }}">
+                                        <i class="fas fa-store"></i> Panel Creador
+                                    </a>
+                                </li>
+                                @else
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('creator.subscription.show') }}">
+                                        <i class="fas fa-user-plus"></i> Hazte Creador ($5/mes)
+                                    </a>
+                                </li>
+                                @endif
                                 @if (Auth::user()->is_admin)
                                 <li>
                                     <a class="dropdown-item" href="{{ route('admin.videos.manage') }}">

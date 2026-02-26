@@ -157,7 +157,7 @@
                                         </div>
                                         <div class="col-md-12">
                                             <label class="form-label mb-1">Thumbnail URL externa</label>
-                                            <input name="thumbnail_url" class="form-control form-control-sm" value="{{ $video->thumbnail_url }}" placeholder="https://...">
+                                            <input name="thumbnail_url" class="form-control form-control-sm" value="{{ $video->thumbnail_url ?: (filter_var($video->thumbnail_path, FILTER_VALIDATE_URL) ? $video->thumbnail_path : '') }}" placeholder="https://...">
                                         </div>
                                         <div class="col-md-12 d-flex gap-3">
                                             <div class="form-check">

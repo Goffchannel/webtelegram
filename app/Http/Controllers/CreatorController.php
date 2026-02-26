@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class CreatorController extends Controller
@@ -102,16 +103,26 @@ class CreatorController extends Controller
             abort(403);
         }
 
-        $validated = $request->validate([
+        $hasThumbnailUrlColumn = Schema::hasColumn('videos', 'thumbnail_url');
+
+        $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'price' => 'required|numeric|min:0|max:9999.99',
             'category_id' => 'required|exists:categories,id',
-            'thumbnail_url' => 'nullable|url|max:500',
             'blur_intensity' => 'nullable|integer|min:1|max:20',
             'show_blurred' => 'nullable|boolean',
             'allow_preview' => 'nullable|boolean',
-        ]);
+        ];
+
+        if ($hasThumbnailUrlColumn) {
+            $rules['thumbnail_url'] = 'nullable|url|max:500';
+        } else {
+            // Keep compatibility for environments where external URL is saved in thumbnail_path.
+            $rules['thumbnail_url'] = 'nullable|string|max:500';
+        }
+
+        $validated = $request->validate($rules);
 
         $updateData = [
             'title' => $validated['title'],
@@ -124,7 +135,22 @@ class CreatorController extends Controller
         ];
 
         if (!empty($validated['thumbnail_url'])) {
-            $updateData['thumbnail_url'] = $validated['thumbnail_url'];
+            $thumbnailUrl = trim((string) $validated['thumbnail_url']);
+
+            if (filter_var($thumbnailUrl, FILTER_VALIDATE_URL)) {
+                if ($hasThumbnailUrlColumn) {
+                    $updateData['thumbnail_url'] = $thumbnailUrl;
+                    $updateData['thumbnail_path'] = null;
+                } else {
+                    $updateData['thumbnail_path'] = $thumbnailUrl;
+                }
+                $updateData['thumbnail_blob_url'] = null;
+            }
+        } elseif ($request->has('thumbnail_url') && trim((string) $request->input('thumbnail_url')) === '') {
+            // User explicitly cleared the field.
+            if ($hasThumbnailUrlColumn) {
+                $updateData['thumbnail_url'] = null;
+            }
             $updateData['thumbnail_path'] = null;
             $updateData['thumbnail_blob_url'] = null;
         }

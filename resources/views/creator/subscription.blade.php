@@ -17,7 +17,7 @@
                         <strong>Estado:</strong> Inactivo
                     @endif
                     <br>
-                    <strong>Precio:</strong> $5.00 / mes
+                    <strong>Precio:</strong> ${{ number_format((float) ($monthlyPriceUsd ?? 5), 2) }} / mes
                 </div>
 
                 @if($isActive)
@@ -26,7 +26,7 @@
                 @else
                     <form method="POST" action="{{ route('creator.subscription.checkout') }}">
                         @csrf
-                        <button type="submit" class="btn btn-success btn-lg">Pagar $5/mes y activar creador</button>
+                        <button type="submit" class="btn btn-success btn-lg">Pagar ${{ number_format((float) ($monthlyPriceUsd ?? 5), 2) }}/mes y activar creador</button>
                     </form>
                 @endif
             </div>

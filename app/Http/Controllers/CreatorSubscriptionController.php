@@ -9,12 +9,68 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
+use Stripe\StripeClient;
 
 class CreatorSubscriptionController extends Controller
 {
     private function getCreatorPriceId(): ?string
     {
         return Setting::get('creator_monthly_price_id') ?: env('CREATOR_MONTHLY_PRICE_ID');
+    }
+
+    private function getCreatorMonthlyPriceUsd(): float
+    {
+        return (float) (Setting::get('creator_monthly_price_usd', 5.00) ?: 5.00);
+    }
+
+    private function ensureCreatorStripePrice(): ?string
+    {
+        $stripeSecret = Setting::get('stripe_secret') ?: config('cashier.secret');
+        if (!$stripeSecret) {
+            return $this->getCreatorPriceId();
+        }
+
+        $usd = $this->getCreatorMonthlyPriceUsd();
+        $cents = (int) round($usd * 100);
+        $storedCents = (int) (Setting::get('creator_monthly_price_amount_cents', 0) ?: 0);
+        $storedPriceId = Setting::get('creator_monthly_price_id');
+
+        if ($storedPriceId && $storedCents === $cents) {
+            return $storedPriceId;
+        }
+
+        try {
+            $stripe = new StripeClient($stripeSecret);
+
+            $productId = Setting::get('creator_monthly_product_id');
+            if (!$productId) {
+                $product = $stripe->products->create([
+                    'name' => 'Creator Membership',
+                    'description' => 'Monthly creator subscription for selling on the platform',
+                ]);
+                $productId = $product->id;
+                Setting::set('creator_monthly_product_id', $productId);
+            }
+
+            $price = $stripe->prices->create([
+                'currency' => 'usd',
+                'unit_amount' => $cents,
+                'recurring' => ['interval' => 'month'],
+                'product' => $productId,
+            ]);
+
+            Setting::set('creator_monthly_price_id', $price->id);
+            Setting::set('creator_monthly_price_amount_cents', $cents, 'integer');
+
+            return $price->id;
+        } catch (\Throwable $e) {
+            Log::warning('Failed to auto-create creator Stripe price', [
+                'error' => $e->getMessage(),
+                'usd' => $usd,
+            ]);
+
+            return $this->getCreatorPriceId();
+        }
     }
 
     public function show()
@@ -24,13 +80,14 @@ class CreatorSubscriptionController extends Controller
         return view('creator.subscription', [
             'user' => $user,
             'isActive' => $user?->is_creator && $user?->subscribed('creator'),
+            'monthlyPriceUsd' => $this->getCreatorMonthlyPriceUsd(),
         ]);
     }
 
     public function checkout(Request $request)
     {
         $user = $request->user();
-        $priceId = $this->getCreatorPriceId();
+        $priceId = $this->ensureCreatorStripePrice();
 
         if (!$priceId) {
             return back()->with('error', 'No se ha configurado el precio mensual de creadores en Stripe.');

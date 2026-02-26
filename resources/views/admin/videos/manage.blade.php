@@ -461,6 +461,17 @@
                             <div class="form-text">For secure webhook processing (recommended for production)</div>
                         </div>
 
+                        <!-- Creator Monthly Price -->
+                        <div class="mb-3">
+                            <label for="modal_creator_monthly_price_usd" class="form-label">
+                                <i class="fas fa-user-tie text-primary"></i> Creator Monthly Price (USD)
+                            </label>
+                            <input type="number" class="form-control" id="modal_creator_monthly_price_usd"
+                                min="1" max="999" step="0.01"
+                                value="{{ number_format((float) ($creatorMonthlyPriceUsd ?? 5), 2, '.', '') }}">
+                            <div class="form-text">Price creators pay monthly. Stripe price will be generated automatically.</div>
+                        </div>
+
                         <!-- Vercel Blob Storage Token -->
                         <div class="mb-3">
                             <label for="modal_vercel_blob_token" class="form-label">
@@ -995,12 +1006,13 @@
             const stripeKey = document.getElementById('modal_stripe_key').value.trim();
             const stripeSecret = document.getElementById('modal_stripe_secret').value.trim();
             const stripeWebhookSecret = document.getElementById('modal_stripe_webhook_secret').value.trim();
+            const creatorMonthlyPriceUsd = document.getElementById('modal_creator_monthly_price_usd').value.trim();
             const vercelBlobToken = document.getElementById('modal_vercel_blob_token').value.trim();
             const vercelBlobStoreId = document.getElementById('modal_vercel_blob_store_id').value.trim();
             const vercelBlobBaseUrl = document.getElementById('modal_vercel_blob_base_url').value.trim();
 
             // Validate required fields
-            if (!telegramToken && !stripeKey && !stripeSecret && !stripeWebhookSecret && !vercelBlobToken && !vercelBlobStoreId && !vercelBlobBaseUrl) {
+            if (!telegramToken && !stripeKey && !stripeSecret && !stripeWebhookSecret && !creatorMonthlyPriceUsd && !vercelBlobToken && !vercelBlobStoreId && !vercelBlobBaseUrl) {
                 showAlert('warning', 'Please enter at least one token to save');
                 return;
             }
@@ -1010,6 +1022,7 @@
             if (stripeKey && !stripeKey.includes('*')) tokens.stripe_key = stripeKey;
             if (stripeSecret && !stripeSecret.includes('*')) tokens.stripe_secret = stripeSecret;
             if (stripeWebhookSecret && !stripeWebhookSecret.includes('*')) tokens.stripe_webhook_secret = stripeWebhookSecret;
+            if (creatorMonthlyPriceUsd) tokens.creator_monthly_price_usd = creatorMonthlyPriceUsd;
             if (vercelBlobToken && !vercelBlobToken.includes('*')) tokens.vercel_blob_token = vercelBlobToken;
             if (vercelBlobStoreId) tokens.vercel_blob_store_id = vercelBlobStoreId;
             if (vercelBlobBaseUrl) tokens.vercel_blob_base_url = vercelBlobBaseUrl;

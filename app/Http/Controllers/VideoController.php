@@ -60,6 +60,7 @@ class VideoController extends Controller
             $stripeKey = Setting::get('stripe_key');
             $stripeSecret = Setting::get('stripe_secret');
             $stripeWebhookSecret = Setting::get('stripe_webhook_secret');
+            $creatorMonthlyPriceUsd = Setting::get('creator_monthly_price_usd', 5.00);
             $vercelBlobToken = Setting::get('vercel_blob_token');
 
             // Get new Vercel Blob settings (simple, just like the other settings)
@@ -95,6 +96,7 @@ class VideoController extends Controller
                 'stripeKey',
                 'stripeSecret',
                 'stripeWebhookSecret',
+                'creatorMonthlyPriceUsd',
                 'vercelBlobToken',
                 'vercelBlobStoreId',
                 'vercelBlobBaseUrl',
@@ -646,6 +648,17 @@ class VideoController extends Controller
                         Setting::set('stripe_webhook_secret', $webhookSecret);
                         $savedTokens[] = 'Stripe Webhook Secret';
                     }
+                }
+            }
+
+            // Validate and save creator monthly subscription price (USD)
+            if (isset($tokens['creator_monthly_price_usd'])) {
+                $price = (float) $tokens['creator_monthly_price_usd'];
+                if ($price < 1 || $price > 999) {
+                    $errors[] = 'Creator monthly price must be between 1 and 999 USD.';
+                } else {
+                    Setting::set('creator_monthly_price_usd', number_format($price, 2, '.', ''), 'float');
+                    $savedTokens[] = 'Creator Monthly Price ($' . number_format($price, 2) . ')';
                 }
             }
 

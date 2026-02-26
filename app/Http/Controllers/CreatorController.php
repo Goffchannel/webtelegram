@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Purchase;
+use App\Models\Category;
 use App\Models\User;
 use App\Models\Video;
 use Illuminate\Http\Request;
@@ -41,7 +42,14 @@ class CreatorController extends Controller
             ->limit(10)
             ->get();
 
-        return view('creator.dashboard', compact('creator', 'stats', 'recentPurchases'));
+        $videos = $creator->creatorVideos()
+            ->with('category')
+            ->latest()
+            ->paginate(10);
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('creator.dashboard', compact('creator', 'stats', 'recentPurchases', 'videos', 'categories'));
     }
 
     public function updateProfile(Request $request)
@@ -99,9 +107,29 @@ class CreatorController extends Controller
             'description' => 'nullable|string|max:2000',
             'price' => 'required|numeric|min:0|max:9999.99',
             'category_id' => 'required|exists:categories,id',
+            'thumbnail_url' => 'nullable|url|max:500',
+            'blur_intensity' => 'nullable|integer|min:1|max:20',
+            'show_blurred' => 'nullable|boolean',
+            'allow_preview' => 'nullable|boolean',
         ]);
 
-        $video->update($validated);
+        $updateData = [
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'price' => (float) $validated['price'],
+            'category_id' => (int) $validated['category_id'],
+            'blur_intensity' => (int) ($validated['blur_intensity'] ?? $video->blur_intensity ?? 10),
+            'show_blurred_thumbnail' => $request->boolean('show_blurred'),
+            'allow_preview' => $request->boolean('allow_preview'),
+        ];
+
+        if (!empty($validated['thumbnail_url'])) {
+            $updateData['thumbnail_url'] = $validated['thumbnail_url'];
+            $updateData['thumbnail_path'] = null;
+            $updateData['thumbnail_blob_url'] = null;
+        }
+
+        $video->update($updateData);
 
         return back()->with('success', 'Video actualizado correctamente.');
     }

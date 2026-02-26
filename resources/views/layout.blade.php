@@ -158,9 +158,8 @@
                     </ul>
                     @else {{-- Guest actions --}}
                         <div class="d-flex align-items-center ms-auto gap-2">
-                            <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">Iniciar sesion</a>
-                            <a href="{{ route('register') }}" class="btn btn-light btn-sm">Registrarse</a>
-                            <a href="{{ route('creator.subscription.show') }}" class="btn btn-warning btn-sm">Ser creador</a>
+                            <a href="{{ route('logincreator') }}" class="btn btn-outline-light btn-sm">Login</a>
+                            <a href="{{ route('register') }}" class="btn btn-warning btn-sm">Quiero ser un creador</a>
                             <button type="button" class="btn nav-link" id="theme-toggle-bootstrap">
                                 <i class="fas fa-moon" id="theme-icon-moon-bootstrap"></i>
                                 <i class="fas fa-sun d-none" id="theme-icon-sun-bootstrap"></i>

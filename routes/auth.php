@@ -17,10 +17,22 @@ Route::middleware('guest')->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+    // Creator login (default login route used by auth middleware)
+    Route::get('login', [AuthenticatedSessionController::class, 'createCreator'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('logincreator', [AuthenticatedSessionController::class, 'createCreator'])
+        ->name('logincreator');
+
+    Route::post('logincreator', [AuthenticatedSessionController::class, 'storeCreator'])
+        ->name('logincreator.store');
+
+    // Private admin login route (not linked in public UI)
+    Route::get('loginadmin', [AuthenticatedSessionController::class, 'createAdmin'])
+        ->name('loginadmin');
+
+    Route::post('loginadmin', [AuthenticatedSessionController::class, 'storeAdmin'])
+        ->name('loginadmin.store');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', 'Admin Login')
+@section('title', $heading ?? 'Login')
 
 @section('content')
     <div class="row justify-content-center">
@@ -8,7 +8,7 @@
             <div class="card shadow">
                 <div class="card-header text-center">
                     <h4 class="mb-0">
-                        <i class="fas fa-user-shield"></i> Admin Login
+                        <i class="fas fa-user-shield"></i> {{ $heading ?? 'Login' }}
                     </h4>
                 </div>
                 <div class="card-body">
@@ -19,7 +19,7 @@
                         </div>
                     @endif
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ $actionRoute ?? route('login') }}">
         @csrf
 
         <!-- Email Address -->
@@ -56,7 +56,11 @@
                 </div>
                 <div class="card-footer text-center text-muted">
                     <small>
-                        <i class="fas fa-shield-alt"></i> Secure Admin Access
+                        @if (($loginType ?? 'creator') === 'admin')
+                            <i class="fas fa-shield-alt"></i> Acceso privado de administracion
+                        @else
+                            <i class="fas fa-store"></i> Acceso para creadores y usuarios
+                        @endif
                     </small>
                 </div>
             </div>

@@ -261,9 +261,9 @@ Route::get('/run-migrations-setup-once', function () {
 // API routes
 Route::post('/api/create-payment-intent', [PaymentController::class, 'createPaymentIntent'])->name('api.create-payment-intent');
 
-// Public creator storefront routes (must stay after static /creator/subscription routes)
-Route::get('/creator/{creator:creator_slug}', [CreatorController::class, 'storefront'])->name('creator.storefront');
-Route::get('/creator/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'form'])->name('creator.checkout.form');
-Route::post('/creator/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'submit'])->name('creator.checkout.submit');
+// Public creator storefront routes (use /store/* to avoid conflicts with /creator/subscription)
+Route::get('/store/{creator:creator_slug}', [CreatorController::class, 'storefront'])->name('creator.storefront');
+Route::get('/store/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'form'])->name('creator.checkout.form');
+Route::post('/store/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'submit'])->name('creator.checkout.submit');
 
 require __DIR__ . '/auth.php';

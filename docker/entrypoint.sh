@@ -93,31 +93,9 @@ fi
 echo "🧹 Clearing database caches..."
 php artisan cache:clear || echo "⚠️  Cache clear failed, continuing..."
 
-# Check if database is accessible
-echo "🔍 Checking database migration status..."
-if ! php artisan migrate:status &>/dev/null; then
-    echo "📊 Database appears empty, running initial migrations..."
-    if ! php artisan migrate --force; then
-        echo "❌ Initial migrations failed! Trying fresh migration..."
-        # Delete database and recreate
-        rm -f /var/www/html/database/database.sqlite
-        touch /var/www/html/database/database.sqlite
-        chown www-data:www-data /var/www/html/database/database.sqlite
-        chmod 664 /var/www/html/database/database.sqlite
-
-        # Try fresh migration
-        php artisan migrate:fresh --force || echo "❌ Fresh migration also failed"
-    fi
-else
-    echo "📊 Database has migrations, checking if we need to run new ones..."
-    # Force check if any migrations show as nothing to migrate
-    MIGRATE_OUTPUT=$(php artisan migrate --force 2>&1)
-    echo "$MIGRATE_OUTPUT"
-    if echo "$MIGRATE_OUTPUT" | grep -q "Nothing to migrate"; then
-        echo "⚠️  'Nothing to migrate' detected but tables might be missing. Forcing fresh migration..."
-        php artisan migrate:fresh --force || echo "❌ Forced fresh migration failed"
-    fi
-fi
+# Run migrations safely (never reset production data on startup)
+echo "🔍 Running migrations (safe mode)..."
+php artisan migrate --force || echo "⚠️  Migration command failed, continuing startup"
 
 # Verify critical tables exist
 echo "🔍 Verifying critical tables exist..."
@@ -138,23 +116,7 @@ try {
 }
 "
 
-# Seed database with admin user and sample videos
-echo "🌱 Seeding database..."
-if php artisan db:seed --force --class=DatabaseSeeder; then
-    echo "✅ Database seeding completed successfully!"
-else
-    echo "⚠️  DatabaseSeeder failed, trying individual seeders..."
-    if php artisan db:seed --force --class=AdminUserSeeder; then
-        echo "✅ Admin user seeder completed"
-    else
-        echo "❌ Admin user seeder failed"
-    fi
-    if php artisan db:seed --force --class=VideosTableSeeder; then
-        echo "✅ Videos seeder completed"
-    else
-        echo "❌ Videos seeder failed"
-    fi
-fi
+# Do not seed automatically on every boot; seed manually when needed.
 
 # Cache configuration for production (only after migrations)
 echo "⚡ Caching configuration..."

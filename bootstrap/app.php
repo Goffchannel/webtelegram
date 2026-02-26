@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust all proxies for Vercel deployment
         $middleware->trustProxies(at: '*');
 
+        $middleware->alias([
+            'creator' => \App\Http\Middleware\CreatorMiddleware::class,
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        ]);
+
         $middleware->validateCsrfTokens(except: [
             'telegram/webhook',
             'telegram/bot-emulator'

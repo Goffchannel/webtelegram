@@ -192,10 +192,12 @@ class VideoController extends Controller
             if ($request->has('category_id')) $updateData['category_id'] = (int) $request->input('category_id');
             if ($request->has('blur_intensity')) $updateData['blur_intensity'] = (int) $request->input('blur_intensity');
 
-            // Handle external thumbnail URL - store it in thumbnail_path since thumbnail_url column doesn't exist
-            if ($request->has('thumbnail_url') && !empty($request->input('thumbnail_url'))) {
-                $updateData['thumbnail_path'] = $request->input('thumbnail_url');
-                // Clear blob URL when using external URL
+            $hasExternalThumbnailUrl = $request->has('thumbnail_url') && !empty($request->input('thumbnail_url'));
+
+            // External URL should override blob/local thumbnail values
+            if ($hasExternalThumbnailUrl) {
+                $updateData['thumbnail_url'] = $request->input('thumbnail_url');
+                $updateData['thumbnail_path'] = null;
                 $updateData['thumbnail_blob_url'] = null;
             }
 
@@ -211,7 +213,7 @@ class VideoController extends Controller
             }
 
         // Handle direct Vercel Blob upload (from JavaScript direct upload)
-        if ($request->has('thumbnail_blob_url') && !empty($request->input('thumbnail_blob_url'))) {
+        if (!$hasExternalThumbnailUrl && $request->has('thumbnail_blob_url') && !empty($request->input('thumbnail_blob_url'))) {
             try {
                 $blobUrl = $request->input('thumbnail_blob_url');
 
@@ -249,6 +251,7 @@ class VideoController extends Controller
 
                 $updateData['thumbnail_blob_url'] = $blobUrl;
                 $updateData['thumbnail_path'] = $thumbnailPath;
+                $updateData['thumbnail_url'] = null;
 
                 Log::info('Direct blob upload processed', [
                     'blob_url' => $blobUrl,
@@ -264,7 +267,7 @@ class VideoController extends Controller
             }
         }
         // Handle traditional file upload ONLY if file is actually uploaded and valid
-        elseif ($request->hasFile('thumbnail') && $request->file('thumbnail')->isValid() && $request->file('thumbnail')->getSize() > 0) {
+        elseif (!$hasExternalThumbnailUrl && $request->hasFile('thumbnail') && $request->file('thumbnail')->isValid() && $request->file('thumbnail')->getSize() > 0) {
             try {
                 $thumbnailFile = $request->file('thumbnail');
                 $extension = $thumbnailFile->getClientOriginalExtension();
@@ -346,8 +349,9 @@ class VideoController extends Controller
 
                 $publicUrl = $result->url;
 
-                    $updateData['thumbnail_path'] = $thumbnailName;
+                $updateData['thumbnail_path'] = $thumbnailName;
                 $updateData['thumbnail_blob_url'] = $publicUrl;
+                $updateData['thumbnail_url'] = null;
 
                 Log::info('Thumbnail uploaded successfully to Vercel Blob', [
                     'stored_as' => $thumbnailName,

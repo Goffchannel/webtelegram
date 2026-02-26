@@ -191,14 +191,19 @@ class Video extends Model
             return $this->thumbnail_blob_url;
         }
 
-        // Check for uploaded thumbnail (local storage fallback)
-        if ($this->thumbnail_path) {
-            return asset('storage/thumbnails/' . $this->thumbnail_path);
-        }
-
         // Check for external thumbnail URL
         if ($this->thumbnail_url) {
             return $this->thumbnail_url;
+        }
+
+        // Backward compatibility for rows where an external URL was stored in thumbnail_path
+        if ($this->thumbnail_path && filter_var($this->thumbnail_path, FILTER_VALIDATE_URL)) {
+            return $this->thumbnail_path;
+        }
+
+        // Check for uploaded thumbnail (local storage fallback)
+        if ($this->thumbnail_path) {
+            return asset('storage/thumbnails/' . $this->thumbnail_path);
         }
 
         return null;

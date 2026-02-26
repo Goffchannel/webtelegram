@@ -81,11 +81,17 @@
                                             @endif
                                         </h6>
                                         @if($purchase->creator_id)
-                                            <p class="mb-2">Tu solicitud fue enviada al creador. Cuando valide tu pago, el acceso quedara activo para tu usuario de Telegram:</p>
+                                            <p class="mb-2">Tu solicitud fue enviada al creador. Cuando valide tu pago, el acceso quedara activo para tu usuario de Telegram.</p>
                                         @else
                                             <p class="mb-2">To receive your video, please follow these steps:</p>
                                         @endif
                                         <ol>
+                                            @if($purchase->creator_id)
+                                                <li>Guarda este enlace de compra para volver luego:
+                                                    <code>{{ route('purchase.view', $purchase->purchase_uuid) }}</code>
+                                                </li>
+                                                <li>Cuando el creador apruebe, vuelve a este mismo enlace y sigue las instrucciones de entrega.</li>
+                                            @endif
                                             @if(!$purchase->creator_id)
                                                 <li>Open Telegram and search for our bot</li>
                                                 <li>Send the command <code>/start</code> to the bot</li>
@@ -100,7 +106,7 @@
                                             @endif
                                         </ol>
                                         @if($purchase->creator_id)
-                                            <small class="text-muted">Si el creador rechaza el pago, deberas contactar directamente con ese creador para cualquier reembolso.</small>
+                                            <small class="text-muted">Si el creador rechaza el pago, deberas contactar directamente con ese creador para cualquier reembolso. Si tienes problemas, usa el boton "Reportar creador".</small>
                                         @else
                                             <small class="text-muted">
                                                 Once you start the bot with the same username you used during purchase,
@@ -318,7 +324,25 @@
         @if (
             $purchase->verification_status === 'pending' ||
                 ($purchase->verification_status === 'verified' && $purchase->delivery_status === 'pending'))
+            function shouldPausePurchaseAutoRefresh() {
+                // Do not reload while the user is typing or interacting with any modal.
+                if (document.querySelector('.modal.show')) {
+                    return true;
+                }
+
+                const active = document.activeElement;
+                if (!active) {
+                    return false;
+                }
+
+                const tag = active.tagName;
+                return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+            }
+
             setInterval(function() {
+                if (shouldPausePurchaseAutoRefresh()) {
+                    return;
+                }
                 window.location.reload();
             }, 30000);
         @endif

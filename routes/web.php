@@ -27,6 +27,7 @@ Route::get('/payment/{video}/success', [PaymentController::class, 'success'])->n
 Route::get('/payment/{video}/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 Route::get('/purchase/{uuid}', [PaymentController::class, 'viewPurchase'])->name('purchase.view');
 Route::post('/purchase/{uuid}/update-username', [PaymentController::class, 'updateTelegramUsername'])->name('purchase.update-username');
+Route::post('/purchase/{uuid}/report', [PaymentController::class, 'reportCreator'])->name('purchase.report-creator');
 
 // Authentication routes (profile management)
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -105,6 +106,9 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/purchases/{purchase}/update-notes', [\App\Http\Controllers\Admin\PurchaseController::class, 'updateNotes'])->name('admin.purchases.update-notes');
     Route::post('/admin/purchases/{purchase}/update-username', [\App\Http\Controllers\Admin\PurchaseController::class, 'updateTelegramUsername'])->name('admin.purchases.update-username');
     Route::post('/admin/purchases/fix-stuck-deliveries', [\App\Http\Controllers\Admin\PurchaseController::class, 'fixStuckDeliveries'])->name('admin.purchases.fix-stuck-deliveries');
+    Route::post('/admin/reports/{report}/status', [\App\Http\Controllers\Admin\PurchaseController::class, 'updateReportStatus'])->name('admin.reports.update-status');
+    Route::post('/admin/reports/{report}/ban-creator', [\App\Http\Controllers\Admin\PurchaseController::class, 'banCreatorFromReport'])->name('admin.reports.ban-creator');
+    Route::post('/admin/reports/{report}/delete-creator', [\App\Http\Controllers\Admin\PurchaseController::class, 'deleteCreatorFromReport'])->name('admin.reports.delete-creator');
 
     // Category management routes
     Route::get('/admin/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('admin.categories.manage');

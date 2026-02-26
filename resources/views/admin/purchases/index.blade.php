@@ -75,6 +75,21 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-3 mt-3 mt-md-0">
+                        <div class="card text-white" style="background-color: #6f42c1;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="card-title">Open Creator Reports</h6>
+                                        <h3 class="mb-0">{{ $stats['open_creator_reports'] ?? 0 }}</h3>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-flag fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Filters -->
@@ -141,6 +156,87 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                <!-- Creator Reports -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-flag me-2"></i>Reportes de creadores</h5>
+                        <small class="text-muted">Ultimos 50 reportes</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Estado</th>
+                                        <th>Compra</th>
+                                        <th>Creador</th>
+                                        <th>Motivo</th>
+                                        <th>Mensaje</th>
+                                        <th>Contacto</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($creatorReports as $report)
+                                        <tr data-report-id="{{ $report->id }}">
+                                            <td>{{ $report->id }}</td>
+                                            <td>
+                                                @if ($report->status === 'open')
+                                                    <span class="badge text-bg-danger">Open</span>
+                                                @elseif($report->status === 'reviewing')
+                                                    <span class="badge text-bg-warning">Reviewing</span>
+                                                @else
+                                                    <span class="badge text-bg-success">Resolved</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('purchase.view', $report->purchase->purchase_uuid) }}" target="_blank">
+                                                    {{ $report->purchase->purchase_uuid }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                @if ($report->creator)
+                                                    <strong>{{ $report->creator->creator_store_name ?? $report->creator->name }}</strong>
+                                                    <br><small class="text-muted">ID: {{ $report->creator->id }}</small>
+                                                @else
+                                                    <span class="text-muted">Eliminado</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $report->reason }}</td>
+                                            <td style="max-width: 280px;">
+                                                <small>{{ \Illuminate\Support\Str::limit($report->message, 140) }}</small>
+                                            </td>
+                                            <td>
+                                                @if($report->reporter_telegram)
+                                                    <div><span>@</span>{{ ltrim($report->reporter_telegram, '@') }}</div>
+                                                @endif
+                                                @if($report->reporter_email)
+                                                    <small>{{ $report->reporter_email }}</small>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-secondary" onclick="updateReportStatus({{ $report->id }}, 'reviewing')">Review</button>
+                                                    <button class="btn btn-outline-success" onclick="updateReportStatus({{ $report->id }}, 'resolved')">Resolve</button>
+                                                    @if($report->creator)
+                                                        <button class="btn btn-outline-warning" onclick="banCreator({{ $report->id }})">Ban</button>
+                                                        <button class="btn btn-outline-danger" onclick="deleteCreator({{ $report->id }})">Delete</button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-3">Sin reportes por ahora.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -542,6 +638,60 @@
                 const alert = document.querySelector('.alert');
                 if (alert) alert.remove();
             }, 5000);
+        }
+
+        function updateReportStatus(reportId, status) {
+            fetch(`/admin/reports/${reportId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Error');
+                    showAlert('success', data.message);
+                    setTimeout(() => location.reload(), 800);
+                })
+                .catch(error => showAlert('error', error.message));
+        }
+
+        function banCreator(reportId) {
+            if (!confirm('Banear creador? Esto desactiva su modo creador.')) return;
+
+            fetch(`/admin/reports/${reportId}/ban-creator`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Error');
+                    showAlert('success', data.message);
+                    setTimeout(() => location.reload(), 800);
+                })
+                .catch(error => showAlert('error', error.message));
+        }
+
+        function deleteCreator(reportId) {
+            if (!confirm('Eliminar cuenta del creador? Esta accion no se puede deshacer.')) return;
+
+            fetch(`/admin/reports/${reportId}/delete-creator`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Error');
+                    showAlert('success', data.message);
+                    setTimeout(() => location.reload(), 800);
+                })
+                .catch(error => showAlert('error', error.message));
         }
     </script>
 @endsection

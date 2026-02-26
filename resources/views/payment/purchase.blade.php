@@ -134,6 +134,9 @@
                                             </h6>
                                             <p class="mb-1">Your video has been successfully delivered to your Telegram
                                                 account.</p>
+                                            @if($purchase->creator_id)
+                                                <p class="mb-1">Si necesitas volver a recibirlo, abre el bot y usa <code>/getvideo {{ $purchase->video_id }}</code>.</p>
+                                            @endif
                                             <small class="text-muted">Delivered on:
                                                 {{ $purchase->delivered_at->format('M d, Y H:i:s') }}</small>
 
@@ -159,8 +162,18 @@
                                                 <i class="fas fa-spinner fa-spin me-2"></i>
                                                 Preparing Delivery
                                             </h6>
-                                            <p class="mb-0">Your video is being prepared for delivery. You'll receive it
-                                                shortly on Telegram.</p>
+                                            @if($purchase->creator_id)
+                                                <p class="mb-2">Pago aprobado por el creador. Sigue estos pasos para recibir tu video:</p>
+                                                <ol class="mb-2">
+                                                    <li>Abre Telegram y entra al bot.</li>
+                                                    <li>Envia <code>/start</code> si es tu primera vez.</li>
+                                                    <li>Envia <code>/getvideo {{ $purchase->video_id }}</code> con el mismo usuario usado en la compra.</li>
+                                                </ol>
+                                                <small class="text-muted">Si no llega en 1-2 minutos, actualiza esta pagina y vuelve a ejecutar <code>/getvideo {{ $purchase->video_id }}</code>.</small>
+                                            @else
+                                                <p class="mb-0">Your video is being prepared for delivery. You'll receive it
+                                                    shortly on Telegram.</p>
+                                            @endif
                                         </div>
                                     @elseif($purchase->delivery_status === 'failed')
                                         <div class="alert alert-danger">
@@ -178,6 +191,20 @@
                                 @endif
                             </div>
                         </div>
+
+                        @if($purchase->creator_id)
+                            <div class="card mb-3 border-danger">
+                                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                                    <div>
+                                        <h6 class="mb-1 text-danger"><i class="fas fa-flag me-2"></i>Problema con este creador</h6>
+                                        <small class="text-muted">Si hubo fraude, no entrega o mal trato, envianos un reporte para revisarlo desde admin.</small>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger" onclick="openCreatorReportModal()">
+                                        Reportar creador
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Actions -->
                         <div class="text-center">
@@ -233,6 +260,56 @@
             </div>
         </div>
     </div>
+
+    @if($purchase->creator_id)
+        <div class="modal fade" id="reportCreatorModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reportar creador</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="reportCreatorForm">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Motivo</label>
+                                <select class="form-select" name="reason" required>
+                                    <option value="">Selecciona un motivo</option>
+                                    <option value="No entrega el video">No entrega el video</option>
+                                    <option value="Pago aprobado pero sin acceso">Pago aprobado pero sin acceso</option>
+                                    <option value="Contenido incorrecto">Contenido incorrecto</option>
+                                    <option value="Fraude o estafa">Fraude o estafa</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descripcion del problema</label>
+                                <textarea class="form-control" name="message" rows="4" required placeholder="Explica lo ocurrido..."></textarea>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Tu nombre (opcional)</label>
+                                    <input class="form-control" name="reporter_name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Telegram (opcional)</label>
+                                    <input class="form-control" name="reporter_telegram" placeholder="@usuario">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Email (opcional)</label>
+                                    <input type="email" class="form-control" name="reporter_email">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Enviar reporte</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @section('scripts')
@@ -313,5 +390,47 @@
                 if (alert) alert.remove();
             }, 5000);
         }
+
+        @if($purchase->creator_id)
+        function openCreatorReportModal() {
+            new bootstrap.Modal(document.getElementById('reportCreatorModal')).show();
+        }
+
+        document.getElementById('reportCreatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+
+            fetch(`/purchase/{{ $purchase->purchase_uuid }}/report`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message || 'Reporte enviado');
+                    bootstrap.Modal.getInstance(document.getElementById('reportCreatorModal')).hide();
+                    document.getElementById('reportCreatorForm').reset();
+                } else {
+                    showAlert('error', data.message || 'No se pudo enviar el reporte');
+                }
+            })
+            .catch(() => {
+                showAlert('error', 'Error enviando el reporte');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            });
+        });
+        @endif
     </script>
 @endsection

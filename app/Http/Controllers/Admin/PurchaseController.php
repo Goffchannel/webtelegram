@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\CreatorReport;
 use App\Models\Purchase;
-use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -57,9 +57,15 @@ class PurchaseController extends Controller
             'delivered' => Purchase::where('delivery_status', 'delivered')->count(),
             'failed_delivery' => Purchase::where('delivery_status', 'failed')->count(),
             'total_revenue' => Purchase::where('purchase_status', 'completed')->sum('amount'),
+            'open_creator_reports' => CreatorReport::whereIn('status', ['open', 'reviewing'])->count(),
         ];
 
-        return view('admin.purchases.index', compact('purchases', 'stats'));
+        $creatorReports = CreatorReport::with(['purchase.video', 'creator'])
+            ->latest()
+            ->limit(50)
+            ->get();
+
+        return view('admin.purchases.index', compact('purchases', 'stats', 'creatorReports'));
     }
 
     /**
@@ -356,5 +362,94 @@ class PurchaseController extends Controller
                 'message' => 'Failed to fix deliveries: ' . $e->getMessage(),
             ]);
         }
+    }
+
+    public function updateReportStatus(Request $request, CreatorReport $report)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:open,reviewing,resolved',
+            'admin_notes' => 'nullable|string|max:2000',
+        ]);
+
+        $report->status = $validated['status'];
+        $report->admin_notes = $validated['admin_notes'] ?? $report->admin_notes;
+
+        if ($validated['status'] === 'resolved') {
+            $report->resolved_by = Auth::id();
+            $report->resolved_at = now();
+        } else {
+            $report->resolved_by = null;
+            $report->resolved_at = null;
+        }
+
+        $report->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado del reporte actualizado.',
+        ]);
+    }
+
+    public function banCreatorFromReport(CreatorReport $report)
+    {
+        $creator = $report->creator;
+
+        if (!$creator) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El creador ya no existe.',
+            ], 404);
+        }
+
+        $creator->update([
+            'is_creator' => false,
+            'creator_subscription_status' => 'banned',
+        ]);
+
+        $report->update([
+            'status' => 'resolved',
+            'resolved_by' => Auth::id(),
+            'resolved_at' => now(),
+            'admin_notes' => trim(($report->admin_notes ? $report->admin_notes . "\n" : '') . 'Creador baneado por administrador.'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Creador baneado correctamente.',
+        ]);
+    }
+
+    public function deleteCreatorFromReport(CreatorReport $report)
+    {
+        $creator = $report->creator;
+
+        if (!$creator) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El creador ya no existe.',
+            ], 404);
+        }
+
+        if ($creator->is_admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se puede eliminar una cuenta admin.',
+            ], 422);
+        }
+
+        $creatorName = $creator->name;
+        $creator->delete();
+
+        $report->update([
+            'status' => 'resolved',
+            'resolved_by' => Auth::id(),
+            'resolved_at' => now(),
+            'admin_notes' => trim(($report->admin_notes ? $report->admin_notes . "\n" : '') . "Cuenta de creador eliminada: {$creatorName}."),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cuenta del creador eliminada correctamente.',
+        ]);
     }
 }

@@ -71,6 +71,11 @@ class User extends Authenticatable
         return $this->hasMany(Purchase::class, 'creator_id');
     }
 
+    public function creatorReports()
+    {
+        return $this->hasMany(CreatorReport::class, 'creator_id');
+    }
+
     public function isCreatorActive(): bool
     {
         return $this->is_creator && $this->subscribed('creator');

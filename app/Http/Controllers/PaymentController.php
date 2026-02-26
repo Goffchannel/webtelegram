@@ -6,6 +6,7 @@ use App\Models\Video;
 use App\Models\User;
 use App\Models\Purchase;
 use App\Models\Setting;
+use App\Models\CreatorReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -242,6 +243,45 @@ class PaymentController extends Controller
                 'message' => 'Failed to update username. Please try again.'
             ]);
         }
+    }
+
+    /**
+     * Submit a report against a creator from a purchase page.
+     */
+    public function reportCreator(Request $request, string $uuid)
+    {
+        $purchase = Purchase::with(['video', 'creator'])->where('purchase_uuid', $uuid)->firstOrFail();
+
+        if (!$purchase->creator_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta compra no pertenece a un creador.',
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'reason' => 'required|string|max:120',
+            'message' => 'required|string|min:10|max:2000',
+            'reporter_name' => 'nullable|string|max:120',
+            'reporter_email' => 'nullable|email|max:255',
+            'reporter_telegram' => 'nullable|string|max:120',
+        ]);
+
+        CreatorReport::create([
+            'purchase_id' => $purchase->id,
+            'creator_id' => $purchase->creator_id,
+            'reporter_name' => $validated['reporter_name'] ?? null,
+            'reporter_email' => $validated['reporter_email'] ?? null,
+            'reporter_telegram' => isset($validated['reporter_telegram']) ? ltrim($validated['reporter_telegram'], '@') : null,
+            'reason' => $validated['reason'],
+            'message' => $validated['message'],
+            'status' => 'open',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reporte enviado. El administrador lo revisara.',
+        ]);
     }
 
     /**

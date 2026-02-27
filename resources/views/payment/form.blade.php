@@ -7,7 +7,7 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-shopping-cart"></i> Purchase Video</h4>
+                    <h4 class="mb-0"><i class="fas fa-shopping-cart"></i> Comprar</h4>
                 </div>
                 <div class="card-body">
                     <!-- Video Details with Thumbnail -->
@@ -37,15 +37,28 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ $video->title }}</h5>
                             <p class="card-text">{{ $video->description }}</p>
+                            @if($video->long_description)
+                                <div class="alert alert-secondary" style="white-space: pre-wrap;">{{ $video->long_description }}</div>
+                            @endif
                             <div class="row">
                                 <div class="col-sm-6">
                                     <strong>Price:</strong>
                                     <span class="h5 text-success">${{ number_format($video->price, 2) }}</span>
                                 </div>
                                 <div class="col-sm-6">
-                                    <strong>Duration:</strong> {{ $video->duration ?? 'N/A' }}
+                                    @if($video->isServiceProduct())
+                                        <strong>Servicio:</strong> {{ $video->duration_days ?? 30 }} dias
+                                    @else
+                                        <strong>Duration:</strong> {{ $video->duration ?? 'N/A' }}
+                                    @endif
                                 </div>
                             </div>
+                            @if($video->isServiceProduct())
+                                <div class="mt-2">
+                                    <span class="badge text-bg-info">Producto de acceso</span>
+                                    <span class="badge text-bg-success">Stock: {{ $video->availableServiceLines()->count() }}</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
 

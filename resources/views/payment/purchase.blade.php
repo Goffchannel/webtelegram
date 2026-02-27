@@ -5,6 +5,7 @@
 @section('content')
     @php
         $isManualCreatorFlow = $purchase->creator_id && $purchase->creator && !$purchase->creator->is_admin;
+        $isServiceProduct = $purchase->video && $purchase->video->isServiceProduct();
     @endphp
     <div class="container">
         <div class="row justify-content-center">
@@ -95,7 +96,7 @@
                                                 </li>
                                                 <li>Cuando el creador apruebe, vuelve a este mismo enlace y sigue las instrucciones de entrega.</li>
                                             @endif
-                                            @if(!$purchase->creator_id)
+                                            @if(!$purchase->creator_id && !$isServiceProduct)
                                                 <li>Abre Telegram y busca nuestro bot</li>
                                                 <li>Envia el comando <code>/start</code> al bot</li>
                                             @endif
@@ -141,28 +142,42 @@
                                                 <i class="fas fa-check-circle me-2"></i>
                                                 Video entregado
                                             </h6>
-                                            <p class="mb-1">Tu video se entrego correctamente en tu cuenta de Telegram.</p>
-                                            @if($purchase->creator_id)
+                                            @if($isServiceProduct)
+                                                <p class="mb-1">Tu acceso al servicio fue activado correctamente.</p>
+                                            @else
+                                                <p class="mb-1">Tu video se entrego correctamente en tu cuenta de Telegram.</p>
+                                            @endif
+                                            @if($purchase->creator_id && !$isServiceProduct)
                                                 <p class="mb-1">Si necesitas volver a recibirlo, abre el bot y usa <code>/getvideo {{ $purchase->video_id }}</code>.</p>
                                             @endif
                                             <small class="text-muted">Entregado el:
                                                 {{ $purchase->delivered_at->format('M d, Y H:i:s') }}</small>
 
-                                            <!-- Bot Access Button -->
-                                            <div class="mt-3">
-                                                @if($bot['is_configured'])
-                                                    <a href="{{ $bot['url'] }}" target="_blank" class="btn btn-success">
-                                                    <i class="fab fa-telegram me-2"></i>Abrir chat del bot
+                                            @if($isServiceProduct && $purchase->serviceAccess)
+                                                <hr>
+                                                <p class="mb-2"><strong>Acceso seguro:</strong></p>
+                                                <a class="btn btn-primary" target="_blank" href="{{ route('service.access.show', $purchase->serviceAccess->access_token) }}">
+                                                    Abrir acceso
                                                 </a>
-                                                @else
-                                                    <a href="{{ route('login') }}" class="btn btn-warning">
-                                                        <i class="fas fa-cog me-2"></i>Falta configuracion
+                                                <p class="mt-2 mb-0"><small>Expira: {{ $purchase->serviceAccess->expires_at->format('Y-m-d H:i') }}</small></p>
+                                            @endif
+
+                                            @if(!$isServiceProduct)
+                                                <div class="mt-3">
+                                                    @if($bot['is_configured'])
+                                                        <a href="{{ $bot['url'] }}" target="_blank" class="btn btn-success">
+                                                        <i class="fab fa-telegram me-2"></i>Abrir chat del bot
                                                     </a>
-                                                @endif
-                                                <p class="text-muted mt-2 mb-0">
-                                                    <small><i class="fas fa-video me-1"></i>Usa <code>/getvideo {{ $purchase->video_id }}</code> cuando quieras para recibirlo otra vez.</small>
-                                                </p>
-                                            </div>
+                                                    @else
+                                                        <a href="{{ route('login') }}" class="btn btn-warning">
+                                                            <i class="fas fa-cog me-2"></i>Falta configuracion
+                                                        </a>
+                                                    @endif
+                                                    <p class="text-muted mt-2 mb-0">
+                                                        <small><i class="fas fa-video me-1"></i>Usa <code>/getvideo {{ $purchase->video_id }}</code> cuando quieras para recibirlo otra vez.</small>
+                                                    </p>
+                                                </div>
+                                            @endif
                                         </div>
                                     @elseif($purchase->delivery_status === 'pending')
                                         <div class="alert alert-info">
@@ -170,7 +185,7 @@
                                                 <i class="fas fa-spinner fa-spin me-2"></i>
                                                 Preparando entrega
                                             </h6>
-                                            @if($isManualCreatorFlow)
+                                            @if($isManualCreatorFlow && !$isServiceProduct)
                                                 <p class="mb-2">Pago aprobado por el creador. Sigue estos pasos para recibir tu video:</p>
                                                 <ol class="mb-2">
                                                     <li>Abre Telegram y entra al bot.</li>
@@ -178,8 +193,10 @@
                                                     <li>Envia <code>/getvideo {{ $purchase->video_id }}</code> con el mismo usuario usado en la compra.</li>
                                                 </ol>
                                                 <small class="text-muted">Si no llega en 1-2 minutos, actualiza esta pagina y vuelve a ejecutar <code>/getvideo {{ $purchase->video_id }}</code>.</small>
-                                            @else
+                                            @elseif(!$isServiceProduct)
                                                 <p class="mb-0">Tu video se esta preparando para entrega. Lo recibiras en breve en Telegram.</p>
+                                            @else
+                                                <p class="mb-0">Estamos activando tu acceso de servicio. Recarga en unos segundos.</p>
                                             @endif
                                         </div>
                                     @elseif($purchase->delivery_status === 'failed')
@@ -219,6 +236,10 @@
                                 Ver mas videos
                             </a>
                         </div>
+
+                        @if($isServiceProduct && $purchase->video && $purchase->video->fan_message)
+                            <div class="mt-3 alert alert-secondary" style="white-space: pre-wrap;">{{ $purchase->video->fan_message }}</div>
+                        @endif
 
                         <!-- Support Information -->
                         <div class="mt-4 text-center">

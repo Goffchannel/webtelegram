@@ -172,6 +172,7 @@
                         <th>Titulo</th>
                         <th>Descripcion</th>
                         <th>Precio</th>
+                        <th>Tipo</th>
                         <th>Categoria</th>
                         <th>Thumbnail</th>
                         <th>File ID</th>
@@ -192,6 +193,14 @@
                             </td>
                             <td>
                                 <span class="badge text-bg-success">${{ number_format($video->price, 2) }}</span>
+                            </td>
+                            <td>
+                                @if($video->isServiceProduct())
+                                    <span class="badge text-bg-info">Servicio {{ $video->duration_days ?? 30 }} dias</span><br>
+                                    <small class="text-muted">Stock: {{ $video->available_service_lines_count ?? 0 }}</small>
+                                @else
+                                    <span class="badge text-bg-secondary">Video</span>
+                                @endif
                             </td>
                             <td>
                                 <span class="badge text-bg-info">{{ $video->category->name ?? 'N/A' }}</span>
@@ -227,7 +236,7 @@
                             </td>
                         </tr>
                         <tr class="collapse" id="edit-video-{{ $video->id }}">
-                            <td colspan="7">
+                            <td colspan="8">
                                 <form method="POST" action="{{ route('creator.videos.update', $video) }}" class="border rounded p-3 bg-body-tertiary">
                                     @csrf
                                     @method('PUT')
@@ -239,6 +248,13 @@
                                         <div class="col-md-3">
                                             <label class="form-label mb-1">Precio</label>
                                             <input name="price" type="number" min="0" step="0.01" class="form-control form-control-sm" value="{{ $video->price }}" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label mb-1">Tipo</label>
+                                            <select name="product_type" class="form-select form-select-sm" required>
+                                                <option value="video" @selected(!$video->isServiceProduct())>Video</option>
+                                                <option value="service_access" @selected($video->isServiceProduct())>Servicio (lista/membresia)</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label mb-1">Categoria</label>
@@ -256,9 +272,25 @@
                                             <label class="form-label mb-1">Blur</label>
                                             <input name="blur_intensity" type="number" min="1" max="20" class="form-control form-control-sm" value="{{ $video->blur_intensity ?? 10 }}">
                                         </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label mb-1">Duracion dias</label>
+                                            <input name="duration_days" type="number" min="1" max="365" class="form-control form-control-sm" value="{{ $video->duration_days ?? 30 }}">
+                                        </div>
                                         <div class="col-md-12">
                                             <label class="form-label mb-1">Descripcion</label>
                                             <textarea name="description" class="form-control form-control-sm" rows="2">{{ $video->description }}</textarea>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label mb-1">Descripcion larga</label>
+                                            <textarea name="long_description" class="form-control form-control-sm" rows="2">{{ $video->long_description }}</textarea>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label mb-1">Mensaje exclusivo para fans (post-compra)</label>
+                                            <textarea name="fan_message" class="form-control form-control-sm" rows="2">{{ $video->fan_message }}</textarea>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label mb-1">Instrucciones de acceso</label>
+                                            <textarea name="access_instructions" class="form-control form-control-sm" rows="2">{{ $video->access_instructions }}</textarea>
                                         </div>
                                         <div class="col-md-12">
                                             <label class="form-label mb-1">Thumbnail URL externa</label>
@@ -279,10 +311,45 @@
                                         </div>
                                     </div>
                                 </form>
+
+                                @if($video->isServiceProduct())
+                                    <hr>
+                                    <h6>Stock de lineas (formato: nombre|url_m3u|usuario|contrasena|notas)</h6>
+                                    <form method="POST" action="{{ route('creator.videos.service-lines.store', $video) }}" class="mb-2">
+                                        @csrf
+                                        <textarea name="bulk_lines" class="form-control form-control-sm" rows="4" placeholder="Linea 1|https://...m3u|user1|pass1|nota"></textarea>
+                                        <button class="btn btn-sm btn-outline-primary mt-2" type="submit">Cargar lineas</button>
+                                    </form>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead><tr><th>Nombre</th><th>Usuario</th><th>Estado</th><th></th></tr></thead>
+                                            <tbody>
+                                                @foreach($video->serviceLines()->latest()->limit(10)->get() as $line)
+                                                    <tr>
+                                                        <td>{{ $line->line_name }}</td>
+                                                        <td>{{ $line->line_username ?: '-' }}</td>
+                                                        <td>
+                                                            @if($line->is_assigned)<span class="badge text-bg-secondary">Asignada</span>@else<span class="badge text-bg-success">Libre</span>@endif
+                                                        </td>
+                                                        <td>
+                                                            @if(!$line->is_assigned)
+                                                                <form method="POST" action="{{ route('creator.videos.service-lines.delete', ['video' => $video, 'line' => $line]) }}" onsubmit="return confirm('Eliminar linea?')">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                                                </form>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center text-muted py-4">Aun no tienes videos. Envialos al bot con tu Telegram User ID.</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted py-4">Aun no tienes videos. Envialos al bot con tu Telegram User ID.</td></tr>
                     @endforelse
                 </tbody>
             </table>

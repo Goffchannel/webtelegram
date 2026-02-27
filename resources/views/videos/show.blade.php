@@ -40,6 +40,9 @@
                             @if ($video->description)
                                 <p class="text-muted lead">{{ $video->description }}</p>
                             @endif
+                            @if ($video->long_description)
+                                <div class="text-start alert alert-secondary" style="white-space: pre-wrap;">{{ $video->long_description }}</div>
+                            @endif
                             @if ($video->creator && $video->creator->isCreatorActive() && $video->creator->creator_slug)
                                 <p class="mb-3">
                                     <span class="badge text-bg-secondary">Creador: {{ $video->creator->creator_store_name ?? $video->creator->name }}</span>
@@ -62,12 +65,27 @@
                                     <span class="h1 text-primary">${{ number_format($video->price, 2) }}</span>
                                 @endif
                             </div>
+                            @if($video->isServiceProduct())
+                                @php $remaining = $video->availableServiceLines()->count(); @endphp
+                                <div class="mb-2">
+                                    <span class="badge text-bg-info">Servicio {{ $video->duration_days ?? 30 }} dias</span>
+                                    @if($remaining < 1)
+                                        <span class="badge text-bg-danger">SIN STOCK</span>
+                                    @else
+                                        <span class="badge text-bg-success">Stock: {{ $remaining }}</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="text-center mb-4">
                             @if ($video->telegram_file_id)
-                                @if ($video->isFree())
+                                @if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1)
+                                    <button class="btn btn-outline-danger btn-lg mb-3" disabled>
+                                        <i class="fas fa-ban"></i> SIN STOCK
+                                    </button>
+                                @elseif ($video->isFree())
                                     <div class="alert alert-success text-center">
                                         <h5><i class="fas fa-gift"></i> This video is FREE!</h5>
                                         <p class="mb-3">🤖 <strong>Get instant access via our Telegram bot</strong></p>

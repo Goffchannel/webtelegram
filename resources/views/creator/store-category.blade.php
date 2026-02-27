@@ -39,6 +39,9 @@
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">{{ $video->title }}</h5>
                 <p class="card-text text-muted flex-grow-1">{{ $video->description ?: 'High-quality video content' }}</p>
+                @if($video->isServiceProduct())
+                    <span class="badge text-bg-info mb-2">Servicio {{ $video->duration_days ?? 30 }} dias</span>
+                @endif
 
                 <div class="mt-auto">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -54,7 +57,11 @@
                         @endif
                     </div>
 
-                    @if ($video->telegram_file_id)
+                    @if ($video->isServiceProduct() && ($video->available_service_lines_count ?? 0) < 1)
+                        <button class="btn btn-outline-danger w-100" disabled>
+                            <i class="fas fa-ban"></i> SIN STOCK
+                        </button>
+                    @elseif ($video->telegram_file_id || $video->isServiceProduct())
                         @if ($video->isFree())
                             <a href="{{ route('video.show', $video) }}" class="btn btn-success w-100">
                                 <i class="fas fa-download"></i> Get Free Video

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Purchase;
 use App\Models\Setting;
 use App\Models\CreatorReport;
+use App\Services\ServiceAccessManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,9 @@ use Stripe\Checkout\Session;
 
 class PaymentController extends Controller
 {
+    public function __construct(private readonly ServiceAccessManager $serviceAccessManager)
+    {
+    }
     /**
      * Get Stripe secret key from settings or config
      */
@@ -73,7 +77,7 @@ class PaymentController extends Controller
             ->where('purchase_status', 'completed')
             ->first();
 
-        if ($existingPurchase) {
+        if ($existingPurchase && !$video->isServiceProduct()) {
             return back()->withErrors([
                 'payment' => 'You have already purchased this video! Check your Telegram bot for access or view your purchase details.'
             ])->withInput();
@@ -95,7 +99,7 @@ class PaymentController extends Controller
                             'currency' => 'usd',
                             'product_data' => [
                                 'name' => $video->title,
-                                'description' => $video->description,
+                                'description' => $video->long_description ?? $video->description,
                             ],
                             'unit_amount' => $video->price * 100, // Convert to cents
                         ],
@@ -150,6 +154,10 @@ class PaymentController extends Controller
                 $purchase = $existingPurchase;
             }
 
+            if ($video->isServiceProduct()) {
+                $this->serviceAccessManager->provisionForPurchase($purchase);
+            }
+
             // Redirect to secure purchase page using UUID
             return redirect()->route('purchase.view', $purchase->purchase_uuid);
         } catch (\Exception $e) {
@@ -191,7 +199,7 @@ class PaymentController extends Controller
      */
     public function viewPurchase(string $uuid)
     {
-        $purchase = Purchase::findByUuid($uuid);
+        $purchase = Purchase::with(['serviceAccess.line', 'video', 'creator'])->where('purchase_uuid', $uuid)->first();
 
         if (!$purchase) {
             abort(404, 'Purchase not found');
@@ -341,6 +349,10 @@ class PaymentController extends Controller
                 'stripe_metadata' => $session->metadata->toArray(),
             ]);
 
+            if ($video->isServiceProduct()) {
+                $this->serviceAccessManager->provisionForPurchase($purchase);
+            }
+
             Log::info('Purchase record created successfully', [
                 'purchase_id' => $purchase->id,
                 'session_id' => $session->id,
@@ -381,13 +393,19 @@ class PaymentController extends Controller
             $video = Video::findOrFail($request->video_id);
             $telegramUsername = trim($request->telegram_username, '@');
 
+            if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
+                return response()->json([
+                    'error' => 'Sin stock: no hay lineas disponibles para este producto.',
+                ], 400);
+            }
+
             // Check if user already purchased this video
             $existingPurchase = Purchase::where('telegram_username', $telegramUsername)
                 ->where('video_id', $video->id)
                 ->where('purchase_status', 'completed')
                 ->first();
 
-            if ($existingPurchase) {
+            if ($existingPurchase && !$video->isServiceProduct()) {
                 return response()->json([
                     'error' => 'You have already purchased this video! Check your Telegram bot for access.',
                     'existing_purchase' => [
@@ -417,7 +435,7 @@ class PaymentController extends Controller
                         'currency' => 'usd',
                         'product_data' => [
                             'name' => $video->title,
-                            'description' => $video->description ?? 'Premium video content',
+                            'description' => $video->long_description ?? $video->description ?? 'Premium content',
                         ],
                         'unit_amount' => $video->price * 100, // Convert to cents
                     ],
@@ -459,3 +477,10 @@ class PaymentController extends Controller
         }
     }
 }
+        if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
+            return back()->withErrors(['payment' => 'Sin stock: no hay lineas disponibles para este producto.']);
+        }
+
+        if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
+            return back()->withErrors(['payment' => 'Sin stock: no hay lineas disponibles para este producto.']);
+        }

@@ -12,6 +12,12 @@
                 <p class="text-muted">Creador: {{ $creator->creator_store_name ?? $creator->name }}</p>
                 <p>{{ $video->description }}</p>
                 <h5 class="mb-4">Precio: ${{ number_format($video->price, 2) }}</h5>
+                @if($video->isServiceProduct())
+                    <div class="alert alert-info">
+                        <strong>Servicio de acceso:</strong> {{ $video->duration_days ?? 30 }} dias<br>
+                        <strong>Stock disponible:</strong> {{ $video->availableServiceLines()->count() }}
+                    </div>
+                @endif
 
                 @if(!empty($methods['paypal_url']))
                     <div class="alert alert-info">

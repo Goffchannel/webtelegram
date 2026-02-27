@@ -19,6 +19,10 @@ class CreatorCheckoutController extends Controller
             return redirect()->route('payment.form', $video);
         }
 
+        if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
+            return back()->with('error', 'Sin stock: no hay lineas disponibles para este producto.');
+        }
+
         $methods = $creator->creator_payment_methods ?? [];
 
         return view('creator.checkout', compact('creator', 'video', 'methods'));
@@ -32,6 +36,10 @@ class CreatorCheckoutController extends Controller
 
         if ($creator->is_admin) {
             return redirect()->route('payment.form', $video);
+        }
+
+        if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
+            return back()->with('error', 'Sin stock: no hay lineas disponibles para este producto.');
         }
 
         $validated = $request->validate([
@@ -48,7 +56,7 @@ class CreatorCheckoutController extends Controller
             ->where('verification_status', 'verified')
             ->first();
 
-        if ($existingPurchase) {
+        if ($existingPurchase && !$video->isServiceProduct()) {
             return back()->with('error', 'Ya tienes este video aprobado para tu usuario de Telegram.');
         }
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorCheckoutController;
 use App\Http\Controllers\CreatorSubscriptionController;
+use App\Http\Controllers\ServiceAccessController;
 use Illuminate\Support\Facades\Auth;
 
 // Customer-facing routes
@@ -28,6 +29,7 @@ Route::get('/payment/{video}/cancel', [PaymentController::class, 'cancel'])->nam
 Route::get('/purchase/{uuid}', [PaymentController::class, 'viewPurchase'])->name('purchase.view');
 Route::post('/purchase/{uuid}/update-username', [PaymentController::class, 'updateTelegramUsername'])->name('purchase.update-username');
 Route::post('/purchase/{uuid}/report', [PaymentController::class, 'reportCreator'])->name('purchase.report-creator');
+Route::get('/access/{token}', [ServiceAccessController::class, 'show'])->name('service.access.show');
 
 // Authentication routes (profile management)
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -65,6 +67,8 @@ Route::middleware(['auth', 'verified', 'creator'])->group(function () {
     Route::get('/creator/videos', [CreatorController::class, 'videos'])->name('creator.videos');
     Route::put('/creator/videos/{video}', [CreatorController::class, 'updateVideo'])->name('creator.videos.update');
     Route::delete('/creator/videos/{video}', [CreatorController::class, 'deleteVideo'])->name('creator.videos.delete');
+    Route::post('/creator/videos/{video}/service-lines', [CreatorController::class, 'storeServiceLines'])->name('creator.videos.service-lines.store');
+    Route::delete('/creator/videos/{video}/service-lines/{line}', [CreatorController::class, 'deleteServiceLine'])->name('creator.videos.service-lines.delete');
     Route::post('/creator/categories', [CreatorController::class, 'storeCategory'])->name('creator.categories.store');
     Route::post('/creator/categories/{category}', [CreatorController::class, 'updateCategory'])->name('creator.categories.update');
     Route::delete('/creator/categories/{category}', [CreatorController::class, 'deleteCategory'])->name('creator.categories.delete');
@@ -80,6 +84,9 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::put('/admin/videos/{video}', [VideoController::class, 'update'])->name('admin.videos.update');
     Route::delete('/admin/videos/{video}', [VideoController::class, 'destroy'])->name('admin.videos.destroy');
     Route::post('/admin/videos/{video}/test', [VideoController::class, 'testVideo'])->name('admin.videos.test');
+    Route::post('/admin/videos/{video}/service-lines', [VideoController::class, 'storeServiceLines'])->name('admin.videos.service-lines.store');
+    Route::get('/admin/videos/{video}/service-lines', [VideoController::class, 'serviceLines'])->name('admin.videos.service-lines.show');
+    Route::delete('/admin/videos/{video}/service-lines/{line}', [VideoController::class, 'deleteServiceLine'])->name('admin.videos.service-lines.delete');
 
     // Webhook management
     Route::post('/admin/videos/deactivate-webhook', [VideoController::class, 'deactivateWebhook'])->name('admin.videos.deactivate-webhook');

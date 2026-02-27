@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+use App\Models\PurchaseServiceAccess;
 
 class Purchase extends Model
 {
@@ -97,6 +99,11 @@ class Purchase extends Model
     public function creatorReports(): HasMany
     {
         return $this->hasMany(CreatorReport::class);
+    }
+
+    public function serviceAccess(): HasOne
+    {
+        return $this->hasOne(PurchaseServiceAccess::class, 'purchase_id');
     }
 
     /**

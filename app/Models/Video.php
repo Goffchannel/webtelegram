@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ServiceAccessLine;
 
 class Video extends Model
 {
@@ -28,6 +29,11 @@ class Video extends Model
         'allow_preview',
         'category_id',
         'creator_id',
+        'product_type',
+        'long_description',
+        'fan_message',
+        'access_instructions',
+        'duration_days',
     ];
 
     /**
@@ -40,6 +46,7 @@ class Video extends Model
         'telegram_message_data' => 'array',
         'show_blurred_thumbnail' => 'boolean',
         'allow_preview' => 'boolean',
+        'duration_days' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -55,6 +62,16 @@ class Video extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'creator_id');
+    }
+
+    public function serviceLines()
+    {
+        return $this->hasMany(ServiceAccessLine::class);
+    }
+
+    public function availableServiceLines()
+    {
+        return $this->hasMany(ServiceAccessLine::class)->where('is_assigned', false);
     }
 
     /**
@@ -103,6 +120,11 @@ class Video extends Model
     public function isFree(): bool
     {
         return $this->price == 0;
+    }
+
+    public function isServiceProduct(): bool
+    {
+        return $this->product_type === 'service_access';
     }
 
     /**

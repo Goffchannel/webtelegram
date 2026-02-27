@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\TelegramBot;
 use App\Models\Category;
 use App\Models\User;
+use App\Models\ServiceAccessLine;
 use App\Services\TelegramBotService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -77,6 +78,7 @@ class VideoController extends Controller
     {
         try {
             $videos = Video::with('category')->orderBy('created_at', 'desc')->paginate(15);
+            $videos->loadCount('availableServiceLines');
             $categories = Category::orderBy('name')->get();
 
             // Initialize $bot array
@@ -183,7 +185,12 @@ class VideoController extends Controller
                 $validationRules = [
                     'title' => 'required|string|max:255',
                     'description' => 'nullable|string|max:2000',
+                    'long_description' => 'nullable|string|max:5000',
+                    'fan_message' => 'nullable|string|max:5000',
+                    'access_instructions' => 'nullable|string|max:5000',
                     'price' => 'required|numeric|min:0|max:9999.99',
+                    'product_type' => 'nullable|in:video,service_access',
+                    'duration_days' => 'nullable|integer|min:1|max:365',
                     'category_id' => 'required|exists:categories,id',
                     'thumbnail_url' => 'nullable|url|max:500',
                     'thumbnail_blob_url' => 'nullable|url|max:500',
@@ -223,7 +230,12 @@ class VideoController extends Controller
             // Basic fields
             if ($request->has('title')) $updateData['title'] = $request->input('title');
             if ($request->has('description')) $updateData['description'] = $request->input('description');
+            if ($request->has('long_description')) $updateData['long_description'] = $request->input('long_description');
+            if ($request->has('fan_message')) $updateData['fan_message'] = $request->input('fan_message');
+            if ($request->has('access_instructions')) $updateData['access_instructions'] = $request->input('access_instructions');
             if ($request->has('price')) $updateData['price'] = (float) $request->input('price');
+            if ($request->has('product_type')) $updateData['product_type'] = $request->input('product_type');
+            if ($request->has('duration_days')) $updateData['duration_days'] = (int) $request->input('duration_days');
             if ($request->has('category_id')) $updateData['category_id'] = (int) $request->input('category_id');
             if ($request->has('blur_intensity')) $updateData['blur_intensity'] = (int) $request->input('blur_intensity');
 
@@ -1504,11 +1516,10 @@ class VideoController extends Controller
     private function handleCustomerMyPurchasesCommand($chatId, $telegramUserId, $username)
     {
         if (!$username) {
-            $this->sendTelegramMessage($chatId, "❌ Necesitas un usuario de Telegram para usar este bot. Configuralo en ajustes de Telegram.");
+            $this->sendTelegramMessage($chatId, "Necesitas un usuario de Telegram para usar este bot.");
             return;
         }
 
-        // Find purchases by EITHER telegram_user_id OR username
         $userPurchases = \App\Models\Purchase::where('purchase_status', 'completed')
             ->where(function ($query) use ($telegramUserId, $username) {
                 $query->where('telegram_user_id', $telegramUserId);
@@ -1516,33 +1527,35 @@ class VideoController extends Controller
                     $query->orWhere('telegram_username', $username);
                 }
             })
-            ->with('video')
+            ->with(['video', 'serviceAccess'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         if ($userPurchases->isEmpty()) {
-            $message = "📋 *Tus videos comprados*\n\n";
-            $message .= "❌ No se encontraron compras.\n\n";
-            $message .= "🛒 *Para comprar videos:*\n";
-            $message .= "1. Visita nuestra web\n";
-            $message .= "2. Compra con el usuario: @{$username}\n";
-            $message .= "3. Vuelve aqui y usa /start para verificar\n\n";
-            $message .= "💡 Make sure you use the exact username: *{$username}*";
-        } else {
-            $message = "📋 *Tus videos comprados* ({$userPurchases->count()})\n\n";
+            $this->sendTelegramMessage($chatId, "No se encontraron compras para @{$username}.");
+            return;
+        }
 
-            foreach ($userPurchases as $purchase) {
-                $video = $purchase->video;
-                $deliveryStatus = $purchase->delivery_status === 'delivered' ? '✅' : '⏳';
-
-                $message .= "🎬 *{$video->title}*\n";
-                $message .= "💰 {$purchase->formatted_amount} {$deliveryStatus}\n";
-                $message .= "🆔 ID de video: *{$video->id}*\n";
-                $message .= "📅 Comprado: {$purchase->created_at->format('M d, Y')}\n";
-                $message .= "🔗 Use: `/getvideo {$video->id}`\n\n";
+        $message = "Tus compras ({$userPurchases->count()}):\n\n";
+        foreach ($userPurchases as $purchase) {
+            $video = $purchase->video;
+            if (!$video) {
+                continue;
             }
 
-            $message .= "💡 *Consejo:* Use `/getvideo <ID>` to download any video instantly!";
+            $message .= "{$video->title} - {$purchase->formatted_amount}\n";
+
+            if ($video->isServiceProduct()) {
+                if ($purchase->serviceAccess && !$purchase->serviceAccess->isExpired()) {
+                    $accessUrl = route('service.access.show', $purchase->serviceAccess->access_token);
+                    $message .= "Acceso: {$accessUrl}\n";
+                    $message .= "Expira: " . $purchase->serviceAccess->expires_at->format('Y-m-d H:i') . "\n\n";
+                } else {
+                    $message .= "Acceso expirado. Debes comprar de nuevo.\n\n";
+                }
+            } else {
+                $message .= "Comando: /getvideo {$video->id}\n\n";
+            }
         }
 
         $this->sendTelegramMessage($chatId, $message);
@@ -1553,47 +1566,27 @@ class VideoController extends Controller
      */
     private function handleCustomerGetVideoCommand($chatId, $telegramUserId, $username, $videoId)
     {
-        Log::info('Customer getvideo command', [
-            'chat_id' => $chatId,
-            'telegram_user_id' => $telegramUserId,
-            'username' => $username,
-            'video_id' => $videoId
-        ]);
-
         if (!$username) {
-            $this->sendTelegramMessage($chatId, "❌ Necesitas un usuario de Telegram para usar este bot. Configuralo en ajustes de Telegram.");
+            $this->sendTelegramMessage($chatId, "Necesitas un usuario de Telegram para usar este bot.");
             return;
         }
 
-                        // First check if video exists and is free
         $video = \App\Models\Video::find($videoId);
-
         if (!$video) {
-            $this->sendTelegramMessage($chatId, "❌ *Video no encontrado*\n\nEl video #{$videoId} no existe.\n\nUsa /mypurchases para ver videos disponibles.");
+            $this->sendTelegramMessage($chatId, "Video no encontrado.");
             return;
         }
 
-        // If video is FREE, allow anyone to download it
         if ($video->isFree()) {
-            Log::info('Free video access granted', [
-                'telegram_user_id' => $telegramUserId,
-                'username' => $username,
-                'video_id' => $videoId,
-                'video_title' => $video->title
-            ]);
-
-            // Create a fake purchase object for delivery
             $freeAccess = new \stdClass();
             $freeAccess->video = $video;
             $freeAccess->id = 'free-access-' . $videoId;
             $freeAccess->video_id = $videoId;
             $freeAccess->formatted_amount = 'FREE';
-
             $this->deliverFreeVideoToCustomer($chatId, $freeAccess);
             return;
         }
 
-        // For paid videos, find purchase by EITHER telegram_user_id OR username
         $purchase = \App\Models\Purchase::where('purchase_status', 'completed')
             ->where('verification_status', 'verified')
             ->where('video_id', $videoId)
@@ -1603,38 +1596,33 @@ class VideoController extends Controller
                     $query->orWhere('telegram_username', $username);
                 }
             })
-            ->with('video')
+            ->with(['video', 'serviceAccess'])
+            ->latest()
             ->first();
 
-        Log::info('Purchase lookup result', [
-            'telegram_user_id' => $telegramUserId,
-            'username' => $username,
-            'video_id' => $videoId,
-            'video_price' => $video->price,
-            'found_purchase' => $purchase ? true : false,
-            'purchase_id' => $purchase ? $purchase->id : null,
-            'purchase_verification' => $purchase ? $purchase->verification_status : null,
-            'purchase_delivery' => $purchase ? $purchase->delivery_status : null
-        ]);
-
         if (!$purchase) {
-            $this->sendTelegramMessage($chatId, "❌ *Acceso denegado*\n\nNo has comprado el video #{$videoId} ({$video->formatted_price}).\n\nUsa /mypurchases para ver videos disponibles o /start para revisar compras nuevas.");
+            $this->sendTelegramMessage($chatId, "No tienes acceso a este contenido.");
             return;
         }
 
-        // Auto-link telegram_user_id if not already linked
+        if ($video->isServiceProduct()) {
+            if (!$purchase->serviceAccess || $purchase->serviceAccess->isExpired()) {
+                $this->sendTelegramMessage($chatId, "Tu acceso esta expirado. Debes comprar de nuevo.");
+                return;
+            }
+
+            $accessUrl = route('service.access.show', $purchase->serviceAccess->access_token);
+            $this->sendTelegramMessage($chatId, "Acceso activo: {$accessUrl}\nExpira: " . $purchase->serviceAccess->expires_at->format('Y-m-d H:i'));
+            return;
+        }
+
         if (!$purchase->telegram_user_id) {
             $purchase->update([
                 'telegram_user_id' => $telegramUserId,
                 'verification_status' => 'verified'
             ]);
-            Log::info('Auto-linked telegram_user_id during getvideo', [
-                'purchase_id' => $purchase->id,
-                'telegram_user_id' => $telegramUserId
-            ]);
         }
 
-        // Deliver the video
         $this->deliverVideoToCustomer($chatId, $purchase);
     }
 
@@ -1832,6 +1820,67 @@ class VideoController extends Controller
         }
     }
 
+    public function storeServiceLines(Request $request, Video $video)
+    {
+        $validated = $request->validate([
+            'bulk_lines' => 'required|string|max:50000',
+        ]);
+
+        if (!$video->isServiceProduct()) {
+            return redirect()->route('admin.videos.manage')->with('error', 'Este producto no es de tipo servicio.');
+        }
+
+        $lines = preg_split('/\r\n|\r|\n/', trim($validated['bulk_lines']));
+        $created = 0;
+
+        foreach ($lines as $rawLine) {
+            $rawLine = trim($rawLine);
+            if ($rawLine === '') {
+                continue;
+            }
+
+            $parts = array_map('trim', explode('|', $rawLine));
+            if (count($parts) < 2) {
+                continue;
+            }
+
+            ServiceAccessLine::create([
+                'video_id' => $video->id,
+                'creator_id' => $video->creator_id,
+                'line_name' => $parts[0],
+                'm3u_url' => $parts[1],
+                'line_username' => $parts[2] ?? null,
+                'line_password' => $parts[3] ?? null,
+                'notes' => $parts[4] ?? null,
+            ]);
+            $created++;
+        }
+
+        return redirect()->route('admin.videos.manage')->with('success', "Lineas cargadas: {$created}");
+    }
+
+    public function serviceLines(Video $video)
+    {
+        $video->load('category');
+        $lines = ServiceAccessLine::where('video_id', $video->id)->latest()->paginate(50);
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.videos.service-lines', compact('video', 'lines', 'categories'));
+    }
+
+    public function deleteServiceLine(Video $video, ServiceAccessLine $line)
+    {
+        if ($line->video_id !== $video->id) {
+            abort(404);
+        }
+        if ($line->is_assigned) {
+            return redirect()->route('admin.videos.manage')->with('error', 'No puedes borrar una linea ya asignada.');
+        }
+
+        $line->delete();
+        return redirect()->route('admin.videos.manage')->with('success', 'Linea eliminada.');
+    }
+
     // clearAllVideos method removed - database management section removed
 
     /**
@@ -1919,3 +1968,4 @@ class VideoController extends Controller
         }
     }
 }
+

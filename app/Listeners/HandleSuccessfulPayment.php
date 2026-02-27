@@ -9,17 +9,25 @@ use App\Models\TelegramBot;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 use Laravel\Cashier\Events\WebhookReceived;
-use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Subscription as CashierSubscription;
 use Telegram\Bot\Laravel\Facades\Telegram;
+use App\Services\ServiceAccessManager;
 
 class HandleSuccessfulPayment
 {
+    public function __construct(private readonly ServiceAccessManager $serviceAccessManager)
+    {
+    }
+
     /**
      * Handle the webhook received event
      */
     public function handle(WebhookReceived $event): void
     {
+        $this->syncCreatorMembershipStatus($event);
+
         if ($event->payload['type'] === 'checkout.session.completed') {
             $session = $event->payload['data']['object'];
             $metadata = $session['metadata'] ?? [];
@@ -98,6 +106,11 @@ class HandleSuccessfulPayment
                 ]
             );
 
+            $purchase->loadMissing('video');
+            if ($purchase->video && $purchase->video->isServiceProduct()) {
+                $this->serviceAccessManager->provisionForPurchase($purchase);
+            }
+
             Log::info('Purchase record created', [
                 'purchase_id' => $purchase->id,
                 'video_id' => $video->id,
@@ -106,6 +119,75 @@ class HandleSuccessfulPayment
 
             // Send activation message instead of delivering video
             $this->sendActivationMessage($telegramUsername, $video);
+        }
+    }
+
+    private function syncCreatorMembershipStatus(WebhookReceived $event): void
+    {
+        $type = $event->payload['type'] ?? null;
+
+        // Keep creator status fully in sync with Stripe lifecycle events.
+        $supportedEvents = [
+            'customer.subscription.created',
+            'customer.subscription.updated',
+            'customer.subscription.deleted',
+            'invoice.payment_failed',
+            'invoice.payment_succeeded',
+        ];
+
+        if (!in_array($type, $supportedEvents, true)) {
+            return;
+        }
+
+        try {
+            $object = $event->payload['data']['object'] ?? [];
+            $subscriptionId = null;
+            $subscriptionStatus = null;
+            $periodEnd = null;
+
+            if (str_starts_with((string) $type, 'customer.subscription.')) {
+                $subscriptionId = $object['id'] ?? null;
+                $subscriptionStatus = $object['status'] ?? null;
+                $periodEnd = $object['current_period_end'] ?? null;
+            } elseif (str_starts_with((string) $type, 'invoice.payment_')) {
+                $subscriptionId = $object['subscription'] ?? null;
+                $subscriptionStatus = $type === 'invoice.payment_succeeded' ? 'active' : 'past_due';
+                $periodEnd = $object['period_end'] ?? null;
+            }
+
+            if (!$subscriptionId) {
+                return;
+            }
+
+            $subscription = CashierSubscription::query()
+                ->where('stripe_id', $subscriptionId)
+                ->first();
+
+            if (!$subscription || $subscription->name !== 'creator') {
+                return;
+            }
+
+            $user = User::find($subscription->user_id);
+            if (!$user || $user->is_admin) {
+                return;
+            }
+
+            $isActive = in_array((string) $subscriptionStatus, ['active', 'trialing'], true);
+
+            $updates = [
+                'is_creator' => $isActive,
+                'creator_subscription_status' => $isActive ? 'active' : 'inactive',
+                'creator_subscription_ends_at' => $periodEnd
+                    ? Carbon::createFromTimestamp((int) $periodEnd)
+                    : null,
+            ];
+
+            $user->update($updates);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to sync creator membership status from Stripe webhook', [
+                'type' => $type,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 

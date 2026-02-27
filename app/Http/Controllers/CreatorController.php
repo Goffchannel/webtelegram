@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\Video;
+use App\Models\ServiceAccessLine;
+use App\Services\ServiceAccessManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +20,10 @@ use VercelBlobPhp\CommonCreateBlobOptions;
 
 class CreatorController extends Controller
 {
+    public function __construct(private readonly ServiceAccessManager $serviceAccessManager)
+    {
+    }
+
     public function storefront(User $creator)
     {
         if (!$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
@@ -48,6 +54,7 @@ class CreatorController extends Controller
         $videos = Video::where('creator_id', $creator->id)
             ->where('category_id', $category->id)
             ->with('category')
+            ->withCount('availableServiceLines')
             ->orderByDesc('created_at')
             ->paginate(12);
 
@@ -57,6 +64,11 @@ class CreatorController extends Controller
     public function dashboard(Request $request)
     {
         $creator = $request->user();
+
+        Category::firstOrCreate(
+            ['creator_id' => $creator->id, 'name' => 'Membresias/30 dias'],
+            ['creator_id' => $creator->id, 'name' => 'Membresias/30 dias']
+        );
 
         $stats = [
             'videos' => $creator->creatorVideos()->count(),
@@ -72,6 +84,7 @@ class CreatorController extends Controller
 
         $videos = $creator->creatorVideos()
             ->with('category')
+            ->withCount('availableServiceLines')
             ->latest()
             ->paginate(10);
 
@@ -149,7 +162,12 @@ class CreatorController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
+            'long_description' => 'nullable|string|max:5000',
+            'fan_message' => 'nullable|string|max:5000',
+            'access_instructions' => 'nullable|string|max:5000',
             'price' => 'required|numeric|min:0|max:9999.99',
+            'product_type' => 'required|in:video,service_access',
+            'duration_days' => 'nullable|integer|min:1|max:365',
             'category_id' => $categoryRule,
             'blur_intensity' => 'nullable|integer|min:1|max:20',
             'show_blurred' => 'nullable|boolean',
@@ -168,7 +186,12 @@ class CreatorController extends Controller
         $updateData = [
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'long_description' => $validated['long_description'] ?? null,
+            'fan_message' => $validated['fan_message'] ?? null,
+            'access_instructions' => $validated['access_instructions'] ?? null,
             'price' => (float) $validated['price'],
+            'product_type' => $validated['product_type'],
+            'duration_days' => (int) ($validated['duration_days'] ?? $video->duration_days ?? 30),
             'category_id' => (int) $validated['category_id'],
             'blur_intensity' => (int) ($validated['blur_intensity'] ?? $video->blur_intensity ?? 10),
             'show_blurred_thumbnail' => $request->boolean('show_blurred'),
@@ -333,7 +356,13 @@ class CreatorController extends Controller
             'delivery_status' => 'pending',
         ]);
 
-        return back()->with('success', 'Compra aprobada. El comprador ya puede usar /getvideo.');
+        $this->serviceAccessManager->provisionForPurchase($purchase);
+
+        $message = $purchase->video && $purchase->video->isServiceProduct()
+            ? 'Compra aprobada. Acceso del servicio activado para el comprador.'
+            : 'Compra aprobada. El comprador ya puede usar /getvideo.';
+
+        return back()->with('success', $message);
     }
 
     public function rejectPurchase(Request $request, Purchase $purchase)
@@ -353,6 +382,67 @@ class CreatorController extends Controller
         ]);
 
         return back()->with('success', 'Compra rechazada.');
+    }
+
+    public function storeServiceLines(Request $request, Video $video)
+    {
+        $creator = $request->user();
+        if ($video->creator_id !== $creator->id && !$creator->is_admin) {
+            abort(403);
+        }
+
+        if (!$video->isServiceProduct()) {
+            return back()->with('error', 'Este producto no es de tipo servicio.');
+        }
+
+        $validated = $request->validate([
+            'bulk_lines' => 'required|string|max:50000',
+        ]);
+
+        $lines = preg_split('/\r\n|\r|\n/', trim($validated['bulk_lines']));
+        $created = 0;
+
+        foreach ($lines as $rawLine) {
+            $rawLine = trim($rawLine);
+            if ($rawLine === '') {
+                continue;
+            }
+
+            $parts = array_map('trim', explode('|', $rawLine));
+            if (count($parts) < 2) {
+                continue;
+            }
+
+            ServiceAccessLine::create([
+                'video_id' => $video->id,
+                'creator_id' => $creator->id,
+                'line_name' => $parts[0],
+                'm3u_url' => $parts[1],
+                'line_username' => $parts[2] ?? null,
+                'line_password' => $parts[3] ?? null,
+                'notes' => $parts[4] ?? null,
+            ]);
+            $created++;
+        }
+
+        return back()->with('success', "Lineas cargadas: {$created}");
+    }
+
+    public function deleteServiceLine(Request $request, Video $video, ServiceAccessLine $line)
+    {
+        $creator = $request->user();
+        if ($video->creator_id !== $creator->id && !$creator->is_admin) {
+            abort(403);
+        }
+        if ($line->video_id !== $video->id) {
+            abort(404);
+        }
+        if ($line->is_assigned) {
+            return back()->with('error', 'No puedes borrar una linea ya asignada.');
+        }
+
+        $line->delete();
+        return back()->with('success', 'Linea eliminada.');
     }
 
     private function uploadCategoryImage(Request $request, Category $category): void

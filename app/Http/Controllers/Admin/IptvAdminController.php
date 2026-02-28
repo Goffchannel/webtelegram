@@ -18,11 +18,20 @@ class IptvAdminController extends Controller
     // Index page
     // =========================================================================
 
+    /** Setting::get() may return an already-decoded array (type='json') or a raw string. */
+    private function jsonSetting(string $key, array $default = []): array
+    {
+        $value = Setting::get($key, null);
+        if ($value === null)       return $default;
+        if (is_array($value))      return $value;
+        return json_decode($value, true) ?: $default;
+    }
+
     public function index()
     {
-        $channels   = json_decode(Setting::get('iptv_channels_json', '[]'), true) ?: [];
-        $bannedIps  = json_decode(Setting::get('iptv_banned_ips', '[]'), true) ?: [];
-        $accessLog  = json_decode(Setting::get('iptv_access_log', '[]'), true) ?: [];
+        $channels   = $this->jsonSetting('iptv_channels_json');
+        $bannedIps  = $this->jsonSetting('iptv_banned_ips');
+        $accessLog  = $this->jsonSetting('iptv_access_log');
         $settings   = [
             'list_name'        => Setting::get('iptv_list_name',        'Plooplayer VIP'),
             'group_name'       => Setting::get('iptv_group_name',       'Plooplayer VIP'),
@@ -99,7 +108,7 @@ class IptvAdminController extends Controller
             $stations[] = M3uParser::toStation($channel, $token, $encryptedUa);
         }
 
-        Setting::set('iptv_channels_json', json_encode($stations), 'json');
+        Setting::set('iptv_channels_json', json_encode($stations), 'string');
         Setting::set('iptv_channels_updated_at', now()->toDateTimeString());
 
         Log::info('IPTV channel list updated', ['count' => count($stations)]);
@@ -147,10 +156,10 @@ class IptvAdminController extends Controller
         $request->validate(['ip' => 'required|ip']);
         $ip = $request->input('ip');
 
-        $banned = json_decode(Setting::get('iptv_banned_ips', '[]'), true) ?: [];
+        $banned = $this->jsonSetting('iptv_banned_ips');
         if (!in_array($ip, $banned, true)) {
             $banned[] = $ip;
-            Setting::set('iptv_banned_ips', json_encode($banned), 'json');
+            Setting::set('iptv_banned_ips', json_encode($banned), 'string');
         }
 
         return back()->with('success', "IP $ip baneada.");
@@ -161,16 +170,16 @@ class IptvAdminController extends Controller
         $request->validate(['ip' => 'required|ip']);
         $ip = $request->input('ip');
 
-        $banned = json_decode(Setting::get('iptv_banned_ips', '[]'), true) ?: [];
+        $banned = $this->jsonSetting('iptv_banned_ips');
         $banned = array_values(array_filter($banned, fn($b) => $b !== $ip));
-        Setting::set('iptv_banned_ips', json_encode($banned), 'json');
+        Setting::set('iptv_banned_ips', json_encode($banned), 'string');
 
         return back()->with('success', "IP $ip desbaneada.");
     }
 
     public function clearLog()
     {
-        Setting::set('iptv_access_log', '[]', 'json');
+        Setting::set('iptv_access_log', '[]', 'string');
         return back()->with('success', 'Log de accesos limpiado.');
     }
 
@@ -184,13 +193,13 @@ class IptvAdminController extends Controller
      */
     private function reencryptWithToken(string $newToken): void
     {
-        $stations = json_decode(Setting::get('iptv_channels_json', '[]'), true) ?: [];
+        $stations = $this->jsonSetting('iptv_channels_json');
 
         foreach ($stations as &$station) {
             $station['headers']['x-tcdn-token'] = $newToken;
         }
         unset($station);
 
-        Setting::set('iptv_channels_json', json_encode($stations), 'json');
+        Setting::set('iptv_channels_json', json_encode($stations), 'string');
     }
 }

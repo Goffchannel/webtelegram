@@ -83,7 +83,8 @@ class IptvController extends Controller
         $ip = $request->ip();
 
         // --- IP ban check ---
-        $bannedIps = json_decode(Setting::get('iptv_banned_ips', '[]'), true) ?: [];
+        $raw       = Setting::get('iptv_banned_ips', null);
+        $bannedIps = is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []);
         if (in_array($ip, $bannedIps, true)) {
             return response('', 403);
         }
@@ -107,7 +108,8 @@ class IptvController extends Controller
         // --- Build and return inner JSON ---
         $listName  = Setting::get('iptv_list_name', 'Plooplayer VIP');
         $listPl    = Setting::get('iptv_list_pl',   '7PxQeW7s7VBU+8vW8rN0jG7+spPJZyYEYhzB4VivSv0=');
-        $stations  = json_decode(Setting::get('iptv_channels_json', '[]'), true) ?: [];
+        $rawCh    = Setting::get('iptv_channels_json', null);
+        $stations = is_array($rawCh) ? $rawCh : (json_decode((string) $rawCh, true) ?: []);
 
         return response()->json([
             'name'     => $listName,
@@ -125,7 +127,8 @@ class IptvController extends Controller
         try {
             $logKey  = 'iptv_access_log';
             $maxLogs = 500;
-            $logs    = json_decode(Setting::get($logKey, '[]'), true) ?: [];
+            $rawLog = Setting::get($logKey, null);
+            $logs   = is_array($rawLog) ? $rawLog : (json_decode((string) $rawLog, true) ?: []);
 
             array_unshift($logs, [
                 'ip' => $ip,
@@ -137,7 +140,7 @@ class IptvController extends Controller
                 $logs = array_slice($logs, 0, $maxLogs);
             }
 
-            Setting::set($logKey, json_encode($logs), 'json');
+            Setting::set($logKey, json_encode($logs), 'string');
         } catch (\Throwable $e) {
             // Non-critical — never fail the response because of logging
         }

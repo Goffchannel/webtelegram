@@ -101,7 +101,7 @@ class M3uParser
                     if ($eqPos === false) continue;
 
                     $k = strtolower(trim(substr($part, 0, $eqPos)));
-                    $v = trim(substr($part, $eqPos + 1));
+                    $v = trim(substr($part, $eqPos + 1), " \t\"'"); // strip whitespace and surrounding quotes
 
                     match ($k) {
                         'referer'    => $current['referer']    = urldecode($v),

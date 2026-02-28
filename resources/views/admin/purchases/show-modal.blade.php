@@ -224,6 +224,78 @@
     </div>
 </div>
 
+{{-- ============================================================ --}}
+{{-- Service access panel (IPTV subscriptions)                    --}}
+{{-- ============================================================ --}}
+@php $serviceAccess = $purchase->serviceAccess ?? null; @endphp
+@if($serviceAccess)
+<div class="row mt-3">
+    <div class="col-12">
+        <h6><i class="fas fa-tv me-2"></i>Acceso IPTV</h6>
+        <div class="card border-{{ $serviceAccess->status === 'active' ? 'success' : ($serviceAccess->status === 'revoked' ? 'danger' : 'warning') }}">
+            <div class="card-body">
+                <div class="row g-2 mb-2">
+                    <div class="col-auto">
+                        <strong>Estado:</strong>
+                        @if($serviceAccess->status === 'active')
+                            <span class="badge bg-success">Activo</span>
+                        @elseif($serviceAccess->status === 'revoked')
+                            <span class="badge bg-danger">Revocado</span>
+                        @else
+                            <span class="badge bg-warning text-dark">Expirado</span>
+                        @endif
+                    </div>
+                    <div class="col-auto">
+                        <strong>Vence:</strong>
+                        <span class="{{ $serviceAccess->isExpired() ? 'text-danger' : 'text-success' }}">
+                            {{ $serviceAccess->expires_at?->format('d/m/Y H:i') ?? '—' }}
+                        </span>
+                    </div>
+                    @if($serviceAccess->last_viewed_at)
+                    <div class="col-auto">
+                        <strong>Último acceso:</strong>
+                        <span class="text-muted">{{ $serviceAccess->last_viewed_at->diffForHumans() }}</span>
+                    </div>
+                    @endif
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label small fw-bold mb-1">Link del suscriptor</label>
+                    <input class="form-control form-control-sm font-monospace"
+                        value="{{ route('iptv.playlist', $serviceAccess->access_token) }}" readonly>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap mt-3">
+                    {{-- Renew --}}
+                    <form method="POST"
+                        action="{{ route('admin.purchases.service-access.renew', $purchase) }}"
+                        class="d-flex gap-1 align-items-center">
+                        @csrf
+                        <input type="number" name="days" value="30" min="1" max="366"
+                            class="form-control form-control-sm" style="width:70px;" title="Días a renovar">
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-sync me-1"></i>Renovar
+                        </button>
+                    </form>
+
+                    {{-- Revoke --}}
+                    @if($serviceAccess->status !== 'revoked')
+                    <form method="POST"
+                        action="{{ route('admin.purchases.service-access.revoke', $purchase) }}"
+                        onsubmit="return confirm('¿Revocar acceso IPTV inmediatamente?')">
+                        @csrf
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-ban me-1"></i>Revocar
+                        </button>
+                    </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Action Buttons -->
 <div class="row mt-4">
     <div class="col-12">

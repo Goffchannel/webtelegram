@@ -24,10 +24,19 @@ class ServiceAccessManager
         }
 
         return DB::transaction(function () use ($purchase) {
-            $line = ServiceAccessLine::query()
+            // 1. Try to find a shared (IPTV) line for this product — no inventory lock needed.
+            $sharedLine = ServiceAccessLine::query()
+                ->where('video_id', $purchase->video_id)
+                ->where('is_shared', true)
+                ->orderBy('id')
+                ->first();
+
+            // 2. Fall back to the classic inventory model (one unique line per purchase).
+            $line = $sharedLine ?? ServiceAccessLine::query()
                 ->where('video_id', $purchase->video_id)
                 ->where('is_assigned', false)
                 ->whereNull('assigned_purchase_id')
+                ->where(function ($q) { $q->where('is_shared', false)->orWhereNull('is_shared'); })
                 ->orderBy('id')
                 ->lockForUpdate()
                 ->first();
@@ -40,24 +49,27 @@ class ServiceAccessManager
             $durationDays = max(1, (int) ($purchase->video->duration_days ?? 30));
 
             $access = PurchaseServiceAccess::create([
-                'purchase_id' => $purchase->id,
-                'video_id' => $purchase->video_id,
-                'service_access_line_id' => $line->id,
-                'access_token' => Str::random(64),
-                'expires_at' => now()->addDays($durationDays),
-                'status' => 'active',
+                'purchase_id'             => $purchase->id,
+                'video_id'                => $purchase->video_id,
+                'service_access_line_id'  => $line->id,
+                'access_token'            => Str::random(64),
+                'expires_at'              => now()->addDays($durationDays),
+                'status'                  => 'active',
             ]);
 
-            $line->update([
-                'is_assigned' => true,
-                'assigned_purchase_id' => $purchase->id,
-                'assigned_at' => now(),
-            ]);
+            // Only mark inventory (non-shared) lines as assigned.
+            if (!$line->is_shared) {
+                $line->update([
+                    'is_assigned'         => true,
+                    'assigned_purchase_id' => $purchase->id,
+                    'assigned_at'         => now(),
+                ]);
+            }
 
             $purchase->markAsDelivered([
                 'service_access' => true,
-                'access_token' => $access->access_token,
-                'expires_at' => $access->expires_at?->toIso8601String(),
+                'access_token'   => $access->access_token,
+                'expires_at'     => $access->expires_at?->toIso8601String(),
             ]);
 
             return $access;

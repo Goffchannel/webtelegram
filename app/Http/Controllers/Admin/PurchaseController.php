@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CreatorReport;
 use App\Models\Purchase;
+use App\Models\PurchaseServiceAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -73,7 +74,7 @@ class PurchaseController extends Controller
      */
     public function show(Purchase $purchase)
     {
-        $purchase->load(['video', 'user']);
+        $purchase->load(['video', 'user', 'serviceAccess']);
 
         // If it's an AJAX request, return partial view for modal
         if (request()->ajax()) {
@@ -451,5 +452,69 @@ class PurchaseController extends Controller
             'success' => true,
             'message' => 'Cuenta del creador eliminada correctamente.',
         ]);
+    }
+
+    // =========================================================================
+    // Service access: renew / revoke (IPTV subscriptions)
+    // =========================================================================
+
+    /**
+     * Extend the service access expiry by 30 days from today (or from current expiry
+     * if it hasn't expired yet), and set status back to 'active'.
+     */
+    public function renewServiceAccess(Request $request, Purchase $purchase)
+    {
+        $request->validate([
+            'days' => 'nullable|integer|min:1|max:366',
+        ]);
+
+        $access = PurchaseServiceAccess::where('purchase_id', $purchase->id)->first();
+
+        if (!$access) {
+            return back()->with('error', 'Esta compra no tiene acceso de servicio asignado.');
+        }
+
+        $days    = (int) ($request->input('days', 30));
+        $baseDate = ($access->expires_at && $access->expires_at->isFuture())
+            ? $access->expires_at
+            : now();
+
+        $access->update([
+            'expires_at' => $baseDate->addDays($days),
+            'status'     => 'active',
+        ]);
+
+        Log::info('Service access renewed by admin', [
+            'purchase_id' => $purchase->id,
+            'admin_id'    => Auth::id(),
+            'days'        => $days,
+            'new_expiry'  => $access->expires_at,
+        ]);
+
+        return back()->with('success', "Acceso renovado por {$days} días. Vence: " . $access->fresh()->expires_at->format('d/m/Y H:i'));
+    }
+
+    /**
+     * Immediately revoke a subscriber's service access.
+     */
+    public function revokeServiceAccess(Purchase $purchase)
+    {
+        $access = PurchaseServiceAccess::where('purchase_id', $purchase->id)->first();
+
+        if (!$access) {
+            return back()->with('error', 'Esta compra no tiene acceso de servicio asignado.');
+        }
+
+        $access->update([
+            'status'     => 'revoked',
+            'expires_at' => now(),
+        ]);
+
+        Log::info('Service access revoked by admin', [
+            'purchase_id' => $purchase->id,
+            'admin_id'    => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Acceso revocado inmediatamente.');
     }
 }

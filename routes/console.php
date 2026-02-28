@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('service-access:send-expiry-reminders')->dailyAt('10:00');
+Schedule::command('iptv:expire-accesses')->hourly();

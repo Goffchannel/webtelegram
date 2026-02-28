@@ -136,6 +136,11 @@
                                         <i class="fas fa-money-bill-wave"></i> Manage Purchases
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.iptv.index') }}">
+                                        <i class="fas fa-tv"></i> Gestión IPTV
+                                    </a>
+                                </li>
                                 @endif
                                 <li>
                                     <hr class="dropdown-divider">

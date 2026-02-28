@@ -14,6 +14,7 @@ use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\CreatorCheckoutController;
 use App\Http\Controllers\CreatorSubscriptionController;
 use App\Http\Controllers\ServiceAccessController;
+use App\Http\Controllers\IptvController;
 use Illuminate\Support\Facades\Auth;
 
 // Customer-facing routes
@@ -30,6 +31,11 @@ Route::get('/purchase/{uuid}', [PaymentController::class, 'viewPurchase'])->name
 Route::post('/purchase/{uuid}/update-username', [PaymentController::class, 'updateTelegramUsername'])->name('purchase.update-username');
 Route::post('/purchase/{uuid}/report', [PaymentController::class, 'reportCreator'])->name('purchase.report-creator');
 Route::get('/access/{token}', [ServiceAccessController::class, 'show'])->name('service.access.show');
+
+// IPTV subscriber endpoints (no auth — accessed by Plooplayer app)
+// Note: /iptv/channels must be declared BEFORE /iptv/{token} to avoid route conflict.
+Route::get('/iptv/channels', [IptvController::class, 'channels'])->name('iptv.channels');
+Route::get('/iptv/{token}', [IptvController::class, 'playlist'])->name('iptv.playlist');
 
 // Authentication routes (profile management)
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -131,6 +137,20 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     // Telegram Bot Settings routes
     Route::get('/admin/settings/telegram-bot', [\App\Http\Controllers\SettingController::class, 'telegramBot'])->name('settings.telegram-bot');
     Route::post('/admin/settings/telegram-bot', [\App\Http\Controllers\SettingController::class, 'updateTelegramBot'])->name('settings.telegram-bot.update');
+
+    // IPTV admin management
+    Route::get('/admin/iptv', [\App\Http\Controllers\Admin\IptvAdminController::class, 'index'])->name('admin.iptv.index');
+    Route::post('/admin/iptv/settings', [\App\Http\Controllers\Admin\IptvAdminController::class, 'saveSettings'])->name('admin.iptv.settings');
+    Route::post('/admin/iptv/parse', [\App\Http\Controllers\Admin\IptvAdminController::class, 'parseM3u'])->name('admin.iptv.parse');
+    Route::post('/admin/iptv/save-channels', [\App\Http\Controllers\Admin\IptvAdminController::class, 'saveChannels'])->name('admin.iptv.save-channels');
+    Route::post('/admin/iptv/refresh-token', [\App\Http\Controllers\Admin\IptvAdminController::class, 'refreshToken'])->name('admin.iptv.refresh-token');
+    Route::post('/admin/iptv/ban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'banIp'])->name('admin.iptv.ban-ip');
+    Route::post('/admin/iptv/unban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'unbanIp'])->name('admin.iptv.unban-ip');
+    Route::post('/admin/iptv/clear-log', [\App\Http\Controllers\Admin\IptvAdminController::class, 'clearLog'])->name('admin.iptv.clear-log');
+
+    // Service access: renew / revoke
+    Route::post('/admin/purchases/{purchase}/service-access/renew', [\App\Http\Controllers\Admin\PurchaseController::class, 'renewServiceAccess'])->name('admin.purchases.service-access.renew');
+    Route::post('/admin/purchases/{purchase}/service-access/revoke', [\App\Http\Controllers\Admin\PurchaseController::class, 'revokeServiceAccess'])->name('admin.purchases.service-access.revoke');
 });
 
 // Telegram webhook (must be accessible without auth)

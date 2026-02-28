@@ -15,12 +15,14 @@ class ServiceAccessLine extends Model
         'line_password',
         'notes',
         'is_assigned',
+        'is_shared',
         'assigned_purchase_id',
         'assigned_at',
     ];
 
     protected $casts = [
         'is_assigned' => 'boolean',
+        'is_shared'   => 'boolean',
         'assigned_at' => 'datetime',
     ];
 

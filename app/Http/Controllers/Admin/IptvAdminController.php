@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\M3uParser;
-use App\Services\PlooplayerEncryption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +35,6 @@ class IptvAdminController extends Controller
             'list_name'        => Setting::get('iptv_list_name',        'Plooplayer VIP'),
             'group_name'       => Setting::get('iptv_group_name',       'Plooplayer VIP'),
             'list_pl'          => Setting::get('iptv_list_pl',          '7PxQeW7s7VBU+8vW8rN0jG7+spPJZyYEYhzB4VivSv0='),
-            'user_agent'       => Setting::get('iptv_user_agent',       ''),
             'max_ips_per_day'  => Setting::get('iptv_max_ips_per_day',  '10'),
             'current_token'    => Setting::get('iptv_current_token',    ''),
         ];
@@ -54,14 +52,12 @@ class IptvAdminController extends Controller
             'list_name'       => 'required|string|max:120',
             'group_name'      => 'required|string|max:120',
             'list_pl'         => 'required|string|max:200',
-            'user_agent'      => 'nullable|string|max:500',
             'max_ips_per_day' => 'required|integer|min:1|max:1000',
         ]);
 
         Setting::set('iptv_list_name',       $data['list_name']);
         Setting::set('iptv_group_name',      $data['group_name']);
         Setting::set('iptv_list_pl',         $data['list_pl']);
-        Setting::set('iptv_user_agent',      $data['user_agent'] ?? '');
         Setting::set('iptv_max_ips_per_day', (string) $data['max_ips_per_day']);
 
         return back()->with('success', 'Configuración guardada.');
@@ -75,7 +71,11 @@ class IptvAdminController extends Controller
     {
         $request->validate(['m3u' => 'required|string']);
 
-        $parsed = M3uParser::parse($request->input('m3u'));
+        try {
+            $parsed = M3uParser::parse($request->input('m3u'));
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
 
         return response()->json([
             'count'    => count($parsed),
@@ -97,15 +97,11 @@ class IptvAdminController extends Controller
             return back()->with('error', 'No se encontraron canales MPD en el M3U.');
         }
 
-        $token  = Setting::get('iptv_current_token', '');
-        $ua     = Setting::get('iptv_user_agent', '');
-
-        // Pre-encrypt user-agent once (nonce is random so it changes every save — that's fine)
-        $encryptedUa = $ua !== '' ? PlooplayerEncryption::encrypt($ua) : null;
+        $token = Setting::get('iptv_current_token', '');
 
         $stations = [];
         foreach ($parsed as $channel) {
-            $stations[] = M3uParser::toStation($channel, $token, $encryptedUa);
+            $stations[] = M3uParser::toStation($channel, $token);
         }
 
         Setting::set('iptv_channels_json', json_encode($stations), 'string');

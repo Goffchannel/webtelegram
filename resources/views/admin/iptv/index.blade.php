@@ -52,13 +52,6 @@
                                     value="{{ old('max_ips_per_day', $settings['max_ips_per_day']) }}"
                                     min="1" max="1000" required>
                             </div>
-                            <div class="col-12">
-                                <label class="form-label">User-Agent (texto plano)</label>
-                                <input type="text" name="user_agent" class="form-control font-monospace"
-                                    value="{{ old('user_agent', $settings['user_agent']) }}"
-                                    placeholder="Okhttp/4.x.x">
-                                <div class="form-text">Se cifrará automáticamente al guardar los canales.</div>
-                            </div>
                         </div>
                         <button class="btn btn-primary mt-3" type="submit">
                             <i class="fas fa-save me-1"></i>Guardar configuración
@@ -292,10 +285,16 @@ btnParse.addEventListener('click', async () => {
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
             },
             body: JSON.stringify({ m3u }),
         });
         const data = await resp.json();
+
+        if (!resp.ok) {
+            alert('Error al parsear: ' + (data.error ?? data.message ?? resp.status));
+            return;
+        }
 
         parseSummary.textContent = `Se encontraron ${data.count} canales MPD.`;
         parseBody.innerHTML = '';

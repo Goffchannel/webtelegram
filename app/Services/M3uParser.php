@@ -101,16 +101,15 @@ class M3uParser
                     if ($eqPos === false) continue;
 
                     $k = strtolower(trim(substr($part, 0, $eqPos)));
-                    $v = trim(substr($part, $eqPos + 1), " \t\"'"); // strip whitespace and surrounding quotes
+                    $v = urldecode(trim(substr($part, $eqPos + 1), " \t\"'"));
 
-                    match ($k) {
-                        'referer'    => $current['referer']    = urldecode($v),
-                        'origin'     => $current['origin']     = urldecode($v),
-                        'user-agent',
-                        'useragent',
-                        'user_agent' => $current['user_agent'] = urldecode($v),
-                        default      => null,
-                    };
+                    if ($k === 'referer') {
+                        $current['referer'] = $v;
+                    } elseif ($k === 'origin') {
+                        $current['origin'] = $v;
+                    } elseif ($k === 'user-agent' || $k === 'useragent' || $k === 'user_agent') {
+                        $current['user_agent'] = $v;
+                    }
                 }
                 continue;
             }

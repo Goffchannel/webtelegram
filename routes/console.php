@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('service-access:send-expiry-reminders')->dailyAt('10:00');
 Schedule::command('iptv:expire-accesses')->hourly();
 Schedule::command('bot:send-scheduled-broadcasts')->everyMinute();
+Schedule::command('bot:toggle-night-mode')->everyMinute();

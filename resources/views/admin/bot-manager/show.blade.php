@@ -155,6 +155,45 @@
                     </div>
                 </div>
 
+                {{-- Modo noche --}}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-moon me-1 text-primary"></i>Modo noche</h6>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="night_mode_enabled"
+                                       id="night_mode_enabled" value="1"
+                                       {{ $group->getSetting('night_mode_enabled') ? 'checked' : '' }}
+                                       onchange="toggleNightMode(this.checked)">
+                                <label class="form-check-label" for="night_mode_enabled">
+                                    Deshabilitar mensajes en el horario indicado
+                                </label>
+                            </div>
+                            <div id="nightModeBlock" style="{{ $group->getSetting('night_mode_enabled') ? '' : 'display:none' }}">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">Silencio desde</label>
+                                        <input type="time" name="night_mode_start" class="form-control form-control-sm"
+                                               value="{{ $group->getSetting('night_mode_start', '23:00') }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">Reabrir a las</label>
+                                        <input type="time" name="night_mode_end" class="form-control form-control-sm"
+                                               value="{{ $group->getSetting('night_mode_end', '08:00') }}">
+                                    </div>
+                                </div>
+                                <div class="form-text mt-2">
+                                    Hora del servidor: <strong>{{ now()->format('H:i') }}</strong>
+                                    <span class="text-muted">({{ config('app.timezone') }})</span>
+                                    @if($group->getSetting('night_mode_active'))
+                                        &nbsp;<span class="badge text-bg-primary"><i class="fas fa-moon me-1"></i>Modo noche activo ahora</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-1"></i>Guardar configuración
@@ -417,10 +456,18 @@
                         </div>
                         <form id="scheduleGroupForm" method="POST">
                             @csrf
+                            {{-- Hidden offset so server can adjust --}}
+                            <input type="hidden" name="tz_offset" id="tzOffset">
                             <div class="modal-body">
-                                <label class="form-label small fw-semibold">Fecha y hora</label>
-                                <input type="datetime-local" name="scheduled_at" class="form-control" required
-                                       min="{{ now()->addMinutes(2)->format('Y-m-d\TH:i') }}">
+                                <div class="alert alert-secondary py-2 px-3 mb-3 small">
+                                    <i class="fas fa-server me-1"></i>
+                                    Hora del servidor: <strong>{{ now()->format('d/m/Y H:i') }}</strong>
+                                    <span class="text-muted">({{ config('app.timezone') }})</span>
+                                </div>
+                                <label class="form-label small fw-semibold">Fecha y hora de envío</label>
+                                <input type="datetime-local" name="scheduled_at" id="scheduleDateTime"
+                                       class="form-control" required>
+                                <div class="form-text">Introduce la hora según la hora del servidor indicada arriba.</div>
                             </div>
                             <div class="modal-footer py-2">
                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
@@ -513,6 +560,9 @@ function toggleLinkAction(checked) {
 function toggleWelcome(checked) {
     document.getElementById('welcomeBlock').style.display = checked ? '' : 'none';
 }
+function toggleNightMode(checked) {
+    document.getElementById('nightModeBlock').style.display = checked ? '' : 'none';
+}
 
 function editCommand(id, trigger, response, isActive) {
     const baseUrl = "{{ route('admin.bot-manager.commands.update', [$group, '__ID__']) }}";
@@ -526,6 +576,20 @@ function editCommand(id, trigger, response, isActive) {
 function openScheduleGroupModal(broadcastId) {
     const baseUrl = "{{ url('admin/bot-manager/' . $group->id . '/schedule-broadcast') }}";
     document.getElementById('scheduleGroupForm').action = baseUrl + '/' + broadcastId;
+
+    // Set min to 2 minutes from now (server time reference)
+    const serverNow = new Date('{{ now()->toIso8601String() }}');
+    const minDate   = new Date(serverNow.getTime() + 2 * 60 * 1000);
+    // Format as YYYY-MM-DDTHH:mm in server timezone offset
+    const pad = n => String(n).padStart(2, '0');
+    const minStr = minDate.getFullYear() + '-' + pad(minDate.getMonth()+1) + '-' + pad(minDate.getDate())
+                 + 'T' + pad(minDate.getHours()) + ':' + pad(minDate.getMinutes());
+    document.getElementById('scheduleDateTime').min   = minStr;
+    document.getElementById('scheduleDateTime').value = '';
+
+    // Send browser timezone offset (minutes) so server can compensate
+    document.getElementById('tzOffset').value = new Date().getTimezoneOffset();
+
     new bootstrap.Modal(document.getElementById('scheduleGroupModal')).show();
 }
 

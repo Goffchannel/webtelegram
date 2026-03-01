@@ -84,6 +84,9 @@ class BotManagerController extends Controller
             'welcome_enabled'    => 'boolean',
             'welcome_message'    => 'nullable|string|max:500',
             'is_active'          => 'boolean',
+            'night_mode_enabled' => 'boolean',
+            'night_mode_start'   => 'nullable|date_format:H:i',
+            'night_mode_end'     => 'nullable|date_format:H:i',
         ]);
 
         $group->update([
@@ -93,6 +96,10 @@ class BotManagerController extends Controller
                 'delete_link_action' => $request->input('delete_link_action', 'delete_only'),
                 'welcome_enabled'    => $request->boolean('welcome_enabled'),
                 'welcome_message'    => $request->input('welcome_message', BotGroup::defaultSettings()['welcome_message']),
+                'night_mode_enabled' => $request->boolean('night_mode_enabled'),
+                'night_mode_start'   => $request->input('night_mode_start', '23:00'),
+                'night_mode_end'     => $request->input('night_mode_end', '08:00'),
+                'night_mode_active'  => $group->getSetting('night_mode_active', false), // preserve runtime state
             ],
         ]);
 
@@ -313,14 +320,26 @@ class BotManagerController extends Controller
 
     public function scheduleToGroup(Request $request, BotGroup $group, BotBroadcast $broadcast)
     {
-        $request->validate(['scheduled_at' => 'required|date|after:now']);
+        $request->validate(['scheduled_at' => 'required|date']);
+
+        // Compensate for browser timezone offset (in minutes, positive = behind UTC)
+        $tzOffset   = (int) $request->input('tz_offset', 0); // browser offset in minutes
+        $appOffset  = now()->getOffset() / 60;               // server offset in minutes (+60 = UTC+1)
+        $diffMinutes = $tzOffset + $appOffset;               // net difference to apply
+
+        $scheduledAt = \Carbon\Carbon::parse($request->scheduled_at)
+            ->addMinutes($diffMinutes);
+
+        if ($scheduledAt->isPast()) {
+            return back()->withErrors(['scheduled_at' => 'La fecha debe ser futura.']);
+        }
 
         BotBroadcastTarget::updateOrCreate(
             ['bot_broadcast_id' => $broadcast->id, 'bot_group_id' => $group->id],
-            ['status' => 'pending', 'scheduled_at' => $request->scheduled_at, 'sent_at' => null, 'error' => null]
+            ['status' => 'pending', 'scheduled_at' => $scheduledAt, 'sent_at' => null, 'error' => null]
         );
 
-        return back()->with('success', 'Programado para ' . \Carbon\Carbon::parse($request->scheduled_at)->format('d/m/Y H:i') . '.');
+        return back()->with('success', 'Programado para ' . $scheduledAt->format('d/m/Y H:i') . '.');
     }
 
     public function saveBroadcastTrigger(Request $request, BotGroup $group, BotBroadcast $broadcast)

@@ -1527,7 +1527,7 @@ class VideoController extends Controller
                     $query->orWhere('telegram_username', $username);
                 }
             })
-            ->with(['video', 'serviceAccess'])
+            ->with(['video', 'serviceAccess.line'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -1547,7 +1547,11 @@ class VideoController extends Controller
 
             if ($video->isServiceProduct()) {
                 if ($purchase->serviceAccess && !$purchase->serviceAccess->isExpired()) {
-                    $accessUrl = route('service.access.show', $purchase->serviceAccess->access_token);
+                    $token = $purchase->serviceAccess->access_token;
+                    $isShared = $purchase->serviceAccess->line && $purchase->serviceAccess->line->is_shared;
+                    $accessUrl = $isShared
+                        ? url('/iptv/' . $token)
+                        : route('service.access.show', $token);
                     $message .= "Acceso: {$accessUrl}\n";
                     $message .= "Expira: " . $purchase->serviceAccess->expires_at->format('Y-m-d H:i') . "\n\n";
                 } else {
@@ -1587,8 +1591,7 @@ class VideoController extends Controller
             return;
         }
 
-        $purchase = \App\Models\Purchase::where('purchase_status', 'completed')
-            ->where('verification_status', 'verified')
+        $purchaseQuery = \App\Models\Purchase::where('purchase_status', 'completed')
             ->where('video_id', $videoId)
             ->where(function ($query) use ($telegramUserId, $username) {
                 $query->where('telegram_user_id', $telegramUserId);
@@ -1596,9 +1599,15 @@ class VideoController extends Controller
                     $query->orWhere('telegram_username', $username);
                 }
             })
-            ->with(['video', 'serviceAccess'])
-            ->latest()
-            ->first();
+            ->with(['video', 'serviceAccess.line'])
+            ->latest();
+
+        // For regular videos require bot verification; IPTV access is provisioned automatically
+        if (!$video->isServiceProduct()) {
+            $purchaseQuery->where('verification_status', 'verified');
+        }
+
+        $purchase = $purchaseQuery->first();
 
         if (!$purchase) {
             $this->sendTelegramMessage($chatId, "No tienes acceso a este contenido.");
@@ -1611,7 +1620,12 @@ class VideoController extends Controller
                 return;
             }
 
-            $accessUrl = route('service.access.show', $purchase->serviceAccess->access_token);
+            $token = $purchase->serviceAccess->access_token;
+            $isShared = $purchase->serviceAccess->line && $purchase->serviceAccess->line->is_shared;
+            $accessUrl = $isShared
+                ? url('/iptv/' . $token)
+                : route('service.access.show', $token);
+
             $this->sendTelegramMessage($chatId, "Acceso activo: {$accessUrl}\nExpira: " . $purchase->serviceAccess->expires_at->format('Y-m-d H:i'));
             return;
         }

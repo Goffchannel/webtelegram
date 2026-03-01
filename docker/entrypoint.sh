@@ -9,6 +9,11 @@ sleep 2
 # Ensure we're in the correct directory
 cd /var/www/html
 
+# Fix nginx temp directory permissions (nginx runs as www-data but Alpine sets owner to nginx)
+echo "🔐 Fixing nginx temp directory permissions..."
+mkdir -p /var/lib/nginx/tmp/client_body /var/lib/nginx/tmp/proxy /var/lib/nginx/tmp/fastcgi
+chown -R www-data:www-data /var/lib/nginx/tmp
+
 # Create required directories with proper permissions first
 echo "📁 Creating required directories..."
 mkdir -p storage/app storage/framework/cache storage/framework/sessions storage/framework/views

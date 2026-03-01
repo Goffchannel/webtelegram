@@ -477,10 +477,3 @@ class PaymentController extends Controller
         }
     }
 }
-        if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
-            return back()->withErrors(['payment' => 'Sin stock: no hay lineas disponibles para este producto.']);
-        }
-
-        if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
-            return back()->withErrors(['payment' => 'Sin stock: no hay lineas disponibles para este producto.']);
-        }

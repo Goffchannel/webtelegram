@@ -8,7 +8,7 @@
         <h2 class="mb-0">Panel de Creador</h2>
         <small class="text-muted">Gestiona tu tienda, pagos y contenido</small>
     </div>
-    <a class="btn btn-outline-primary" href="{{ route('creator.storefront.categories', $creator->creator_slug) }}" target="_blank">Ver tienda publica</a>
+    <a class="btn btn-outline-primary" href="{{ route('creator.storefront.categories', ['creator' => $creator->creator_slug]) }}" target="_blank">Ver tienda publica</a>
 </div>
 
 <div class="row g-3 mb-4">

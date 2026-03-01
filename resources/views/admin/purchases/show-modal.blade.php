@@ -337,47 +337,48 @@
 
                 {{-- Chat thread --}}
                 <div id="msg-thread-{{ $purchase->id }}"
-                     style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding:4px;"
+                     style="min-height:80px; max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:8px; background:#1a1a2e; border-radius:8px;"
                      data-purchase="{{ $purchase->id }}"
                      data-last-ts="{{ $purchase->messages->last()?->created_at?->toIso8601String() ?? '' }}">
                     @forelse($purchase->messages as $msg)
                         @if($msg->sender_type === 'admin')
                             <div class="d-flex justify-content-end">
-                                <div class="bg-primary text-white rounded px-3 py-2" style="max-width:78%; font-size:.85rem;">
-                                    <div style="font-size:.72rem; opacity:.8;" class="mb-1">{{ $msg->sender_name }} · {{ $msg->created_at->format('H:i') }}</div>
-                                    {{ $msg->message }}
+                                <div style="max-width:78%; background:#1d6ae5; border-radius:16px 16px 4px 16px; padding:8px 13px; font-size:.855rem; color:#fff;">
+                                    <div style="font-size:.68rem; opacity:.75; margin-bottom:2px;">{{ $msg->sender_name }} · {{ $msg->created_at->format('H:i') }}</div>
+                                    <div>{{ $msg->message }}</div>
                                 </div>
                             </div>
                         @else
                             <div class="d-flex justify-content-start">
-                                <div class="bg-light border rounded px-3 py-2" style="max-width:78%; font-size:.85rem;">
-                                    <div style="font-size:.72rem; color:#888;" class="mb-1">{{ $msg->sender_name }} · {{ $msg->created_at->format('H:i') }}</div>
-                                    {{ $msg->message }}
+                                <div style="max-width:78%; background:#2d2d42; border-radius:16px 16px 16px 4px; padding:8px 13px; font-size:.855rem; color:#e8e8f0;">
+                                    <div style="font-size:.68rem; color:#9d9db8; margin-bottom:2px;">{{ $msg->sender_name }} · {{ $msg->created_at->format('H:i') }}</div>
+                                    <div>{{ $msg->message }}</div>
                                 </div>
                             </div>
                         @endif
                     @empty
-                        <p class="text-muted text-center small mb-0">Sin mensajes aún.</p>
+                        <p style="color:#6b6b8a; text-align:center; font-size:.82rem; margin:auto 0;">Sin mensajes aún.</p>
                     @endforelse
                 </div>
 
                 <hr class="my-2">
 
                 @if($purchase->telegram_user_id)
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 mt-2">
                         <textarea id="msg-input-{{ $purchase->id }}"
                                   class="form-control form-control-sm"
                                   rows="2"
-                                  placeholder="Escribe un mensaje..."></textarea>
+                                  style="resize:none; background:#1a1a2e; color:#e8e8f0; border-color:#3d3d5c;"
+                                  placeholder="Escribe un mensaje... (Enter envía)"></textarea>
                         <button class="btn btn-primary btn-sm px-3"
                                 onclick="sendAdminMessage({{ $purchase->id }})">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 @else
-                    <div class="alert alert-warning py-2 mb-0 small">
+                    <div class="alert alert-warning py-2 mb-0 small mt-2">
                         <i class="fas fa-exclamation-triangle me-1"></i>
-                        El comprador no ha vinculado su Telegram todavía. Debe escribir <code>/start</code> al bot primero.
+                        El comprador no ha vinculado su Telegram. Debe escribir <code>/start</code> al bot primero.
                     </div>
                 @endif
             </div>

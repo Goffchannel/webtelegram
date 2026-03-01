@@ -98,14 +98,15 @@
 
                 {{-- Hilo de mensajes --}}
                 <div id="creatorMsgThread"
-                     style="min-height:200px; max-height:380px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-bottom:4px;">
-                    <p class="text-muted text-center small mt-3" id="creatorMsgEmpty">Sin mensajes todavía.</p>
+                     style="min-height:200px; max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:10px; background:#1a1a2e; border-radius:10px;">
+                    <p style="color:#6b6b8a; text-align:center; font-size:.82rem; margin:auto 0;" id="creatorMsgEmpty">Sin mensajes todavía.</p>
                 </div>
             </div>
             <div class="modal-footer flex-column align-items-stretch gap-2">
                 <textarea id="creatorMsgInput"
                           class="form-control"
                           rows="2"
+                          style="resize:none; background:#1a1a2e; color:#e8e8f0; border-color:#3d3d5c;"
                           placeholder="Escribe un mensaje... (Enter envía, Shift+Enter nueva línea)"></textarea>
                 <button id="creatorMsgSend" class="btn btn-primary w-100" onclick="sendCreatorMessage()">
                     <i class="fas fa-paper-plane me-1"></i>Enviar mensaje
@@ -184,21 +185,17 @@ function appendCreatorMessage(msg) {
     const isAdmin = msg.sender_type === 'admin';
 
     const wrapper = document.createElement('div');
-    wrapper.style.display = 'flex';
-    wrapper.style.justifyContent = isAdmin ? 'flex-end' : 'flex-start';
+    wrapper.style.cssText = 'display:flex; justify-content:' + (isAdmin ? 'flex-end' : 'flex-start') + ';';
 
     const bubble = document.createElement('div');
-    bubble.style.cssText = `
-        max-width: 75%;
-        padding: 8px 12px;
-        border-radius: 12px;
-        font-size: 0.875rem;
-        background: ${isAdmin ? '#0d6efd' : '#e9ecef'};
-        color: ${isAdmin ? '#fff' : '#212529'};
-    `;
+    bubble.style.cssText = isAdmin
+        ? 'max-width:75%;padding:8px 13px;border-radius:16px 16px 4px 16px;font-size:.855rem;background:#1d6ae5;color:#fff;'
+        : 'max-width:75%;padding:8px 13px;border-radius:16px 16px 16px 4px;font-size:.855rem;background:#2d2d42;color:#e8e8f0;';
 
     const meta = document.createElement('div');
-    meta.style.cssText = `font-size:0.7rem; opacity:0.75; margin-bottom:3px;`;
+    meta.style.cssText = isAdmin
+        ? 'font-size:.68rem;opacity:.75;margin-bottom:2px;'
+        : 'font-size:.68rem;color:#9d9db8;margin-bottom:2px;';
     meta.textContent = `${msg.sender_name} · ${msg.time}`;
 
     const text = document.createElement('div');
@@ -209,6 +206,7 @@ function appendCreatorMessage(msg) {
     wrapper.appendChild(bubble);
     thread.appendChild(wrapper);
     thread.scrollTop = thread.scrollHeight;
+    if (msg.created_at) creatorLastMsgTimestamp = msg.created_at;
 }
 
 function sendCreatorMessage() {
@@ -247,7 +245,7 @@ function sendCreatorMessage() {
 // Polling
 const creatorMsgModal = document.getElementById('creatorMsgModal');
 creatorMsgModal.addEventListener('shown.bs.modal', () => {
-    creatorPollingInterval = setInterval(() => loadCreatorMessages(false), 15000);
+    creatorPollingInterval = setInterval(() => loadCreatorMessages(false), 5000);
 });
 creatorMsgModal.addEventListener('hidden.bs.modal', () => {
     clearInterval(creatorPollingInterval);

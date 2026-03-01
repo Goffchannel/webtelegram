@@ -674,14 +674,21 @@
             const isAdmin = msg.sender_type === 'admin';
             const div = document.createElement('div');
             div.className = 'd-flex justify-content-' + (isAdmin ? 'end' : 'start');
+            const bubbleStyle = isAdmin
+                ? 'background:#1d6ae5;border-radius:16px 16px 4px 16px;color:#fff;'
+                : 'background:#2d2d42;border-radius:16px 16px 16px 4px;color:#e8e8f0;';
+            const metaStyle = isAdmin
+                ? 'font-size:.68rem;opacity:.75;margin-bottom:2px;'
+                : 'font-size:.68rem;color:#9d9db8;margin-bottom:2px;';
+            const safeMsg = msg.message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
             div.innerHTML = `
-                <div class="${isAdmin ? 'bg-primary text-white' : 'bg-light border'} rounded px-3 py-2" style="max-width:78%;font-size:.85rem;">
-                    <div style="font-size:.72rem;opacity:.8;" class="mb-1">${msg.sender_name} · ${msg.time}</div>
-                    ${msg.message.replace(/</g,'&lt;')}
+                <div style="max-width:78%;${bubbleStyle}padding:8px 13px;font-size:.855rem;">
+                    <div style="${metaStyle}">${msg.sender_name} · ${msg.time}</div>
+                    <div>${safeMsg}</div>
                 </div>`;
             thread.appendChild(div);
             thread.scrollTop = thread.scrollHeight;
-            thread.dataset.lastTs = new Date().toISOString();
+            if (msg.created_at) thread.dataset.lastTs = msg.created_at;
         }
 
         function startMsgPolling(purchaseId) {
@@ -697,7 +704,7 @@
                             data.messages.forEach(m => appendMessage(purchaseId, m));
                         }
                     });
-            }, 15000);
+            }, 5000);
         }
 
         function stopMsgPolling(purchaseId) {

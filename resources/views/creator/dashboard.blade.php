@@ -317,36 +317,14 @@
 
                                 @if($video->isServiceProduct())
                                     <hr>
-                                    <h6>Stock de lineas (formato: nombre|url_m3u|usuario|contrasena|notas)</h6>
-                                    <form method="POST" action="{{ route('creator.videos.service-lines.store', $video) }}" class="mb-2">
-                                        @csrf
-                                        <textarea name="bulk_lines" class="form-control form-control-sm" rows="4" placeholder="Linea 1|https://...m3u|user1|pass1|nota"></textarea>
-                                        <button class="btn btn-sm btn-outline-primary mt-2" type="submit">Cargar lineas</button>
-                                    </form>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <thead><tr><th>Nombre</th><th>Usuario</th><th>Estado</th><th></th></tr></thead>
-                                            <tbody>
-                                                @foreach($video->serviceLines()->latest()->limit(10)->get() as $line)
-                                                    <tr>
-                                                        <td>{{ $line->line_name }}</td>
-                                                        <td>{{ $line->line_username ?: '-' }}</td>
-                                                        <td>
-                                                            @if($line->is_assigned)<span class="badge text-bg-secondary">Asignada</span>@else<span class="badge text-bg-success">Libre</span>@endif
-                                                        </td>
-                                                        <td>
-                                                            @if(!$line->is_assigned)
-                                                                <form method="POST" action="{{ route('creator.videos.service-lines.delete', ['video' => $video, 'line' => $line]) }}" onsubmit="return confirm('Eliminar linea?')">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                                                </form>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge text-bg-info">Servicio IPTV</span>
+                                        <small class="text-muted">Stock de líneas: {{ $video->serviceLines()->count() }} total / {{ $video->availableServiceLines()->count() }} libres</small>
+                                        @if(auth()->user()->is_admin)
+                                            <a href="{{ route('admin.videos.service-lines.show', $video) }}" class="btn btn-sm btn-outline-secondary ms-auto">
+                                                <i class="fas fa-key me-1"></i>Gestionar líneas IPTV
+                                            </a>
+                                        @endif
                                     </div>
                                 @endif
                             </td>

@@ -15,6 +15,11 @@ class CreatorMiddleware
             return redirect()->route('login');
         }
 
+        // Admins always have full creator access
+        if ($user->is_admin) {
+            return $next($request);
+        }
+
         if (!$user->is_creator) {
             return redirect()->route('creator.subscription.show')
                 ->with('error', 'Debes activar tu membresia de creador para acceder a esta seccion.');

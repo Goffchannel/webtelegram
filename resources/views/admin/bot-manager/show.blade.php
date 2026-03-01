@@ -181,12 +181,33 @@
                                         <input type="time" name="night_mode_end" class="form-control form-control-sm"
                                                value="{{ $group->getSetting('night_mode_end', '08:00') }}">
                                     </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold">Zona horaria</label>
+                                        <select name="night_mode_timezone" class="form-select form-select-sm">
+                                            @foreach([
+                                                'Europe/Madrid'    => 'España (Europe/Madrid)',
+                                                'Europe/London'    => 'Reino Unido (Europe/London)',
+                                                'Europe/Paris'     => 'Francia / CET (Europe/Paris)',
+                                                'Europe/Berlin'    => 'Alemania (Europe/Berlin)',
+                                                'America/New_York' => 'Este EE.UU. (America/New_York)',
+                                                'America/Chicago'  => 'Centro EE.UU. (America/Chicago)',
+                                                'America/Denver'   => 'Montaña EE.UU. (America/Denver)',
+                                                'America/Los_Angeles' => 'Pacífico EE.UU. (America/Los_Angeles)',
+                                                'America/Mexico_City' => 'México (America/Mexico_City)',
+                                                'America/Bogota'   => 'Colombia (America/Bogota)',
+                                                'America/Argentina/Buenos_Aires' => 'Argentina (America/Argentina/Buenos_Aires)',
+                                                'UTC'              => 'UTC',
+                                            ] as $tz => $label)
+                                                <option value="{{ $tz }}" {{ $group->getSetting('night_mode_timezone', 'Europe/Madrid') === $tz ? 'selected' : '' }}>
+                                                    {{ $label }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-text mt-2">
-                                    Hora del servidor: <strong>{{ now()->format('H:i') }}</strong>
-                                    <span class="text-muted">({{ config('app.timezone') }})</span>
                                     @if($group->getSetting('night_mode_active'))
-                                        &nbsp;<span class="badge text-bg-primary"><i class="fas fa-moon me-1"></i>Modo noche activo ahora</span>
+                                        <span class="badge text-bg-primary"><i class="fas fa-moon me-1"></i>Modo noche activo ahora</span>
                                     @endif
                                 </div>
                             </div>
@@ -460,14 +481,13 @@
                             <input type="hidden" name="tz_offset" id="tzOffset">
                             <div class="modal-body">
                                 <div class="alert alert-secondary py-2 px-3 mb-3 small">
-                                    <i class="fas fa-server me-1"></i>
-                                    Hora del servidor: <strong>{{ now()->format('d/m/Y H:i') }}</strong>
-                                    <span class="text-muted">({{ config('app.timezone') }})</span>
+                                    <i class="fas fa-clock me-1"></i>
+                                    Tu hora local: <strong id="localTimeDisplay">—</strong>
                                 </div>
                                 <label class="form-label small fw-semibold">Fecha y hora de envío</label>
                                 <input type="datetime-local" name="scheduled_at" id="scheduleDateTime"
                                        class="form-control" required>
-                                <div class="form-text">Introduce la hora según la hora del servidor indicada arriba.</div>
+                                <div class="form-text">Introduce tu hora local. El sistema ajusta automáticamente.</div>
                             </div>
                             <div class="modal-footer py-2">
                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
@@ -577,15 +597,19 @@ function openScheduleGroupModal(broadcastId) {
     const baseUrl = "{{ url('admin/bot-manager/' . $group->id . '/schedule-broadcast') }}";
     document.getElementById('scheduleGroupForm').action = baseUrl + '/' + broadcastId;
 
-    // Set min to 2 minutes from now (server time reference)
-    const serverNow = new Date('{{ now()->toIso8601String() }}');
-    const minDate   = new Date(serverNow.getTime() + 2 * 60 * 1000);
-    // Format as YYYY-MM-DDTHH:mm in server timezone offset
+    // Use browser LOCAL time for min (2 minutes from now)
+    const localNow = new Date();
+    const minDate  = new Date(localNow.getTime() + 2 * 60 * 1000);
     const pad = n => String(n).padStart(2, '0');
     const minStr = minDate.getFullYear() + '-' + pad(minDate.getMonth()+1) + '-' + pad(minDate.getDate())
                  + 'T' + pad(minDate.getHours()) + ':' + pad(minDate.getMinutes());
     document.getElementById('scheduleDateTime').min   = minStr;
     document.getElementById('scheduleDateTime').value = '';
+
+    // Show local time in modal
+    document.getElementById('localTimeDisplay').textContent =
+        pad(localNow.getDate()) + '/' + pad(localNow.getMonth()+1) + '/' + localNow.getFullYear()
+        + ' ' + pad(localNow.getHours()) + ':' + pad(localNow.getMinutes());
 
     // Send browser timezone offset (minutes) so server can compensate
     document.getElementById('tzOffset').value = new Date().getTimezoneOffset();

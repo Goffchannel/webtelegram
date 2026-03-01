@@ -84,22 +84,24 @@ class BotManagerController extends Controller
             'welcome_enabled'    => 'boolean',
             'welcome_message'    => 'nullable|string|max:500',
             'is_active'          => 'boolean',
-            'night_mode_enabled' => 'boolean',
-            'night_mode_start'   => 'nullable|date_format:H:i',
-            'night_mode_end'     => 'nullable|date_format:H:i',
+            'night_mode_enabled'  => 'boolean',
+            'night_mode_start'    => 'nullable|date_format:H:i',
+            'night_mode_end'      => 'nullable|date_format:H:i',
+            'night_mode_timezone' => 'nullable|timezone',
         ]);
 
         $group->update([
             'is_active' => $request->boolean('is_active', $group->is_active),
             'settings'  => [
-                'auto_delete_links'  => $request->boolean('auto_delete_links'),
-                'delete_link_action' => $request->input('delete_link_action', 'delete_only'),
-                'welcome_enabled'    => $request->boolean('welcome_enabled'),
-                'welcome_message'    => $request->input('welcome_message', BotGroup::defaultSettings()['welcome_message']),
-                'night_mode_enabled' => $request->boolean('night_mode_enabled'),
-                'night_mode_start'   => $request->input('night_mode_start', '23:00'),
-                'night_mode_end'     => $request->input('night_mode_end', '08:00'),
-                'night_mode_active'  => $group->getSetting('night_mode_active', false), // preserve runtime state
+                'auto_delete_links'   => $request->boolean('auto_delete_links'),
+                'delete_link_action'  => $request->input('delete_link_action', 'delete_only'),
+                'welcome_enabled'     => $request->boolean('welcome_enabled'),
+                'welcome_message'     => $request->input('welcome_message', BotGroup::defaultSettings()['welcome_message']),
+                'night_mode_enabled'  => $request->boolean('night_mode_enabled'),
+                'night_mode_start'    => $request->input('night_mode_start', '23:00'),
+                'night_mode_end'      => $request->input('night_mode_end', '08:00'),
+                'night_mode_timezone' => $request->input('night_mode_timezone', 'Europe/Madrid'),
+                'night_mode_active'   => $group->getSetting('night_mode_active', false), // preserve runtime state
             ],
         ]);
 

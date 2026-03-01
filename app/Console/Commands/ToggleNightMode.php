@@ -21,7 +21,8 @@ class ToggleNightMode extends Command
         foreach ($groups as $group) {
             $start    = $group->getSetting('night_mode_start', '23:00');
             $end      = $group->getSetting('night_mode_end', '08:00');
-            $isNight  = $this->isNightTime($start, $end);
+            $timezone = $group->getSetting('night_mode_timezone', 'Europe/Madrid');
+            $isNight  = $this->isNightTime($start, $end, $timezone);
             $wasNight = (bool) $group->getSetting('night_mode_active', false);
 
             if ($isNight && !$wasNight) {
@@ -56,9 +57,9 @@ class ToggleNightMode extends Command
         return self::SUCCESS;
     }
 
-    private function isNightTime(string $start, string $end): bool
+    private function isNightTime(string $start, string $end, string $timezone = 'Europe/Madrid'): bool
     {
-        $now     = now();
+        $now     = now($timezone);
         $current = $now->hour * 60 + $now->minute;
 
         [$sh, $sm] = explode(':', $start);

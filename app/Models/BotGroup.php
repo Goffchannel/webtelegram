@@ -68,10 +68,11 @@ class BotGroup extends Model
             'delete_link_action' => 'delete_only',
             'welcome_enabled'    => false,
             'welcome_message'    => '¡Bienvenido/a {nombre} al grupo {grupo}! 👋',
-            'night_mode_enabled' => false,
-            'night_mode_start'   => '23:00',
-            'night_mode_end'     => '08:00',
-            'night_mode_active'  => false,  // runtime state: is night mode currently active?
+            'night_mode_enabled'  => false,
+            'night_mode_start'    => '23:00',
+            'night_mode_end'      => '08:00',
+            'night_mode_timezone' => 'Europe/Madrid',
+            'night_mode_active'   => false,  // runtime state: is night mode currently active?
         ];
     }
 

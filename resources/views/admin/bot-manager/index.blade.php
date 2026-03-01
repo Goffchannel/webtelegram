@@ -8,9 +8,14 @@
         <h2 class="mb-0"><i class="fas fa-robot me-2 text-primary"></i>Bot Manager</h2>
         <small class="text-muted">Gestión de grupos y canales de Telegram</small>
     </div>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGroupModal">
-        <i class="fas fa-plus me-1"></i>Añadir grupo
-    </button>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.bot-manager.broadcasts') }}" class="btn btn-outline-primary">
+            <i class="fas fa-broadcast-tower me-1"></i>Broadcasts
+        </a>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGroupModal">
+            <i class="fas fa-plus me-1"></i>Añadir grupo
+        </button>
+    </div>
 </div>
 
 @if(session('success'))

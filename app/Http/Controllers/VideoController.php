@@ -6,6 +6,7 @@ use App\Models\Video;
 use App\Models\Setting;
 use App\Models\TelegramBot;
 use App\Models\Category;
+use App\Models\BotBroadcast;
 use App\Models\BotGroup;
 use App\Models\BotGroupBan;
 use App\Models\Purchase;
@@ -1208,7 +1209,36 @@ class VideoController extends Controller
                 }
 
                 if ($fileId) {
-                    $caption = $message['caption'] ?? 'Video capturado';
+                    $rawCaption = $message['caption'] ?? '';
+
+                    // ── Broadcast capture ─────────────────────────────────
+                    if (preg_match('/^[#!]broadcast\s*/i', $rawCaption)) {
+                        $broadcastCaption = trim(preg_replace('/^[#!]broadcast\s*/i', '', $rawCaption)) ?: null;
+                        $fileType = isset($message['photo'])
+                            ? 'photo'
+                            : (isset($message['animation']) ? 'animation'
+                            : (isset($message['document'])  ? 'document' : 'video'));
+
+                        BotBroadcast::create([
+                            'telegram_file_id' => $fileId,
+                            'file_type'        => $fileType,
+                            'caption'          => $broadcastCaption,
+                            'status'           => 'pending',
+                            'created_by'       => $ownerCreator?->id ?? $uploaderCreator?->id,
+                        ]);
+
+                        $this->sendTelegramMessage(
+                            $fromUserId,
+                            "📢 *Broadcast guardado!*\n\n" .
+                            ($broadcastCaption ? "📝 Caption: {$broadcastCaption}\n\n" : "") .
+                            "Ve al panel web → *Bot Manager → Broadcasts* para enviarlo a grupos o programarlo."
+                        );
+
+                        return response()->json(['ok' => true]);
+                    }
+                    // ─────────────────────────────────────────────────────
+
+                    $caption = $rawCaption ?: 'Video capturado';
                     $defaultPrice = 4.99;
 
                     $videoRecord = Video::create([

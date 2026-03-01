@@ -164,6 +164,12 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::post('/{group}/ban', [\App\Http\Controllers\Admin\BotManagerController::class, 'banUser'])->name('ban');
         Route::delete('/{group}/bans/{ban}', [\App\Http\Controllers\Admin\BotManagerController::class, 'unbanUser'])->name('unban');
         Route::post('/{group}/message', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendMessage'])->name('message');
+
+        // Media broadcasts
+        Route::get('/broadcasts', [\App\Http\Controllers\Admin\BotManagerController::class, 'broadcasts'])->name('broadcasts');
+        Route::post('/broadcasts/{broadcast}/send', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendBroadcast'])->name('broadcasts.send');
+        Route::post('/broadcasts/{broadcast}/schedule', [\App\Http\Controllers\Admin\BotManagerController::class, 'scheduleBroadcast'])->name('broadcasts.schedule');
+        Route::delete('/broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'destroyBroadcast'])->name('broadcasts.destroy');
     });
 
     // Service access: renew / revoke

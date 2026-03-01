@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BotBroadcast;
+use App\Models\BotBroadcastTarget;
 use App\Models\BotGroup;
 use App\Models\BotGroupBan;
 use App\Models\BotGroupCommand;
@@ -194,8 +196,8 @@ class BotManagerController extends Controller
     {
         // Call Telegram API to unban
         $this->callTelegramApi('unbanChatMember', [
-            'chat_id'       => $group->chat_id,
-            'user_id'       => (int) $ban->telegram_user_id,
+            'chat_id'        => $group->chat_id,
+            'user_id'        => (int) $ban->telegram_user_id,
             'only_if_banned' => true,
         ]);
 
@@ -204,7 +206,7 @@ class BotManagerController extends Controller
         return back()->with('success', 'Usuario desbaneado.');
     }
 
-    // ── Broadcast message ─────────────────────────────────────────────────
+    // ── Per-group broadcast message ────────────────────────────────────────
 
     public function sendMessage(Request $request, BotGroup $group)
     {
@@ -224,6 +226,124 @@ class BotManagerController extends Controller
         }
 
         return back()->with('success', 'Mensaje enviado al grupo.');
+    }
+
+    // ── Media Broadcasts ──────────────────────────────────────────────────
+
+    public function broadcasts()
+    {
+        $broadcasts = BotBroadcast::withCount('targets')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $groups = BotGroup::where('is_active', true)->orderBy('chat_title')->get();
+
+        return view('admin.bot-manager.broadcasts', compact('broadcasts', 'groups'));
+    }
+
+    public function sendBroadcast(Request $request, BotBroadcast $broadcast)
+    {
+        $request->validate([
+            'group_ids'   => 'required|array|min:1',
+            'group_ids.*' => 'exists:bot_groups,id',
+        ]);
+
+        // Remove previous pending targets and recreate with selected groups
+        $broadcast->targets()->delete();
+        foreach ($request->group_ids as $groupId) {
+            BotBroadcastTarget::create([
+                'bot_broadcast_id' => $broadcast->id,
+                'bot_group_id'     => $groupId,
+                'status'           => 'pending',
+            ]);
+        }
+
+        $this->dispatchBroadcast($broadcast->fresh(['targets.group']));
+
+        return redirect()->route('admin.bot-manager.broadcasts')
+            ->with('success', 'Broadcast enviado correctamente.');
+    }
+
+    public function scheduleBroadcast(Request $request, BotBroadcast $broadcast)
+    {
+        $request->validate([
+            'group_ids'    => 'required|array|min:1',
+            'group_ids.*'  => 'exists:bot_groups,id',
+            'scheduled_at' => 'required|date|after:now',
+        ]);
+
+        $broadcast->targets()->delete();
+        foreach ($request->group_ids as $groupId) {
+            BotBroadcastTarget::create([
+                'bot_broadcast_id' => $broadcast->id,
+                'bot_group_id'     => $groupId,
+                'status'           => 'pending',
+            ]);
+        }
+
+        $broadcast->update([
+            'status'       => 'pending',
+            'scheduled_at' => $request->scheduled_at,
+        ]);
+
+        return redirect()->route('admin.bot-manager.broadcasts')
+            ->with('success', 'Broadcast programado para ' . \Carbon\Carbon::parse($request->scheduled_at)->format('d/m/Y H:i') . '.');
+    }
+
+    public function destroyBroadcast(BotBroadcast $broadcast)
+    {
+        $broadcast->delete();
+        return back()->with('success', 'Broadcast eliminado.');
+    }
+
+    // ── Internal: dispatch a broadcast now ────────────────────────────────
+
+    public function dispatchBroadcast(BotBroadcast $broadcast): void
+    {
+        $broadcast->update(['status' => 'sending']);
+        $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
+
+        $allOk = true;
+        foreach ($broadcast->targets()->where('status', 'pending')->with('group')->get() as $target) {
+            $result = $this->sendMediaToChat($botToken, $target->group->chat_id, $broadcast);
+
+            if ($result['ok'] ?? false) {
+                $target->update(['status' => 'sent', 'sent_at' => now()]);
+            } else {
+                $error = $result['description'] ?? 'Error desconocido';
+                $target->update(['status' => 'failed', 'error' => $error]);
+                $allOk = false;
+                Log::warning("BotManager broadcast target failed", [
+                    'broadcast_id' => $broadcast->id,
+                    'group_id'     => $target->bot_group_id,
+                    'error'        => $error,
+                ]);
+            }
+        }
+
+        $broadcast->update([
+            'status'  => $allOk ? 'done' : 'failed',
+            'sent_at' => now(),
+        ]);
+    }
+
+    private function sendMediaToChat(string $botToken, $chatId, BotBroadcast $broadcast): array
+    {
+        try {
+            $response = Http::timeout(30)->post(
+                "https://api.telegram.org/bot{$botToken}/{$broadcast->sendMethod()}",
+                array_filter([
+                    'chat_id'    => $chatId,
+                    $broadcast->fileKey() => $broadcast->telegram_file_id,
+                    'caption'    => $broadcast->caption,
+                    'parse_mode' => 'Markdown',
+                ])
+            );
+            return $response->json() ?? ['ok' => false, 'description' => 'Empty response'];
+        } catch (\Exception $e) {
+            Log::error("BotManager sendMediaToChat error: " . $e->getMessage());
+            return ['ok' => false, 'description' => $e->getMessage()];
+        }
     }
 
     // ── Telegram API helper ───────────────────────────────────────────────

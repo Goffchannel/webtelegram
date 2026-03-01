@@ -68,7 +68,8 @@ class BotManagerController extends Controller
     public function show(BotGroup $group)
     {
         $group->load(['commands', 'activeBans.bannedBy']);
-        return view('admin.bot-manager.show', compact('group'));
+        $broadcasts = BotBroadcast::orderByDesc('created_at')->get();
+        return view('admin.bot-manager.show', compact('group', 'broadcasts'));
     }
 
     // ── Update settings ───────────────────────────────────────────────────
@@ -294,6 +295,18 @@ class BotManagerController extends Controller
     {
         $broadcast->delete();
         return back()->with('success', 'Broadcast eliminado.');
+    }
+
+    public function sendBroadcastToGroup(BotGroup $group, BotBroadcast $broadcast)
+    {
+        BotBroadcastTarget::updateOrCreate(
+            ['bot_broadcast_id' => $broadcast->id, 'bot_group_id' => $group->id],
+            ['status' => 'pending', 'sent_at' => null, 'error' => null]
+        );
+
+        $this->dispatchBroadcast($broadcast->fresh(['targets.group']));
+
+        return back()->with('success', 'Broadcast enviado a ' . $group->chat_title . '.');
     }
 
     // ── Internal: dispatch a broadcast now ────────────────────────────────

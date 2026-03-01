@@ -153,8 +153,17 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
 
     // Bot Manager — group/channel moderation
     Route::prefix('admin/bot-manager')->name('admin.bot-manager.')->group(function () {
+        // ── Static routes FIRST (before /{group} parameter) ──────────────────
         Route::get('/', [\App\Http\Controllers\Admin\BotManagerController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\Admin\BotManagerController::class, 'store'])->name('store');
+
+        // Global media broadcasts (must be before /{group} to avoid conflict)
+        Route::get('/broadcasts', [\App\Http\Controllers\Admin\BotManagerController::class, 'broadcasts'])->name('broadcasts');
+        Route::post('/broadcasts/{broadcast}/send', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendBroadcast'])->name('broadcasts.send');
+        Route::post('/broadcasts/{broadcast}/schedule', [\App\Http\Controllers\Admin\BotManagerController::class, 'scheduleBroadcast'])->name('broadcasts.schedule');
+        Route::delete('/broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'destroyBroadcast'])->name('broadcasts.destroy');
+
+        // ── Group parameter routes ────────────────────────────────────────────
         Route::get('/{group}', [\App\Http\Controllers\Admin\BotManagerController::class, 'show'])->name('show');
         Route::put('/{group}', [\App\Http\Controllers\Admin\BotManagerController::class, 'update'])->name('update');
         Route::delete('/{group}', [\App\Http\Controllers\Admin\BotManagerController::class, 'destroy'])->name('destroy');
@@ -164,12 +173,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::post('/{group}/ban', [\App\Http\Controllers\Admin\BotManagerController::class, 'banUser'])->name('ban');
         Route::delete('/{group}/bans/{ban}', [\App\Http\Controllers\Admin\BotManagerController::class, 'unbanUser'])->name('unban');
         Route::post('/{group}/message', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendMessage'])->name('message');
-
-        // Media broadcasts
-        Route::get('/broadcasts', [\App\Http\Controllers\Admin\BotManagerController::class, 'broadcasts'])->name('broadcasts');
-        Route::post('/broadcasts/{broadcast}/send', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendBroadcast'])->name('broadcasts.send');
-        Route::post('/broadcasts/{broadcast}/schedule', [\App\Http\Controllers\Admin\BotManagerController::class, 'scheduleBroadcast'])->name('broadcasts.schedule');
-        Route::delete('/broadcasts/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'destroyBroadcast'])->name('broadcasts.destroy');
+        Route::post('/{group}/send-broadcast/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendBroadcastToGroup'])->name('broadcasts.send-to-group');
     });
 
     // Service access: renew / revoke

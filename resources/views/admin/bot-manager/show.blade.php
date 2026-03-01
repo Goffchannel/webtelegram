@@ -303,16 +303,18 @@
 
     {{-- ─── Tab: Broadcast ─────────────────────────────────────────────────── --}}
     <div class="tab-pane fade" id="tab-broadcast">
-        <div class="row justify-content-center">
+
+        {{-- Text broadcast --}}
+        <div class="row mb-4">
             <div class="col-md-7">
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="card-title"><i class="fas fa-bullhorn me-1 text-warning"></i>Enviar mensaje al grupo</h6>
+                        <h6 class="card-title"><i class="fas fa-bullhorn me-1 text-warning"></i>Enviar mensaje de texto</h6>
                         <p class="text-muted small">El bot enviará este mensaje directamente al grupo. Soporta Markdown.</p>
                         <form method="POST" action="{{ route('admin.bot-manager.message', $group) }}">
                             @csrf
                             <div class="mb-3">
-                                <textarea name="message" class="form-control" rows="5"
+                                <textarea name="message" class="form-control" rows="4"
                                           placeholder="Escribe el mensaje... (Markdown soportado)"
                                           required maxlength="4096"></textarea>
                             </div>
@@ -324,6 +326,63 @@
                 </div>
             </div>
         </div>
+
+        {{-- Media broadcasts --}}
+        <h6 class="mb-3"><i class="fas fa-photo-video me-1 text-primary"></i>Vídeos / Fotos guardados</h6>
+
+        <div class="alert alert-info d-flex gap-2 py-2 mb-3">
+            <i class="fas fa-info-circle mt-1 flex-shrink-0"></i>
+            <small>Envía un vídeo o foto al bot con caption <code>#broadcast Tu texto</code> para guardarlo aquí y poder enviarlo a este grupo con un clic.</small>
+        </div>
+
+        @if($broadcasts->isEmpty())
+            <p class="text-muted small">No hay broadcasts guardados. Envía un vídeo al bot con <code>#broadcast</code> para que aparezca aquí.</p>
+        @else
+            <div class="row g-3">
+                @foreach($broadcasts as $bc)
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                            <span class="small">
+                                <i class="fas {{ $bc->fileTypeIcon() }} me-1 text-primary"></i>
+                                {{ ucfirst($bc->file_type) }}
+                            </span>
+                            @php
+                                $bc_badge = match($bc->status) {
+                                    'done'    => ['text-bg-success', 'Enviado'],
+                                    'sending' => ['text-bg-warning', 'Enviando'],
+                                    'failed'  => ['text-bg-danger', 'Error'],
+                                    default   => ['text-bg-secondary', 'Pendiente'],
+                                };
+                            @endphp
+                            <span class="badge {{ $bc_badge[0] }}" style="font-size:.65rem">{{ $bc_badge[1] }}</span>
+                        </div>
+                        <div class="card-body py-2">
+                            @if($bc->caption)
+                                <p class="small mb-1" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{{ $bc->caption }}">
+                                    {{ $bc->caption }}
+                                </p>
+                            @else
+                                <p class="small text-muted mb-1"><em>Sin caption</em></p>
+                            @endif
+                            <small class="text-muted">{{ $bc->created_at->format('d/m/Y H:i') }}</small>
+                        </div>
+                        <div class="card-footer py-2">
+                            <form method="POST"
+                                  action="{{ route('admin.bot-manager.broadcasts.send-to-group', [$group, $bc]) }}"
+                                  onsubmit="return confirm('¿Enviar este broadcast a {{ addslashes($group->chat_title) }}?')">
+                                @csrf
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                    <i class="fas fa-paper-plane me-1"></i>Enviar aquí
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @endif
+
     </div>
 
 </div>{{-- end tab-content --}}

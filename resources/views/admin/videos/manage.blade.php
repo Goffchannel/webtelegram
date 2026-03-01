@@ -346,9 +346,11 @@
                                                                     onclick="editVideoThumbnail({{ $video->id }}, '{{ $video->getThumbnailUrl() }}', '{{ $video->thumbnail_url }}', '{{ $video->thumbnail_blob_url }}', '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->blur_intensity }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
                                                                     <i class="fas fa-image"></i>
                                                                 </button>
+                                                                @if($video->isServiceProduct())
                                                                 <a class="btn btn-outline-secondary" title="Manage service lines" href="{{ route('admin.videos.service-lines.show', $video) }}">
                                                                     <i class="fas fa-key"></i>
                                                                 </a>
+                                                                @endif
                                                                 @if ($syncUserTelegramId)
                                                                     <button type="button" class="btn btn-outline-success"
                                                                         onclick="testVideo({{ $video->id }})">

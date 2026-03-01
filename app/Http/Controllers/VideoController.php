@@ -1971,6 +1971,22 @@ class VideoController extends Controller
                 return;
             }
 
+            // ── Broadcast triggers ──────────────────────────────────────────
+            $broadcast = BotBroadcast::where('trigger', $text)->first();
+            if ($broadcast) {
+                $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
+                Http::timeout(30)->post(
+                    "https://api.telegram.org/bot{$botToken}/{$broadcast->sendMethod()}",
+                    array_filter([
+                        'chat_id'            => $chatId,
+                        $broadcast->fileKey() => $broadcast->telegram_file_id,
+                        'caption'            => $broadcast->caption,
+                        'parse_mode'         => 'Markdown',
+                    ])
+                );
+                return;
+            }
+
             // ── Auto-delete links ───────────────────────────────────────────
             if ($group->getSetting('auto_delete_links') && $msgId) {
                 $hasLink = preg_match('/(https?:\/\/[^\s]+|t\.me\/[^\s]+)/i', $text);

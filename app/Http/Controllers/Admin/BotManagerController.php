@@ -68,7 +68,9 @@ class BotManagerController extends Controller
     public function show(BotGroup $group)
     {
         $group->load(['commands', 'activeBans.bannedBy']);
-        $broadcasts = BotBroadcast::orderByDesc('created_at')->get();
+        $broadcasts = BotBroadcast::with(['targets' => fn($q) => $q->where('bot_group_id', $group->id)])
+            ->orderByDesc('created_at')
+            ->get();
         return view('admin.bot-manager.show', compact('group', 'broadcasts'));
     }
 
@@ -301,12 +303,34 @@ class BotManagerController extends Controller
     {
         BotBroadcastTarget::updateOrCreate(
             ['bot_broadcast_id' => $broadcast->id, 'bot_group_id' => $group->id],
-            ['status' => 'pending', 'sent_at' => null, 'error' => null]
+            ['status' => 'pending', 'scheduled_at' => null, 'sent_at' => null, 'error' => null]
         );
 
         $this->dispatchBroadcast($broadcast->fresh(['targets.group']));
 
         return back()->with('success', 'Broadcast enviado a ' . $group->chat_title . '.');
+    }
+
+    public function scheduleToGroup(Request $request, BotGroup $group, BotBroadcast $broadcast)
+    {
+        $request->validate(['scheduled_at' => 'required|date|after:now']);
+
+        BotBroadcastTarget::updateOrCreate(
+            ['bot_broadcast_id' => $broadcast->id, 'bot_group_id' => $group->id],
+            ['status' => 'pending', 'scheduled_at' => $request->scheduled_at, 'sent_at' => null, 'error' => null]
+        );
+
+        return back()->with('success', 'Programado para ' . \Carbon\Carbon::parse($request->scheduled_at)->format('d/m/Y H:i') . '.');
+    }
+
+    public function saveBroadcastTrigger(Request $request, BotGroup $group, BotBroadcast $broadcast)
+    {
+        $request->validate(['trigger' => 'nullable|string|max:50']);
+
+        $trigger = trim($request->trigger) ?: null;
+        $broadcast->update(['trigger' => $trigger]);
+
+        return back()->with('success', $trigger ? "Trigger «{$trigger}» guardado." : 'Trigger eliminado.');
     }
 
     // ── Internal: dispatch a broadcast now ────────────────────────────────

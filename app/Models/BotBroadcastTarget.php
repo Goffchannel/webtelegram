@@ -11,12 +11,14 @@ class BotBroadcastTarget extends Model
         'bot_broadcast_id',
         'bot_group_id',
         'status',
+        'scheduled_at',
         'sent_at',
         'error',
     ];
 
     protected $casts = [
-        'sent_at' => 'datetime',
+        'scheduled_at' => 'datetime',
+        'sent_at'      => 'datetime',
     ];
 
     public function broadcast(): BelongsTo

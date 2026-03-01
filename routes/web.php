@@ -174,6 +174,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::delete('/{group}/bans/{ban}', [\App\Http\Controllers\Admin\BotManagerController::class, 'unbanUser'])->name('unban');
         Route::post('/{group}/message', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendMessage'])->name('message');
         Route::post('/{group}/send-broadcast/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendBroadcastToGroup'])->name('broadcasts.send-to-group');
+        Route::post('/{group}/schedule-broadcast/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'scheduleToGroup'])->name('broadcasts.schedule-to-group');
+        Route::patch('/{group}/broadcast-trigger/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'saveBroadcastTrigger'])->name('broadcasts.trigger');
     });
 
     // Service access: renew / revoke

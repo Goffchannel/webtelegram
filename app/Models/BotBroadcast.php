@@ -12,6 +12,7 @@ class BotBroadcast extends Model
         'telegram_file_id',
         'file_type',
         'caption',
+        'trigger',
         'status',
         'scheduled_at',
         'sent_at',

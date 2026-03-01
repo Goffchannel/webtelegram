@@ -340,46 +340,97 @@
         @else
             <div class="row g-3">
                 @foreach($broadcasts as $bc)
-                <div class="col-md-4 col-lg-3">
+                @php
+                    $bc_badge = match($bc->status) {
+                        'done'    => ['text-bg-success', 'Enviado'],
+                        'sending' => ['text-bg-warning', 'Enviando'],
+                        'failed'  => ['text-bg-danger', 'Error'],
+                        default   => ['text-bg-secondary', 'Pendiente'],
+                    };
+                    $groupTarget = $bc->targets->where('bot_group_id', $group->id)->first();
+                @endphp
+                <div class="col-md-6 col-lg-4">
                     <div class="card h-100">
                         <div class="card-header py-2 d-flex justify-content-between align-items-center">
-                            <span class="small">
+                            <span class="small fw-semibold">
                                 <i class="fas {{ $bc->fileTypeIcon() }} me-1 text-primary"></i>
                                 {{ ucfirst($bc->file_type) }}
+                                @if($bc->caption)
+                                    — <span class="text-muted fw-normal" style="max-width:120px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom" title="{{ $bc->caption }}">{{ $bc->caption }}</span>
+                                @endif
                             </span>
-                            @php
-                                $bc_badge = match($bc->status) {
-                                    'done'    => ['text-bg-success', 'Enviado'],
-                                    'sending' => ['text-bg-warning', 'Enviando'],
-                                    'failed'  => ['text-bg-danger', 'Error'],
-                                    default   => ['text-bg-secondary', 'Pendiente'],
-                                };
-                            @endphp
                             <span class="badge {{ $bc_badge[0] }}" style="font-size:.65rem">{{ $bc_badge[1] }}</span>
                         </div>
                         <div class="card-body py-2">
-                            @if($bc->caption)
-                                <p class="small mb-1" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{{ $bc->caption }}">
-                                    {{ $bc->caption }}
-                                </p>
-                            @else
-                                <p class="small text-muted mb-1"><em>Sin caption</em></p>
-                            @endif
-                            <small class="text-muted">{{ $bc->created_at->format('d/m/Y H:i') }}</small>
+                            <div class="small text-muted mb-2">
+                                Guardado: {{ $bc->created_at->format('d/m/Y H:i') }}
+                                @if($groupTarget?->scheduled_at)
+                                    <br><i class="fas fa-clock me-1 text-warning"></i>Programado: {{ $groupTarget->scheduled_at->format('d/m/Y H:i') }}
+                                @endif
+                            </div>
+
+                            {{-- Trigger --}}
+                            <form method="POST"
+                                  action="{{ route('admin.bot-manager.broadcasts.trigger', [$group, $bc]) }}"
+                                  class="d-flex gap-1 align-items-center">
+                                @csrf @method('PATCH')
+                                <input type="text" name="trigger"
+                                       class="form-control form-control-sm font-monospace"
+                                       placeholder="/video1 o !oferta"
+                                       value="{{ $bc->trigger ?? '' }}"
+                                       maxlength="50"
+                                       style="font-size:.75rem">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary flex-shrink-0" title="Guardar trigger">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </form>
+                            <div class="form-text" style="font-size:.7rem">Trigger: el usuario escribe esto en el grupo → bot envía el vídeo</div>
                         </div>
-                        <div class="card-footer py-2">
+                        <div class="card-footer py-2 d-flex gap-1">
                             <form method="POST"
                                   action="{{ route('admin.bot-manager.broadcasts.send-to-group', [$group, $bc]) }}"
+                                  class="flex-fill"
                                   onsubmit="return confirm('¿Enviar este broadcast a {{ addslashes($group->chat_title) }}?')">
                                 @csrf
                                 <button type="submit" class="btn btn-primary btn-sm w-100">
-                                    <i class="fas fa-paper-plane me-1"></i>Enviar aquí
+                                    <i class="fas fa-paper-plane me-1"></i>Enviar ahora
                                 </button>
                             </form>
+                            <button class="btn btn-sm btn-outline-primary flex-shrink-0"
+                                    onclick="openScheduleGroupModal({{ $bc->id }})"
+                                    title="Programar envío">
+                                <i class="fas fa-clock"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
                 @endforeach
+            </div>
+
+            {{-- Modal: schedule to this group --}}
+            <div class="modal fade" id="scheduleGroupModal" tabindex="-1">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header py-2">
+                            <h6 class="modal-title"><i class="fas fa-clock me-1"></i>Programar envío</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="scheduleGroupForm" method="POST">
+                            @csrf
+                            <div class="modal-body">
+                                <label class="form-label small fw-semibold">Fecha y hora</label>
+                                <input type="datetime-local" name="scheduled_at" class="form-control" required
+                                       min="{{ now()->addMinutes(2)->format('Y-m-d\TH:i') }}">
+                            </div>
+                            <div class="modal-footer py-2">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-clock me-1"></i>Programar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         @endif
 
@@ -470,6 +521,12 @@ function editCommand(id, trigger, response, isActive) {
     document.getElementById('editResponse').value  = response;
     document.getElementById('editIsActive').checked = isActive;
     new bootstrap.Modal(document.getElementById('editCmdModal')).show();
+}
+
+function openScheduleGroupModal(broadcastId) {
+    const baseUrl = "{{ url('admin/bot-manager/' . $group->id . '/schedule-broadcast') }}";
+    document.getElementById('scheduleGroupForm').action = baseUrl + '/' + broadcastId;
+    new bootstrap.Modal(document.getElementById('scheduleGroupModal')).show();
 }
 
 // Restore active tab from URL hash

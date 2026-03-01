@@ -14,9 +14,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // Check if user is authenticated and has ID 1 (the only admin)
-        if (!Auth::check() || Auth::id() !== 1) {
-            // Redirect non-admin users to dashboard
+        if (!Auth::check() || !Auth::user()->is_admin) {
             return redirect('/dashboard')->with('error', 'Access denied. Admin privileges required.');
         }
 

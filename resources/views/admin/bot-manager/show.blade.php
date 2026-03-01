@@ -401,13 +401,20 @@
             <div class="row g-3">
                 @foreach($broadcasts as $bc)
                 @php
-                    $bc_badge = match($bc->status) {
-                        'done'    => ['text-bg-success', 'Enviado'],
-                        'sending' => ['text-bg-warning', 'Enviando'],
-                        'failed'  => ['text-bg-danger', 'Error'],
-                        default   => ['text-bg-secondary', 'Pendiente'],
-                    };
                     $groupTarget = $bc->targets->where('bot_group_id', $group->id)->first();
+                    // Badge reflects THIS group's target status, not the global broadcast status
+                    if ($groupTarget) {
+                        $bc_badge = match($groupTarget->status) {
+                            'sent'    => ['text-bg-success', 'Enviado a este grupo'],
+                            'failed'  => ['text-bg-danger', 'Error'],
+                            'pending' => $groupTarget->scheduled_at
+                                ? ['text-bg-warning', 'Programado']
+                                : ['text-bg-secondary', 'Pendiente'],
+                            default   => ['text-bg-secondary', 'Pendiente'],
+                        };
+                    } else {
+                        $bc_badge = ['text-bg-secondary', 'No enviado'];
+                    }
                 @endphp
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100">

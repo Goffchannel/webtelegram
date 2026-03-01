@@ -268,10 +268,13 @@
 
             {{-- Videos Table --}}
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">
                                     <i class="fas fa-video"></i> Videos ({{ count($videos) }})
                                 </h5>
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modal-admin-create-iptv">
+                                    <i class="fas fa-plus me-1"></i> Crear producto IPTV
+                                </button>
                             </div>
                             <div class="card-body">
                                 @if (count($videos) > 0)
@@ -678,6 +681,71 @@
             </div>
         </div>
     </div>
+{{-- Modal: Crear producto IPTV (Admin) --}}
+<div class="modal fade" id="modal-admin-create-iptv" tabindex="-1" aria-labelledby="modal-admin-create-iptv-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('creator.videos.store') }}">
+                @csrf
+                <input type="hidden" name="product_type" value="service_access">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-admin-create-iptv-label">
+                        <i class="fas fa-tv me-2 text-success"></i>Crear producto IPTV
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @if($categories->isEmpty())
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            No hay categorías. Ve al <a href="{{ route('creator.dashboard') }}">Dashboard de creador</a> y crea una primero.
+                        </div>
+                    @endif
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Título del producto <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control" placeholder="Ej: IPTV Premium 30 días" required maxlength="200">
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Precio (USD) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="price" class="form-control" min="0" step="0.01" placeholder="9.99" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Duración (días)</label>
+                            <input type="number" name="duration_days" class="form-control" min="1" max="365" value="30">
+                            <div class="form-text">Por defecto 30 días</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Categoría <span class="text-danger">*</span></label>
+                        <select name="category_id" class="form-select" required @disabled($categories->isEmpty())>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="description" class="form-control" rows="2" maxlength="1000" placeholder="Descripción del servicio IPTV..."></textarea>
+                    </div>
+                    <div class="alert alert-info mb-0 small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Tras crear el producto, aparecerá en la lista con el botón <i class="fas fa-key"></i> para añadir la línea IPTV.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" @disabled($categories->isEmpty())>
+                        <i class="fas fa-plus me-1"></i>Crear producto IPTV
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')

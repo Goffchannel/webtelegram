@@ -339,7 +339,7 @@
                 <div id="msg-thread-{{ $purchase->id }}"
                      style="min-height:80px; max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:8px; background:#1a1a2e; border-radius:8px;"
                      data-purchase="{{ $purchase->id }}"
-                     data-last-ts="{{ $purchase->messages->last()?->created_at?->toIso8601String() ?? '' }}">
+                     data-last-id="{{ $purchase->messages->last()?->id ?? 0 }}">
                     @forelse($purchase->messages as $msg)
                         @if($msg->sender_type === 'admin')
                             <div class="d-flex justify-content-end">

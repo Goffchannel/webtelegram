@@ -120,7 +120,7 @@
 <script>
 let creatorActivePurchaseId = null;
 let creatorPollingInterval = null;
-let creatorLastMsgTimestamp = null;
+let creatorLastMsgId = 0;
 
 function openCreatorMsgModal(btn) {
     creatorActivePurchaseId = btn.dataset.purchaseId;
@@ -143,12 +143,12 @@ function openCreatorMsgModal(btn) {
         sendBtn.disabled = true;
     }
 
-    // Clear thread
+    // Clear thread and reset ID tracker
     const thread = document.getElementById('creatorMsgThread');
-    thread.innerHTML = '<p class="text-muted text-center small mt-3" id="creatorMsgEmpty">Cargando...</p>';
-    creatorLastMsgTimestamp = null;
+    thread.innerHTML = '<p style="color:#6b6b8a;text-align:center;font-size:.82rem;margin:auto 0;" id="creatorMsgEmpty">Cargando...</p>';
+    creatorLastMsgId = 0;
 
-    // Load messages
+    // Load all messages initially
     loadCreatorMessages(true);
 }
 
@@ -156,8 +156,8 @@ function loadCreatorMessages(initial = false) {
     if (!creatorActivePurchaseId) return;
 
     let url = `/creator/purchases/${creatorActivePurchaseId}/messages`;
-    if (!initial && creatorLastMsgTimestamp) {
-        url += `?after=${encodeURIComponent(creatorLastMsgTimestamp)}`;
+    if (!initial && creatorLastMsgId > 0) {
+        url += `?after_id=${creatorLastMsgId}`;
     }
 
     fetch(url, {
@@ -171,10 +171,9 @@ function loadCreatorMessages(initial = false) {
             if (emptyEl) emptyEl.remove();
 
             msgs.forEach(msg => appendCreatorMessage(msg));
-            creatorLastMsgTimestamp = msgs[msgs.length - 1].created_at;
         } else if (initial) {
             const thread = document.getElementById('creatorMsgThread');
-            thread.innerHTML = '<p class="text-muted text-center small mt-3" id="creatorMsgEmpty">Sin mensajes todavía.</p>';
+            thread.innerHTML = '<p style="color:#6b6b8a;text-align:center;font-size:.82rem;margin:auto 0;" id="creatorMsgEmpty">Sin mensajes todavía.</p>';
         }
     })
     .catch(() => {});
@@ -206,7 +205,7 @@ function appendCreatorMessage(msg) {
     wrapper.appendChild(bubble);
     thread.appendChild(wrapper);
     thread.scrollTop = thread.scrollHeight;
-    if (msg.created_at) creatorLastMsgTimestamp = msg.created_at;
+    if (msg.id) creatorLastMsgId = msg.id;
 }
 
 function sendCreatorMessage() {

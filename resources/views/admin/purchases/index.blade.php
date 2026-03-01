@@ -688,7 +688,7 @@
                 </div>`;
             thread.appendChild(div);
             thread.scrollTop = thread.scrollHeight;
-            if (msg.created_at) thread.dataset.lastTs = msg.created_at;
+            if (msg.id) thread.dataset.lastId = msg.id;
         }
 
         function startMsgPolling(purchaseId) {
@@ -696,8 +696,8 @@
             msgPollingIntervals[purchaseId] = setInterval(() => {
                 const thread = document.getElementById('msg-thread-' + purchaseId);
                 if (!thread) { stopMsgPolling(purchaseId); return; }
-                const after = thread.dataset.lastTs || '';
-                fetch(`/admin/purchases/${purchaseId}/messages?after=${encodeURIComponent(after)}`)
+                const afterId = thread.dataset.lastId || '0';
+                fetch(`/admin/purchases/${purchaseId}/messages?after_id=${afterId}`)
                     .then(r => r.json())
                     .then(data => {
                         if (data.messages && data.messages.length) {

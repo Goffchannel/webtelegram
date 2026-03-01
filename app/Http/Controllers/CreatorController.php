@@ -612,8 +612,8 @@ class CreatorController extends Controller
         }
 
         $query = $purchase->messages();
-        if ($after = $request->query('after')) {
-            $query->where('created_at', '>', $after);
+        if ($afterId = $request->query('after_id')) {
+            $query->where('id', '>', (int) $afterId);
         }
 
         $messages = $query->get();

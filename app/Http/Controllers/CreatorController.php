@@ -168,6 +168,10 @@ class CreatorController extends Controller
             'description'   => $validated['description'] ?? null,
         ]);
 
+        if ($creator->is_admin) {
+            return redirect()->route('admin.videos.manage')->with('success', 'Producto creado correctamente.');
+        }
+
         return redirect()->route('creator.dashboard')->with('success', 'Producto creado. Ahora puedes editarlo y añadir líneas IPTV.');
     }
 

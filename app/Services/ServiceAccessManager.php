@@ -66,6 +66,11 @@ class ServiceAccessManager
                 ]);
             }
 
+            // Auto-verify: Stripe payment is already confirmed, no manual review needed.
+            if ($purchase->verification_status === 'pending') {
+                $purchase->update(['verification_status' => 'verified']);
+            }
+
             $purchase->markAsDelivered([
                 'service_access' => true,
                 'access_token'   => $access->access_token,

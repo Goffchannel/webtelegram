@@ -134,6 +134,11 @@
                                         <i class="fas fa-tv"></i> Gestión IPTV
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.bot-manager.index') }}">
+                                        <i class="fas fa-robot"></i> Bot Manager
+                                    </a>
+                                </li>
                                 @elseif (Auth::user()->is_creator && Auth::user()->subscribed('creator'))
                                 <li>
                                     <a class="dropdown-item" href="{{ route('creator.dashboard') }}">

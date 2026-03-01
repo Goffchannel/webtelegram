@@ -151,6 +151,21 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/iptv/unban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'unbanIp'])->name('admin.iptv.unban-ip');
     Route::post('/admin/iptv/clear-log', [\App\Http\Controllers\Admin\IptvAdminController::class, 'clearLog'])->name('admin.iptv.clear-log');
 
+    // Bot Manager — group/channel moderation
+    Route::prefix('admin/bot-manager')->name('admin.bot-manager.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BotManagerController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\BotManagerController::class, 'store'])->name('store');
+        Route::get('/{group}', [\App\Http\Controllers\Admin\BotManagerController::class, 'show'])->name('show');
+        Route::put('/{group}', [\App\Http\Controllers\Admin\BotManagerController::class, 'update'])->name('update');
+        Route::delete('/{group}', [\App\Http\Controllers\Admin\BotManagerController::class, 'destroy'])->name('destroy');
+        Route::post('/{group}/commands', [\App\Http\Controllers\Admin\BotManagerController::class, 'storeCommand'])->name('commands.store');
+        Route::put('/{group}/commands/{command}', [\App\Http\Controllers\Admin\BotManagerController::class, 'updateCommand'])->name('commands.update');
+        Route::delete('/{group}/commands/{command}', [\App\Http\Controllers\Admin\BotManagerController::class, 'destroyCommand'])->name('commands.destroy');
+        Route::post('/{group}/ban', [\App\Http\Controllers\Admin\BotManagerController::class, 'banUser'])->name('ban');
+        Route::delete('/{group}/bans/{ban}', [\App\Http\Controllers\Admin\BotManagerController::class, 'unbanUser'])->name('unban');
+        Route::post('/{group}/message', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendMessage'])->name('message');
+    });
+
     // Service access: renew / revoke
     Route::post('/admin/purchases/{purchase}/service-access/renew', [\App\Http\Controllers\Admin\PurchaseController::class, 'renewServiceAccess'])->name('admin.purchases.service-access.renew');
     Route::post('/admin/purchases/{purchase}/service-access/revoke', [\App\Http\Controllers\Admin\PurchaseController::class, 'revokeServiceAccess'])->name('admin.purchases.service-access.revoke');

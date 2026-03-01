@@ -6,6 +6,8 @@ use App\Models\Video;
 use App\Models\Setting;
 use App\Models\TelegramBot;
 use App\Models\Category;
+use App\Models\BotGroup;
+use App\Models\BotGroupBan;
 use App\Models\Purchase;
 use App\Models\PurchaseMessage;
 use App\Models\User;
@@ -1100,6 +1102,21 @@ class VideoController extends Controller
             $update = $request->all();
             Log::info('Webhook received:', $update);
 
+            // ── Group/channel: bot added or removed ──────────────────────────
+            if (isset($update['my_chat_member'])) {
+                $this->handleChatMemberUpdate($update['my_chat_member']);
+                return response()->json(['ok' => true]);
+            }
+
+            // ── Group/channel messages — handle before private flow ──────────
+            if (isset($update['message'])) {
+                $chatType = $update['message']['chat']['type'] ?? 'private';
+                if (in_array($chatType, ['group', 'supergroup', 'channel'])) {
+                    $this->handleGroupMessage($update['message']);
+                    return response()->json(['ok' => true]);
+                }
+            }
+
             // Check if we have a message
             if (!isset($update['message'])) {
                 Log::info('No message in update');
@@ -1837,6 +1854,127 @@ class VideoController extends Controller
      * Try to store an incoming customer free-text message as a PurchaseMessage.
      * Matches by reply_to_message.message_id first, then by telegram_user_id.
      */
+    // ═══════════════════════════════════════════════════════════════════════
+    // GROUP / CHANNEL HANDLERS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Handle my_chat_member update: bot added or removed from a group/channel.
+     */
+    private function handleChatMemberUpdate(array $data): void
+    {
+        try {
+            $chat      = $data['chat'] ?? [];
+            $chatId    = $chat['id'] ?? null;
+            $chatTitle = $chat['title'] ?? "Grupo {$chatId}";
+            $chatType  = $chat['type'] ?? 'group';
+            $username  = $chat['username'] ?? null;
+            $newStatus = $data['new_chat_member']['status'] ?? null;
+
+            if (!$chatId) return;
+
+            if ($newStatus === 'administrator') {
+                // Bot promoted to admin in a group — register it
+                BotGroup::updateOrCreate(
+                    ['chat_id' => $chatId],
+                    [
+                        'chat_title'    => $chatTitle,
+                        'chat_type'     => in_array($chatType, ['group', 'supergroup', 'channel']) ? $chatType : 'group',
+                        'username'      => $username,
+                        'is_active'     => true,
+                        'settings'      => BotGroup::defaultSettings(),
+                        'registered_at' => now(),
+                    ]
+                );
+                Log::info("BotManager: group registered [{$chatTitle}] id={$chatId}");
+            } elseif (in_array($newStatus, ['kicked', 'left', 'member'])) {
+                // Bot removed or demoted — deactivate
+                BotGroup::where('chat_id', $chatId)->update(['is_active' => false]);
+                Log::info("BotManager: group deactivated [{$chatTitle}] id={$chatId} status={$newStatus}");
+            }
+        } catch (\Exception $e) {
+            Log::error('BotManager handleChatMemberUpdate error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle a message received in a group or channel.
+     * Applies: commands, auto-delete links, welcome messages.
+     */
+    private function handleGroupMessage(array $message): void
+    {
+        try {
+            $chatId   = $message['chat']['id'] ?? null;
+            $text     = $message['text'] ?? ($message['caption'] ?? '');
+            $fromUser = $message['from'] ?? [];
+            $userId   = (string) ($fromUser['id'] ?? '');
+            $username = $fromUser['username'] ?? null;
+            $firstName = $fromUser['first_name'] ?? 'Usuario';
+            $msgId    = $message['message_id'] ?? null;
+
+            if (!$chatId) return;
+
+            $group = BotGroup::where('chat_id', $chatId)->where('is_active', true)->first();
+            if (!$group) return;
+
+            // ── Welcome new members ─────────────────────────────────────────
+            if (isset($message['new_chat_member']) && $group->getSetting('welcome_enabled')) {
+                $welcomeText = str_replace(
+                    ['{nombre}', '{grupo}'],
+                    [$firstName, $group->chat_title],
+                    $group->getSetting('welcome_message', '¡Bienvenido/a {nombre}!')
+                );
+                $this->sendTelegramMessage($chatId, $welcomeText);
+                return;
+            }
+
+            if (!$text) return;
+
+            // ── Custom commands ─────────────────────────────────────────────
+            $command = $group->matchCommand($text);
+            if ($command) {
+                $this->sendTelegramMessage($chatId, $command->response);
+                return;
+            }
+
+            // ── Auto-delete links ───────────────────────────────────────────
+            if ($group->getSetting('auto_delete_links') && $msgId) {
+                $hasLink = preg_match('/(https?:\/\/[^\s]+|t\.me\/[^\s]+)/i', $text);
+                if ($hasLink) {
+                    $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
+
+                    // Delete the message
+                    Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/deleteMessage", [
+                        'chat_id'    => $chatId,
+                        'message_id' => $msgId,
+                    ]);
+
+                    $action = $group->getSetting('delete_link_action', 'delete_only');
+
+                    if ($action === 'delete_and_warn' && $userId) {
+                        $mention = $username ? "@{$username}" : $firstName;
+                        $this->sendTelegramMessage($chatId, "⚠️ {$mention}, no está permitido publicar enlaces en este grupo.");
+                    } elseif ($action === 'delete_and_ban' && $userId) {
+                        Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/banChatMember", [
+                            'chat_id' => $chatId,
+                            'user_id' => (int) $userId,
+                        ]);
+                        // Record the ban
+                        $group->bans()->create([
+                            'telegram_user_id'  => $userId,
+                            'telegram_username' => $username,
+                            'reason'            => 'Auto-ban: publicó un enlace',
+                            'banned_at'         => now(),
+                        ]);
+                        Log::info("BotManager: auto-banned user {$userId} in group {$chatId}");
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('BotManager handleGroupMessage error: ' . $e->getMessage());
+        }
+    }
+
     private function tryStorePurchaseMessage(array $update, int $telegramUserId, string $username, string $text): void
     {
         try {

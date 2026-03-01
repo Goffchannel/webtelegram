@@ -1,0 +1,30 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('bot_group_bans', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('bot_group_id')->constrained('bot_groups')->cascadeOnDelete();
+            $table->string('telegram_user_id');
+            $table->string('telegram_username')->nullable();
+            $table->string('reason')->nullable();
+            $table->foreignId('banned_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('banned_at');
+            $table->timestamp('unbanned_at')->nullable();
+            $table->timestamps();
+
+            $table->index(['bot_group_id', 'telegram_user_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('bot_group_bans');
+    }
+};

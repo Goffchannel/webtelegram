@@ -26,6 +26,6 @@ class BotBroadcastTarget extends Model
 
     public function group(): BelongsTo
     {
-        return $this->belongsTo(BotGroup::class);
+        return $this->belongsTo(BotGroup::class, 'bot_group_id');
     }
 }

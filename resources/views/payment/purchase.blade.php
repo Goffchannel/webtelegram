@@ -137,37 +137,47 @@
                                     </div>
                                 @elseif($purchase->verification_status === 'verified')
                                     @if ($purchase->delivery_status === 'delivered')
-                                        <div class="alert alert-success">
-                                            <h6 class="alert-heading">
-                                                <i class="fas fa-check-circle me-2"></i>
-                                                Video entregado
-                                            </h6>
-                                            @if($isServiceProduct)
-                                                <p class="mb-1">Tu acceso al servicio fue activado correctamente.</p>
-                                            @else
-                                                <p class="mb-1">Tu video se entrego correctamente en tu cuenta de Telegram.</p>
-                                            @endif
-                                            @if($purchase->creator_id && !$isServiceProduct)
-                                                <p class="mb-1">Si necesitas volver a recibirlo, abre el bot y usa <code>/getvideo {{ $purchase->video_id }}</code>.</p>
-                                            @endif
-                                            <small class="text-muted">Entregado el:
-                                                {{ $purchase->delivered_at->format('M d, Y H:i:s') }}</small>
-
-                                            @if($isServiceProduct && $purchase->serviceAccess)
-                                                <hr>
-                                                <p class="mb-2"><strong>Acceso seguro:</strong></p>
-                                                <a class="btn btn-primary" target="_blank" href="{{ route('service.access.show', $purchase->serviceAccess->access_token) }}">
-                                                    Abrir acceso
+                                        @if($isServiceProduct && $purchase->serviceAccess)
+                                            {{-- ================================================ --}}
+                                            {{-- IPTV / Service access: call-to-action prominente --}}
+                                            {{-- ================================================ --}}
+                                            <div class="text-center py-3">
+                                                <div style="font-size: 3.5rem; line-height:1;" class="mb-2">📺</div>
+                                                <h5 class="fw-bold mb-1">¡Tu suscripción IPTV está activa!</h5>
+                                                <p class="text-muted mb-3" style="font-size:.95rem;">
+                                                    Pulsa el botón para obtener tu enlace personal de Plooplayer.
+                                                </p>
+                                                <a class="btn btn-success btn-lg px-5 fw-bold shadow"
+                                                   target="_blank"
+                                                   href="{{ route('service.access.show', $purchase->serviceAccess->access_token) }}"
+                                                   style="font-size:1.1rem;">
+                                                    <i class="fas fa-tv me-2"></i>Obtener mi enlace IPTV
                                                 </a>
-                                                <p class="mt-2 mb-0"><small>Expira: {{ $purchase->serviceAccess->expires_at->format('Y-m-d H:i') }}</small></p>
-                                            @endif
-
-                                            @if(!$isServiceProduct)
+                                                <div class="mt-3 d-flex justify-content-center gap-4 text-muted" style="font-size:.82rem;">
+                                                    <span><i class="fas fa-calendar-alt me-1"></i>Expira: <strong>{{ $purchase->serviceAccess->expires_at->format('d/m/Y') }}</strong></span>
+                                                    <span><i class="fas fa-clock me-1"></i>Activado: {{ $purchase->delivered_at->format('H:i') }}</span>
+                                                </div>
+                                                <p class="text-muted mt-3 mb-0" style="font-size:.8rem;">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    En esa página encontrarás el enlace para copiar y pegar en <strong>Plooplayer</strong>.
+                                                </p>
+                                            </div>
+                                        @else
+                                            <div class="alert alert-success">
+                                                <h6 class="alert-heading">
+                                                    <i class="fas fa-check-circle me-2"></i>
+                                                    Video entregado
+                                                </h6>
+                                                <p class="mb-1">Tu video se entrego correctamente en tu cuenta de Telegram.</p>
+                                                @if($purchase->creator_id)
+                                                    <p class="mb-1">Si necesitas volver a recibirlo, abre el bot y usa <code>/getvideo {{ $purchase->video_id }}</code>.</p>
+                                                @endif
+                                                <small class="text-muted">Entregado el: {{ $purchase->delivered_at->format('M d, Y H:i:s') }}</small>
                                                 <div class="mt-3">
                                                     @if($bot['is_configured'])
                                                         <a href="{{ $bot['url'] }}" target="_blank" class="btn btn-success">
-                                                        <i class="fab fa-telegram me-2"></i>Abrir chat del bot
-                                                    </a>
+                                                            <i class="fab fa-telegram me-2"></i>Abrir chat del bot
+                                                        </a>
                                                     @else
                                                         <a href="{{ route('login') }}" class="btn btn-warning">
                                                             <i class="fas fa-cog me-2"></i>Falta configuracion
@@ -177,8 +187,8 @@
                                                         <small><i class="fas fa-video me-1"></i>Usa <code>/getvideo {{ $purchase->video_id }}</code> cuando quieras para recibirlo otra vez.</small>
                                                     </p>
                                                 </div>
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @endif
                                     @elseif($purchase->delivery_status === 'pending')
                                         <div class="alert alert-info">
                                             <h6 class="alert-heading">

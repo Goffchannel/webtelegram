@@ -21,36 +21,48 @@
                         {{-- ============================================================ --}}
                         {{-- IPTV shared line: give the subscriber their unique proxy URL --}}
                         {{-- ============================================================ --}}
-                        <div class="alert alert-success">
-                            <i class="fas fa-tv me-2"></i>
-                            <strong>Tu lista IPTV está activa.</strong>
-                            Copia el enlace de abajo y pégalo en la app <strong>Plooplayer</strong>.
+
+                        {{-- Step 1: Copy link --}}
+                        <div class="card border-success mb-3">
+                            <div class="card-header bg-success text-white d-flex align-items-center gap-2">
+                                <span class="badge bg-white text-success fw-bold" style="font-size:.9rem;">1</span>
+                                <strong>Copia tu enlace personal</strong>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-2">Este enlace es único para ti. No lo compartas.</p>
+                                <div class="input-group input-group-lg">
+                                    <input id="iptv-link" class="form-control font-monospace bg-dark text-success border-success"
+                                        style="font-size:.8rem; letter-spacing:.03em;"
+                                        value="{{ route('iptv.playlist', $access->access_token) }}" readonly>
+                                    <button class="btn btn-success fw-bold" type="button" onclick="copyIptvLink()" id="copy-btn">
+                                        <i class="fas fa-copy me-1"></i> Copiar
+                                    </button>
+                                </div>
+                                <div class="mt-2 d-flex gap-3" style="font-size:.8rem;">
+                                    <span class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Caduca: <strong>{{ $access->expires_at->format('d/m/Y H:i') }}</strong></span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Enlace de acceso (Plooplayer)</label>
-                            <div class="input-group">
-                                <input id="iptv-link" class="form-control font-monospace"
-                                    value="{{ route('iptv.playlist', $access->access_token) }}" readonly>
-                                <button class="btn btn-outline-secondary" type="button" onclick="copyIptvLink()">
-                                    <i class="fas fa-copy"></i> Copiar
-                                </button>
+                        {{-- Step 2: Open Plooplayer --}}
+                        <div class="card border-primary mb-3">
+                            <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+                                <span class="badge bg-white text-primary fw-bold" style="font-size:.9rem;">2</span>
+                                <strong>Abre Plooplayer y añade la lista</strong>
                             </div>
-                            <div class="form-text text-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                No compartas este enlace. Es único para tu suscripción y caduca el
-                                <strong>{{ $access->expires_at->format('d/m/Y H:i') }}</strong>.
+                            <div class="card-body">
+                                <ol class="mb-0 ps-3" style="line-height:2;">
+                                    <li>Abre la app <strong>Plooplayer</strong> en tu dispositivo.</li>
+                                    <li>Ve a <strong>Añadir lista</strong> / <em>Add playlist</em>.</li>
+                                    <li>Pega la URL que copiaste y guarda.</li>
+                                    <li>Los canales se cargarán automáticamente. ✅</li>
+                                </ol>
                             </div>
                         </div>
 
-                        <div class="mt-3">
-                            <h6>¿Cómo usarlo?</h6>
-                            <ol class="mb-0">
-                                <li>Abre la app <strong>Plooplayer</strong> en tu dispositivo.</li>
-                                <li>Ve a <em>Añadir lista</em> o <em>Add playlist</em>.</li>
-                                <li>Pega la URL copiada y guarda.</li>
-                                <li>Los canales se cargarán automáticamente.</li>
-                            </ol>
+                        <div class="alert alert-warning py-2 mb-0" style="font-size:.82rem;">
+                            <i class="fas fa-lock me-1"></i>
+                            <strong>Enlace privado</strong> — No lo compartas. Si detectamos acceso desde varios dispositivos, el acceso quedará bloqueado.
                         </div>
 
                     @else
@@ -101,15 +113,15 @@
 <script>
 function copyIptvLink() {
     const input = document.getElementById('iptv-link');
+    const btn   = document.getElementById('copy-btn');
     input.select();
     navigator.clipboard.writeText(input.value).then(() => {
-        const btn = input.nextElementSibling;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copiado';
-        btn.classList.replace('btn-outline-secondary', 'btn-success');
+        btn.innerHTML = '<i class="fas fa-check me-1"></i> ¡Copiado!';
+        btn.classList.replace('btn-success', 'btn-outline-success');
         setTimeout(() => {
-            btn.innerHTML = '<i class="fas fa-copy"></i> Copiar';
-            btn.classList.replace('btn-success', 'btn-outline-secondary');
-        }, 2000);
+            btn.innerHTML = '<i class="fas fa-copy me-1"></i> Copiar';
+            btn.classList.replace('btn-outline-success', 'btn-success');
+        }, 2500);
     });
 }
 </script>

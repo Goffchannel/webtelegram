@@ -159,10 +159,13 @@
 </div>
 
 <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="fas fa-video"></i> Videos ({{ $videos->total() }})
         </h5>
+        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modal-create-product">
+            <i class="fas fa-plus me-1"></i> Crear producto
+        </button>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -404,4 +407,78 @@
         </table>
     </div>
 </div>
+{{-- Modal: Crear producto --}}
+<div class="modal fade" id="modal-create-product" tabindex="-1" aria-labelledby="modal-create-product-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('creator.videos.store') }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-create-product-label"><i class="fas fa-plus-circle me-2 text-success"></i>Crear nuevo producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @if($categories->count() === 0)
+                        <div class="alert alert-warning">Primero debes crear al menos una categoría.</div>
+                    @endif
+                    <div class="mb-3">
+                        <label class="form-label">Título <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control" placeholder="Ej: IPTV Premium 30 días" required maxlength="200">
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo <span class="text-danger">*</span></label>
+                            <select name="product_type" class="form-select" id="create-product-type" required>
+                                <option value="service_access">Servicio IPTV / Membresía</option>
+                                <option value="video">Video</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Precio (USD) <span class="text-danger">*</span></label>
+                            <input type="number" name="price" class="form-control" min="0" step="0.01" placeholder="9.99" required>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Categoría <span class="text-danger">*</span></label>
+                            <select name="category_id" class="form-select" required @disabled($categories->count() === 0)>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="create-duration-wrapper">
+                            <label class="form-label">Duración (días)</label>
+                            <input type="number" name="duration_days" class="form-control" min="1" max="365" value="30">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción breve</label>
+                        <textarea name="description" class="form-control" rows="2" maxlength="1000" placeholder="Descripción del producto..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" @disabled($categories->count() === 0)>
+                        <i class="fas fa-check me-1"></i>Crear producto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section('scripts')
+<script>
+// Ocultar campo duración si el tipo es "video"
+const createProductType = document.getElementById('create-product-type');
+const createDurationWrapper = document.getElementById('create-duration-wrapper');
+function toggleDuration() {
+    createDurationWrapper.style.display = createProductType.value === 'service_access' ? '' : 'none';
+}
+createProductType.addEventListener('change', toggleDuration);
+toggleDuration();
+</script>
+@append
+
 @endsection

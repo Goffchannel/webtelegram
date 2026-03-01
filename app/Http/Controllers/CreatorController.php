@@ -140,6 +140,35 @@ class CreatorController extends Controller
         return view('creator.videos', compact('videos', 'defaultCategoryId'));
     }
 
+    public function storeVideo(Request $request)
+    {
+        $creator = $request->user();
+
+        $validated = $request->validate([
+            'title'        => 'required|string|max:200',
+            'product_type' => 'required|in:video,service_access',
+            'price'        => 'required|numeric|min:0',
+            'category_id'  => [
+                'required',
+                Rule::exists('categories', 'id')->where(fn($q) => $q->where('creator_id', $creator->id)),
+            ],
+            'duration_days' => 'nullable|integer|min:1|max:365',
+            'description'   => 'nullable|string|max:1000',
+        ]);
+
+        Video::create([
+            'creator_id'    => $creator->id,
+            'title'         => $validated['title'],
+            'product_type'  => $validated['product_type'],
+            'price'         => $validated['price'],
+            'category_id'   => $validated['category_id'],
+            'duration_days' => $validated['duration_days'] ?? 30,
+            'description'   => $validated['description'] ?? null,
+        ]);
+
+        return redirect()->route('creator.dashboard')->with('success', 'Producto creado. Ahora puedes editarlo y añadir líneas IPTV.');
+    }
+
     public function updateVideo(Request $request, Video $video)
     {
         $creator = $request->user();

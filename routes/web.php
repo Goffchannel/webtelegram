@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified', 'creator'])->group(function () {
     Route::get('/creator/dashboard', [CreatorController::class, 'dashboard'])->name('creator.dashboard');
     Route::post('/creator/profile', [CreatorController::class, 'updateProfile'])->name('creator.profile.update');
     Route::get('/creator/videos', [CreatorController::class, 'videos'])->name('creator.videos');
+    Route::post('/creator/videos', [CreatorController::class, 'storeVideo'])->name('creator.videos.store');
     Route::put('/creator/videos/{video}', [CreatorController::class, 'updateVideo'])->name('creator.videos.update');
     Route::delete('/creator/videos/{video}', [CreatorController::class, 'deleteVideo'])->name('creator.videos.delete');
     Route::post('/creator/videos/{video}/service-lines', [CreatorController::class, 'storeServiceLines'])->name('creator.videos.service-lines.store');

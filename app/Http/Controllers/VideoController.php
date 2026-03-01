@@ -1845,18 +1845,20 @@ class VideoController extends Controller
             }
 
             ServiceAccessLine::create([
-                'video_id' => $video->id,
+                'video_id'   => $video->id,
                 'creator_id' => $video->creator_id,
-                'line_name' => $parts[0],
-                'm3u_url' => $parts[1],
+                'line_name'  => $parts[0],
+                'm3u_url'    => $parts[1],
                 'line_username' => $parts[2] ?? null,
                 'line_password' => $parts[3] ?? null,
-                'notes' => $parts[4] ?? null,
+                'notes'      => $parts[4] ?? null,
+                'is_shared'  => (bool) $request->input('is_shared', false),
             ]);
             $created++;
         }
 
-        return redirect()->route('admin.videos.manage')->with('success', "Lineas cargadas: {$created}");
+        $backRoute = route('admin.videos.service-lines.show', $video);
+        return redirect($backRoute)->with('success', "Lineas cargadas: {$created}");
     }
 
     public function serviceLines(Video $video)

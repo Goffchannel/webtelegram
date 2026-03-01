@@ -67,34 +67,77 @@
         </div>
     </div>
 
+    @php $sharedLine = $lines->first(fn($l) => $l->is_shared); @endphp
+
+    {{-- IPTV Plooplayer: shared access --}}
     <div class="card mb-4">
-        <div class="card-header">Cargar lineas (formato: nombre|url_m3u|usuario|contrasena|notas)</div>
+        <div class="card-header d-flex align-items-center gap-2">
+            <i class="fas fa-tv text-info"></i>
+            <strong>Acceso IPTV Plooplayer (compartido)</strong>
+        </div>
+        <div class="card-body">
+            @if($sharedLine)
+                <div class="alert alert-success mb-3">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Acceso compartido activo.</strong>
+                    Cada comprador recibe su propia URL:
+                    <code>{{ url('/iptv/') }}/<em>token-unico</em></code>
+                    que apunta a tus canales en <code>{{ url('/iptv/channels') }}</code>.
+                </div>
+                <form method="POST" action="{{ route('admin.videos.service-lines.delete', ['video' => $video, 'line' => $sharedLine]) }}" onsubmit="return confirm('Desactivar acceso IPTV compartido?')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-times me-1"></i>Desactivar</button>
+                </form>
+            @else
+                <p class="text-muted mb-3">
+                    Activa el acceso compartido para que cada comprador reciba su URL personal de Plooplayer
+                    (<code>/iptv/token</code>) apuntando a tus canales.
+                    Asegúrate de tener los canales cargados en
+                    <a href="{{ route('admin.iptv.index') }}">Gestión IPTV</a>.
+                </p>
+                <form method="POST" action="{{ route('admin.videos.service-lines.store', $video) }}">
+                    @csrf
+                    <input type="hidden" name="bulk_lines" value="iptv-plooplayer|shared|shared|shared">
+                    <input type="hidden" name="is_shared" value="1">
+                    <button class="btn btn-success"><i class="fas fa-tv me-2"></i>Activar acceso IPTV compartido</button>
+                </form>
+            @endif
+        </div>
+    </div>
+
+    {{-- Individual lines (reselling) --}}
+    <div class="card mb-4">
+        <div class="card-header">
+            Lineas individuales (reventa de cuentas) — formato: <code>nombre|url_m3u|usuario|contraseña|notas</code>
+        </div>
         <div class="card-body">
             <form method="POST" action="{{ route('admin.videos.service-lines.store', $video) }}">
                 @csrf
-                <textarea class="form-control" rows="5" name="bulk_lines" placeholder="Linea 1|https://...m3u|user1|pass1|nota"></textarea>
-                <button class="btn btn-success mt-2">Cargar lineas</button>
+                <textarea class="form-control" rows="4" name="bulk_lines" placeholder="Cliente1|http://proveedor.com:8080/get.php?username=u1&password=p1&type=m3u|u1|p1|VIP"></textarea>
+                <button class="btn btn-outline-success mt-2">Cargar lineas</button>
             </form>
         </div>
     </div>
 
     <div class="card">
         <div class="card-header d-flex justify-content-between">
-            <span>Lineas del producto</span>
+            <span>Lineas cargadas</span>
             <span class="badge text-bg-info">Total: {{ $lines->total() }}</span>
         </div>
         <div class="table-responsive">
             <table class="table mb-0">
-                <thead><tr><th>Nombre</th><th>Usuario</th><th>Estado</th><th>Asignada a compra</th><th></th></tr></thead>
+                <thead><tr><th>Nombre</th><th>Tipo</th><th>Usuario</th><th>Estado</th><th>Compra</th><th></th></tr></thead>
                 <tbody>
                     @forelse($lines as $line)
                         <tr>
                             <td>{{ $line->line_name }}</td>
+                            <td>@if($line->is_shared)<span class="badge text-bg-info">Compartida</span>@else<span class="badge text-bg-secondary">Individual</span>@endif</td>
                             <td>{{ $line->line_username ?: '-' }}</td>
-                            <td>@if($line->is_assigned)<span class="badge text-bg-secondary">Asignada</span>@else<span class="badge text-bg-success">Libre</span>@endif</td>
+                            <td>@if($line->is_assigned)<span class="badge text-bg-warning">Asignada</span>@else<span class="badge text-bg-success">Libre</span>@endif</td>
                             <td>{{ $line->assigned_purchase_id ?: '-' }}</td>
                             <td>
-                                @if(!$line->is_assigned)
+                                @if(!$line->is_assigned || $line->is_shared)
                                     <form method="POST" action="{{ route('admin.videos.service-lines.delete', ['video' => $video, 'line' => $line]) }}" onsubmit="return confirm('Eliminar linea?')">
                                         @csrf
                                         @method('DELETE')
@@ -104,7 +147,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted">Sin lineas cargadas.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted">Sin lineas cargadas.</td></tr>
                     @endforelse
                 </tbody>
             </table>

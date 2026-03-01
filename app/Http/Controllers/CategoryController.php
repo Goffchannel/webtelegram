@@ -14,13 +14,11 @@ class CategoryController extends Controller
         $creators = User::query()
             ->whereNotNull('creator_slug')
             ->where(function ($query) {
-                $query->where(function ($inner) {
-                    $inner->where('is_creator', true)
-                        ->where('creator_subscription_status', 'active');
-                })->orWhere(function ($inner) {
-                    $inner->where('is_admin', true)
-                        ->where('is_creator', true);
-                });
+                $query->where('is_admin', true)
+                    ->orWhere(function ($inner) {
+                        $inner->where('is_creator', true)
+                            ->where('creator_subscription_status', 'active');
+                    });
             })
             ->whereHas('creatorVideos', function ($query) {
                 $query->whereHas('category', function ($categoryQuery) {

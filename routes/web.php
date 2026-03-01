@@ -152,6 +152,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     // Service access: renew / revoke
     Route::post('/admin/purchases/{purchase}/service-access/renew', [\App\Http\Controllers\Admin\PurchaseController::class, 'renewServiceAccess'])->name('admin.purchases.service-access.renew');
     Route::post('/admin/purchases/{purchase}/service-access/revoke', [\App\Http\Controllers\Admin\PurchaseController::class, 'revokeServiceAccess'])->name('admin.purchases.service-access.revoke');
+    Route::post('/admin/purchases/{purchase}/service-access/reset-ips', [\App\Http\Controllers\Admin\PurchaseController::class, 'resetBoundIps'])->name('admin.purchases.service-access.reset-ips');
 });
 
 // Telegram webhook (must be accessible without auth)

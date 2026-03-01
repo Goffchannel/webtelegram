@@ -15,13 +15,40 @@ class PurchaseServiceAccess extends Model
         'last_viewed_at',
         'reminder_sent_at',
         'status',
+        'bound_ips',
+        'max_ips',
     ];
 
     protected $casts = [
         'expires_at' => 'datetime',
         'last_viewed_at' => 'datetime',
         'reminder_sent_at' => 'datetime',
+        'bound_ips' => 'array',
     ];
+
+    /**
+     * Check if the given IP is allowed to access this token.
+     * Records the IP if it's new and within the limit.
+     * Returns true if allowed, false if blocked.
+     */
+    public function checkAndBindIp(string $ip): bool
+    {
+        $ips = $this->bound_ips ?? [];
+
+        if (in_array($ip, $ips, true)) {
+            return true; // already known IP
+        }
+
+        $max = $this->max_ips ?? 1;
+
+        if (count($ips) >= $max) {
+            return false; // too many IPs — likely shared
+        }
+
+        $ips[] = $ip;
+        $this->update(['bound_ips' => $ips]);
+        return true;
+    }
 
     public function purchase()
     {

@@ -517,4 +517,26 @@ class PurchaseController extends Controller
 
         return back()->with('success', 'Acceso revocado inmediatamente.');
     }
+
+    /**
+     * Reset the bound IPs for a subscriber's IPTV token,
+     * allowing them to access from a new device/IP.
+     */
+    public function resetBoundIps(Purchase $purchase)
+    {
+        $access = PurchaseServiceAccess::where('purchase_id', $purchase->id)->first();
+
+        if (!$access) {
+            return back()->with('error', 'Esta compra no tiene acceso de servicio asignado.');
+        }
+
+        $access->update(['bound_ips' => []]);
+
+        Log::info('Service access bound IPs reset by admin', [
+            'purchase_id' => $purchase->id,
+            'admin_id'    => Auth::id(),
+        ]);
+
+        return back()->with('success', 'IPs vinculadas reseteadas. El suscriptor puede acceder desde un nuevo dispositivo.');
+    }
 }

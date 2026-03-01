@@ -22,7 +22,7 @@ class IptvController extends Controller
      * then return a JSON whose `groups[0].ploorl` is the encrypted URL
      * pointing to our inner channel list endpoint (/iptv/channels).
      */
-    public function playlist(string $token)
+    public function playlist(Request $request, string $token)
     {
         $access = PurchaseServiceAccess::where('access_token', $token)->first();
 
@@ -39,6 +39,12 @@ class IptvController extends Controller
                 $access->update(['status' => 'expired']);
             }
             return response()->json(['error' => 'Subscription expired'], 403);
+        }
+
+        // IP binding: block if too many different IPs use this token
+        $ip = $request->ip();
+        if (!$access->checkAndBindIp($ip)) {
+            return response()->json(['error' => 'Access restricted: too many devices. Contact support.'], 403);
         }
 
         $access->update(['last_viewed_at' => now()]);

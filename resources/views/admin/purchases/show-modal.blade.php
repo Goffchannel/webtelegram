@@ -265,6 +265,24 @@
                         value="{{ route('iptv.playlist', $serviceAccess->access_token) }}" readonly>
                 </div>
 
+                {{-- IP Binding info --}}
+                @php $boundIps = $serviceAccess->bound_ips ?? []; @endphp
+                <div class="mb-2">
+                    <label class="form-label small fw-bold mb-1">
+                        <i class="fas fa-shield-alt me-1 text-info"></i>IPs vinculadas
+                        <span class="badge text-bg-secondary ms-1">{{ count($boundIps) }} / {{ $serviceAccess->max_ips ?? 1 }}</span>
+                    </label>
+                    @if(count($boundIps) > 0)
+                        <div class="d-flex flex-wrap gap-1 mb-1">
+                            @foreach($boundIps as $ip)
+                                <code class="small bg-light px-2 py-1 rounded border">{{ $ip }}</code>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-muted small">Ninguna IP registrada aún (se vinculará en el primer acceso).</div>
+                    @endif
+                </div>
+
                 <div class="d-flex gap-2 flex-wrap mt-3">
                     {{-- Renew --}}
                     <form method="POST"
@@ -277,6 +295,18 @@
                             <i class="fas fa-sync me-1"></i>Renovar
                         </button>
                     </form>
+
+                    {{-- Reset IPs --}}
+                    @if(count($boundIps) > 0)
+                    <form method="POST"
+                        action="{{ route('admin.purchases.service-access.reset-ips', $purchase) }}"
+                        onsubmit="return confirm('¿Resetear IPs vinculadas? El suscriptor podrá acceder desde un nuevo dispositivo.')">
+                        @csrf
+                        <button type="submit" class="btn btn-warning btn-sm">
+                            <i class="fas fa-map-marker-alt me-1"></i>Reset IPs
+                        </button>
+                    </form>
+                    @endif
 
                     {{-- Revoke --}}
                     @if($serviceAccess->status !== 'revoked')

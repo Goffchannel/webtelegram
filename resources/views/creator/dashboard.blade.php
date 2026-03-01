@@ -8,7 +8,9 @@
         <h2 class="mb-0">Panel de Creador</h2>
         <small class="text-muted">Gestiona tu tienda, pagos y contenido</small>
     </div>
+    @if($creator->creator_slug)
     <a class="btn btn-outline-primary" href="{{ route('creator.storefront.categories', ['creator' => $creator->creator_slug]) }}" target="_blank">Ver tienda publica</a>
+    @endif
 </div>
 
 <div class="row g-3 mb-4">
@@ -421,7 +423,7 @@
                             <label class="form-label">Categoría <span class="text-danger">*</span></label>
                             <select name="category_id" class="form-select" required @disabled($categories->count() === 0)>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}@if(auth()->user()->is_admin && $cat->creator) — {{ $cat->creator->name }}@endif</option>
                                 @endforeach
                             </select>
                         </div>

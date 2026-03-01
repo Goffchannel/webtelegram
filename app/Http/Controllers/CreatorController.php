@@ -65,11 +65,6 @@ class CreatorController extends Controller
     {
         $creator = $request->user();
 
-        Category::firstOrCreate(
-            ['creator_id' => $creator->id, 'name' => 'Membresias/30 dias'],
-            ['creator_id' => $creator->id, 'name' => 'Membresias/30 dias']
-        );
-
         $stats = [
             'videos' => $creator->creatorVideos()->count(),
             'pending' => $creator->creatorPurchases()->where('verification_status', 'pending')->count(),
@@ -88,10 +83,11 @@ class CreatorController extends Controller
             ->latest()
             ->paginate(10);
 
-        $categories = Category::where('creator_id', $creator->id)
-            ->withCount('videos')
-            ->orderBy('name')
-            ->get();
+        $categoriesQuery = $creator->is_admin
+            ? Category::with('creator')->withCount('videos')->orderBy('name')
+            : Category::where('creator_id', $creator->id)->withCount('videos')->orderBy('name');
+
+        $categories = $categoriesQuery->get();
 
         return view('creator.dashboard', compact('creator', 'stats', 'recentPurchases', 'videos', 'categories'));
     }

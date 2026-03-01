@@ -144,20 +144,26 @@ class CreatorController extends Controller
     {
         $creator = $request->user();
 
+        $categoryRule = $creator->is_admin
+            ? ['required', Rule::exists('categories', 'id')]
+            : ['required', Rule::exists('categories', 'id')->where(fn($q) => $q->where('creator_id', $creator->id))];
+
         $validated = $request->validate([
-            'title'        => 'required|string|max:200',
-            'product_type' => 'required|in:video,service_access',
-            'price'        => 'required|numeric|min:0',
-            'category_id'  => [
-                'required',
-                Rule::exists('categories', 'id')->where(fn($q) => $q->where('creator_id', $creator->id)),
-            ],
+            'title'         => 'required|string|max:200',
+            'product_type'  => 'required|in:video,service_access',
+            'price'         => 'required|numeric|min:0',
+            'category_id'   => $categoryRule,
             'duration_days' => 'nullable|integer|min:1|max:365',
             'description'   => 'nullable|string|max:1000',
         ]);
 
+        // For admin, use the creator_id that owns the selected category
+        $creatorId = $creator->is_admin
+            ? Category::find($validated['category_id'])->creator_id
+            : $creator->id;
+
         Video::create([
-            'creator_id'    => $creator->id,
+            'creator_id'    => $creatorId,
             'title'         => $validated['title'],
             'product_type'  => $validated['product_type'],
             'price'         => $validated['price'],

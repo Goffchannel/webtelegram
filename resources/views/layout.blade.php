@@ -107,7 +107,34 @@
                                         <i class="fas fa-user-edit"></i> Profile
                                     </a>
                                 </li>
-                                @if (Auth::user()->is_creator && Auth::user()->subscribed('creator'))
+                                @if (Auth::user()->is_admin)
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('creator.dashboard') }}">
+                                        <i class="fas fa-store"></i> Panel Creador
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.videos.manage') }}">
+                                        <i class="fas fa-video"></i> Admin Videos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.categories.manage') }}">
+                                        <i class="fas fa-layer-group"></i> Admin Categorías
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.purchases.index') }}">
+                                        <i class="fas fa-money-bill-wave"></i> Admin Compras
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.iptv.index') }}">
+                                        <i class="fas fa-tv"></i> Gestión IPTV
+                                    </a>
+                                </li>
+                                @elseif (Auth::user()->is_creator && Auth::user()->subscribed('creator'))
                                 <li>
                                     <a class="dropdown-item" href="{{ route('creator.dashboard') }}">
                                         <i class="fas fa-store"></i> Panel Creador
@@ -117,28 +144,6 @@
                                 <li>
                                     <a class="dropdown-item" href="{{ route('creator.subscription.show') }}">
                                         <i class="fas fa-user-plus"></i> Hazte Creador ($5/mes)
-                                    </a>
-                                </li>
-                                @endif
-                                @if (Auth::user()->is_admin && request()->is('admin*'))
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.videos.manage') }}">
-                                        <i class="fas fa-video"></i> Manage Videos
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.categories.manage') }}">
-                                        <i class="fas fa-layer-group"></i> Manage Categories
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.purchases.index') }}">
-                                        <i class="fas fa-money-bill-wave"></i> Manage Purchases
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.iptv.index') }}">
-                                        <i class="fas fa-tv"></i> Gestión IPTV
                                     </a>
                                 </li>
                                 @endif

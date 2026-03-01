@@ -1805,7 +1805,7 @@ class VideoController extends Controller
     /**
      * Send a message to Telegram user
      */
-    private function sendTelegramMessage($chatId, $text)
+    private function sendTelegramMessage($chatId, $text, $replyToMessageId = null)
     {
         try {
             $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
@@ -1818,10 +1818,14 @@ class VideoController extends Controller
             $url = "https://api.telegram.org/bot{$botToken}/sendMessage";
 
             $data = [
-                'chat_id' => $chatId,
-                'text' => $text,
-                'parse_mode' => 'Markdown'
+                'chat_id'    => $chatId,
+                'text'       => $text,
+                'parse_mode' => 'Markdown',
             ];
+
+            if ($replyToMessageId) {
+                $data['reply_parameters'] = ['message_id' => $replyToMessageId];
+            }
 
             $response = Http::timeout(30)->post($url, $data);
 
@@ -1933,7 +1937,7 @@ class VideoController extends Controller
             // ── Custom commands ─────────────────────────────────────────────
             $command = $group->matchCommand($text);
             if ($command) {
-                $this->sendTelegramMessage($chatId, $command->response);
+                $this->sendTelegramMessage($chatId, $command->response, $msgId);
                 return;
             }
 

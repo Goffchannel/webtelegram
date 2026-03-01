@@ -272,6 +272,25 @@ const parseBody    = document.getElementById('parse-table-body');
 const saveForm     = document.getElementById('save-form');
 const saveM3uInput = document.getElementById('save-m3u');
 
+const M3U_STORAGE_KEY = 'iptv_admin_m3u';
+
+// Restore from localStorage on page load
+const savedM3u = localStorage.getItem(M3U_STORAGE_KEY);
+if (savedM3u) m3uInput.value = savedM3u;
+
+// Save to localStorage whenever content changes
+m3uInput.addEventListener('input', () => {
+    localStorage.setItem(M3U_STORAGE_KEY, m3uInput.value);
+});
+
+// Save to localStorage before Refresh Token form submits (to survive page reload)
+const refreshTokenForm = document.querySelector('form[action="{{ route('admin.iptv.refresh-token') }}"]');
+if (refreshTokenForm) {
+    refreshTokenForm.addEventListener('submit', () => {
+        localStorage.setItem(M3U_STORAGE_KEY, m3uInput.value);
+    });
+}
+
 btnParse.addEventListener('click', async () => {
     const m3u = m3uInput.value.trim();
     if (!m3u) { alert('Pega el M3U primero.'); return; }

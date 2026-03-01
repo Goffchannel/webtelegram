@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CreatorReport;
 use App\Models\Purchase;
+use App\Models\PurchaseMessage;
 use App\Models\PurchaseServiceAccess;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class PurchaseController extends Controller
@@ -74,7 +77,7 @@ class PurchaseController extends Controller
      */
     public function show(Purchase $purchase)
     {
-        $purchase->load(['video', 'user', 'serviceAccess']);
+        $purchase->load(['video', 'user', 'serviceAccess', 'messages']);
 
         // If it's an AJAX request, return partial view for modal
         if (request()->ajax()) {
@@ -538,5 +541,93 @@ class PurchaseController extends Controller
         ]);
 
         return back()->with('success', 'IPs vinculadas reseteadas. El suscriptor puede acceder desde un nuevo dispositivo.');
+    }
+
+    /**
+     * Send a Telegram message to the purchase's customer and store it.
+     */
+    public function sendMessage(Request $request, Purchase $purchase)
+    {
+        $request->validate(['message' => 'required|string|max:1000']);
+
+        if (!$purchase->telegram_user_id) {
+            return response()->json(['success' => false, 'error' => 'El comprador no ha vinculado su Telegram todavía (debe escribir /start al bot).'], 422);
+        }
+
+        $text = $request->input('message');
+        $senderName = Auth::user()->name . ' (admin)';
+
+        // Send via Telegram Bot API
+        $telegramMsgId = null;
+        try {
+            $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
+            $response = Http::timeout(15)->post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+                'chat_id'    => $purchase->telegram_user_id,
+                'text'       => $text,
+                'parse_mode' => 'Markdown',
+            ]);
+            if ($response->successful()) {
+                $telegramMsgId = $response->json('result.message_id');
+            } else {
+                Log::error('Admin message send failed', ['purchase_id' => $purchase->id, 'response' => $response->body()]);
+                return response()->json(['success' => false, 'error' => 'Error al enviar el mensaje por Telegram.'], 500);
+            }
+        } catch (\Exception $e) {
+            Log::error('Admin message send exception', ['purchase_id' => $purchase->id, 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'error' => 'Error de conexión con Telegram.'], 500);
+        }
+
+        $msg = PurchaseMessage::create([
+            'purchase_id'        => $purchase->id,
+            'sender_type'        => 'admin',
+            'sender_name'        => $senderName,
+            'message'            => $text,
+            'telegram_message_id'=> $telegramMsgId,
+        ]);
+
+        Log::info('Admin sent message to customer', ['purchase_id' => $purchase->id, 'admin_id' => Auth::id()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id'          => $msg->id,
+                'sender_type' => $msg->sender_type,
+                'sender_name' => $msg->sender_name,
+                'message'     => $msg->message,
+                'time'        => $msg->created_at->format('H:i'),
+                'created_at'  => $msg->created_at->toIso8601String(),
+            ],
+        ]);
+    }
+
+    /**
+     * Return new messages for a purchase (for polling).
+     */
+    public function getMessages(Request $request, Purchase $purchase)
+    {
+        $query = $purchase->messages();
+
+        if ($after = $request->query('after')) {
+            $query->where('created_at', '>', $after);
+        }
+
+        $messages = $query->get();
+
+        // Mark incoming user messages as read
+        $purchase->messages()
+            ->where('sender_type', 'user')
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return response()->json([
+            'messages' => $messages->map(fn($m) => [
+                'id'          => $m->id,
+                'sender_type' => $m->sender_type,
+                'sender_name' => $m->sender_name,
+                'message'     => $m->message,
+                'time'        => $m->created_at->format('H:i'),
+                'created_at'  => $m->created_at->toIso8601String(),
+            ]),
+        ]);
     }
 }

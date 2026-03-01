@@ -82,6 +82,8 @@ Route::middleware(['auth', 'verified', 'creator'])->group(function () {
     Route::get('/creator/purchases', [CreatorController::class, 'purchases'])->name('creator.purchases');
     Route::post('/creator/purchases/{purchase}/approve', [CreatorController::class, 'approvePurchase'])->name('creator.purchases.approve');
     Route::post('/creator/purchases/{purchase}/reject', [CreatorController::class, 'rejectPurchase'])->name('creator.purchases.reject');
+    Route::post('/creator/purchases/{purchase}/messages', [CreatorController::class, 'sendMessage'])->name('creator.purchases.messages.send');
+    Route::get('/creator/purchases/{purchase}/messages', [CreatorController::class, 'getMessages'])->name('creator.purchases.messages.get');
 });
 
 // Admin-only routes
@@ -153,6 +155,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/purchases/{purchase}/service-access/renew', [\App\Http\Controllers\Admin\PurchaseController::class, 'renewServiceAccess'])->name('admin.purchases.service-access.renew');
     Route::post('/admin/purchases/{purchase}/service-access/revoke', [\App\Http\Controllers\Admin\PurchaseController::class, 'revokeServiceAccess'])->name('admin.purchases.service-access.revoke');
     Route::post('/admin/purchases/{purchase}/service-access/reset-ips', [\App\Http\Controllers\Admin\PurchaseController::class, 'resetBoundIps'])->name('admin.purchases.service-access.reset-ips');
+    Route::post('/admin/purchases/{purchase}/messages', [\App\Http\Controllers\Admin\PurchaseController::class, 'sendMessage'])->name('admin.purchases.messages.send');
+    Route::get('/admin/purchases/{purchase}/messages', [\App\Http\Controllers\Admin\PurchaseController::class, 'getMessages'])->name('admin.purchases.messages.get');
 });
 
 // Telegram webhook (must be accessible without auth)

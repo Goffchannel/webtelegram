@@ -640,6 +640,95 @@
             }, 5000);
         }
 
+        // ── Messaging ──────────────────────────────────────────────────
+        let msgPollingIntervals = {};
+
+        function sendAdminMessage(purchaseId) {
+            const input = document.getElementById('msg-input-' + purchaseId);
+            const text  = input.value.trim();
+            if (!text) return;
+
+            fetch(`/admin/purchases/${purchaseId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: text }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    appendMessage(purchaseId, data.message);
+                    input.value = '';
+                } else {
+                    showAlert('error', data.error || 'Error al enviar');
+                }
+            })
+            .catch(() => showAlert('error', 'Error de conexión'));
+        }
+
+        function appendMessage(purchaseId, msg) {
+            const thread = document.getElementById('msg-thread-' + purchaseId);
+            if (!thread) return;
+            const isAdmin = msg.sender_type === 'admin';
+            const div = document.createElement('div');
+            div.className = 'd-flex justify-content-' + (isAdmin ? 'end' : 'start');
+            div.innerHTML = `
+                <div class="${isAdmin ? 'bg-primary text-white' : 'bg-light border'} rounded px-3 py-2" style="max-width:78%;font-size:.85rem;">
+                    <div style="font-size:.72rem;opacity:.8;" class="mb-1">${msg.sender_name} · ${msg.time}</div>
+                    ${msg.message.replace(/</g,'&lt;')}
+                </div>`;
+            thread.appendChild(div);
+            thread.scrollTop = thread.scrollHeight;
+            thread.dataset.lastTs = new Date().toISOString();
+        }
+
+        function startMsgPolling(purchaseId) {
+            if (msgPollingIntervals[purchaseId]) return;
+            msgPollingIntervals[purchaseId] = setInterval(() => {
+                const thread = document.getElementById('msg-thread-' + purchaseId);
+                if (!thread) { stopMsgPolling(purchaseId); return; }
+                const after = thread.dataset.lastTs || '';
+                fetch(`/admin/purchases/${purchaseId}/messages?after=${encodeURIComponent(after)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.messages && data.messages.length) {
+                            data.messages.forEach(m => appendMessage(purchaseId, m));
+                        }
+                    });
+            }, 15000);
+        }
+
+        function stopMsgPolling(purchaseId) {
+            clearInterval(msgPollingIntervals[purchaseId]);
+            delete msgPollingIntervals[purchaseId];
+        }
+
+        // Start polling when purchase modal opens
+        document.addEventListener('shown.bs.modal', function(e) {
+            const thread = e.target.querySelector('[id^="msg-thread-"]');
+            if (thread) {
+                const purchaseId = thread.dataset.purchase;
+                thread.scrollTop = thread.scrollHeight;
+                startMsgPolling(purchaseId);
+            }
+        });
+        document.addEventListener('hidden.bs.modal', function(e) {
+            const thread = e.target.querySelector('[id^="msg-thread-"]');
+            if (thread) stopMsgPolling(thread.dataset.purchase);
+        });
+
+        // Allow Enter to send (Shift+Enter for newline)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey && e.target.id && e.target.id.startsWith('msg-input-')) {
+                e.preventDefault();
+                const purchaseId = e.target.id.replace('msg-input-', '');
+                sendAdminMessage(purchaseId);
+            }
+        });
+        // ── End Messaging ───────────────────────────────────────────────
+
         function updateReportStatus(reportId, status) {
             fetch(`/admin/reports/${reportId}/status`, {
                     method: 'POST',

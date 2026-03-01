@@ -106,6 +106,16 @@ class Purchase extends Model
         return $this->hasOne(PurchaseServiceAccess::class, 'purchase_id');
     }
 
+    public function messages(): HasMany
+    {
+        return $this->hasMany(PurchaseMessage::class)->orderBy('created_at');
+    }
+
+    public function unreadMessageCount(): int
+    {
+        return $this->messages()->where('sender_type', 'user')->whereNull('read_at')->count();
+    }
+
     /**
      * Scope for pending deliveries.
      */

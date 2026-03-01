@@ -326,6 +326,65 @@
 </div>
 @endif
 
+{{-- ============================================================ --}}
+{{-- Messaging panel                                            --}}
+{{-- ============================================================ --}}
+<div class="row mt-3">
+    <div class="col-12">
+        <h6><i class="fas fa-comments me-2"></i>Mensajes con el cliente</h6>
+        <div class="card border-secondary">
+            <div class="card-body p-2">
+
+                {{-- Chat thread --}}
+                <div id="msg-thread-{{ $purchase->id }}"
+                     style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding:4px;"
+                     data-purchase="{{ $purchase->id }}"
+                     data-last-ts="{{ $purchase->messages->last()?->created_at?->toIso8601String() ?? '' }}">
+                    @forelse($purchase->messages as $msg)
+                        @if($msg->sender_type === 'admin')
+                            <div class="d-flex justify-content-end">
+                                <div class="bg-primary text-white rounded px-3 py-2" style="max-width:78%; font-size:.85rem;">
+                                    <div style="font-size:.72rem; opacity:.8;" class="mb-1">{{ $msg->sender_name }} · {{ $msg->created_at->format('H:i') }}</div>
+                                    {{ $msg->message }}
+                                </div>
+                            </div>
+                        @else
+                            <div class="d-flex justify-content-start">
+                                <div class="bg-light border rounded px-3 py-2" style="max-width:78%; font-size:.85rem;">
+                                    <div style="font-size:.72rem; color:#888;" class="mb-1">{{ $msg->sender_name }} · {{ $msg->created_at->format('H:i') }}</div>
+                                    {{ $msg->message }}
+                                </div>
+                            </div>
+                        @endif
+                    @empty
+                        <p class="text-muted text-center small mb-0">Sin mensajes aún.</p>
+                    @endforelse
+                </div>
+
+                <hr class="my-2">
+
+                @if($purchase->telegram_user_id)
+                    <div class="d-flex gap-2">
+                        <textarea id="msg-input-{{ $purchase->id }}"
+                                  class="form-control form-control-sm"
+                                  rows="2"
+                                  placeholder="Escribe un mensaje..."></textarea>
+                        <button class="btn btn-primary btn-sm px-3"
+                                onclick="sendAdminMessage({{ $purchase->id }})">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                @else
+                    <div class="alert alert-warning py-2 mb-0 small">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        El comprador no ha vinculado su Telegram todavía. Debe escribir <code>/start</code> al bot primero.
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Action Buttons -->
 <div class="row mt-4">
     <div class="col-12">

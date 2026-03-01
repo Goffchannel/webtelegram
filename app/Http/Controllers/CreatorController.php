@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Purchase;
+use App\Models\PurchaseMessage;
 use App\Models\Category;
 use App\Models\Setting;
 use App\Models\User;
@@ -11,6 +12,7 @@ use App\Models\ServiceAccessLine;
 use App\Services\ServiceAccessManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -374,7 +376,7 @@ class CreatorController extends Controller
 
     public function purchases()
     {
-        $purchases = Auth::user()->creatorPurchases()->with('video')->latest()->paginate(20);
+        $purchases = Auth::user()->creatorPurchases()->with(['video', 'messages'])->latest()->paginate(20);
 
         return view('creator.purchases', compact('purchases'));
     }
@@ -540,5 +542,96 @@ class CreatorController extends Controller
         } catch (\Exception $e) {
             Log::warning('Failed to delete creator category image', ['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Send a Telegram message to a buyer of this creator's product.
+     */
+    public function sendMessage(Request $request, Purchase $purchase)
+    {
+        // Ensure this purchase belongs to the authenticated creator
+        if ((int) $purchase->creator_id !== (int) Auth::id()) {
+            return response()->json(['success' => false, 'error' => 'No autorizado.'], 403);
+        }
+
+        $request->validate(['message' => 'required|string|max:1000']);
+
+        if (!$purchase->telegram_user_id) {
+            return response()->json(['success' => false, 'error' => 'El comprador no ha vinculado su Telegram todavía (debe escribir /start al bot).'], 422);
+        }
+
+        $text        = $request->input('message');
+        $user        = Auth::user();
+        $senderName  = ($user->creator_store_name ?? $user->name) . ' (creador)';
+
+        $telegramMsgId = null;
+        try {
+            $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
+            $response = Http::timeout(15)->post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+                'chat_id'    => $purchase->telegram_user_id,
+                'text'       => $text,
+                'parse_mode' => 'Markdown',
+            ]);
+            if ($response->successful()) {
+                $telegramMsgId = $response->json('result.message_id');
+            } else {
+                return response()->json(['success' => false, 'error' => 'Error al enviar el mensaje por Telegram.'], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'Error de conexión con Telegram.'], 500);
+        }
+
+        $msg = PurchaseMessage::create([
+            'purchase_id'         => $purchase->id,
+            'sender_type'         => 'admin',
+            'sender_name'         => $senderName,
+            'message'             => $text,
+            'telegram_message_id' => $telegramMsgId,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id'          => $msg->id,
+                'sender_type' => $msg->sender_type,
+                'sender_name' => $msg->sender_name,
+                'message'     => $msg->message,
+                'time'        => $msg->created_at->format('H:i'),
+                'created_at'  => $msg->created_at->toIso8601String(),
+            ],
+        ]);
+    }
+
+    /**
+     * Return messages for a purchase (polling endpoint for creators).
+     */
+    public function getMessages(Request $request, Purchase $purchase)
+    {
+        if ((int) $purchase->creator_id !== (int) Auth::id()) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+
+        $query = $purchase->messages();
+        if ($after = $request->query('after')) {
+            $query->where('created_at', '>', $after);
+        }
+
+        $messages = $query->get();
+
+        $purchase->messages()
+            ->where('sender_type', 'user')
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return response()->json([
+            'messages' => $messages->map(fn($m) => [
+                'id'          => $m->id,
+                'sender_type' => $m->sender_type,
+                'sender_name' => $m->sender_name,
+                'message'     => $m->message,
+                'time'        => $m->created_at->format('H:i'),
+                'created_at'  => $m->created_at->toIso8601String(),
+            ]),
+        ]);
     }
 }

@@ -6,6 +6,8 @@ use App\Models\Video;
 use App\Models\Setting;
 use App\Models\TelegramBot;
 use App\Models\Category;
+use App\Models\Purchase;
+use App\Models\PurchaseMessage;
 use App\Models\User;
 use App\Models\ServiceAccessLine;
 use App\Services\TelegramBotService;
@@ -1252,11 +1254,8 @@ class VideoController extends Controller
                         "Gracias por el video. Solo los videos del admin o creadores activos se capturan automaticamente.\n\nUsa /start, /mypurchases o /getvideo <id> para tus compras."
                     );
                 } else {
-                    // Non-command text from customer
-                    $this->sendTelegramMessage(
-                        $fromUserId,
-                        "Hola. Soy el bot de la tienda de videos.\nUsa /start para verificar compras, /help para comandos o /mypurchases para ver tus videos."
-                    );
+                    // Free text from customer — try to store as a reply in the messaging system
+                    $this->tryStorePurchaseMessage($update, (int) $fromUserId, $username, $text);
                 }
             }
 
@@ -1831,6 +1830,52 @@ class VideoController extends Controller
                 'message_preview' => substr($text, 0, 100)
             ]);
             return false;
+        }
+    }
+
+    /**
+     * Try to store an incoming customer free-text message as a PurchaseMessage.
+     * Matches by reply_to_message.message_id first, then by telegram_user_id.
+     */
+    private function tryStorePurchaseMessage(array $update, int $telegramUserId, string $username, string $text): void
+    {
+        try {
+            $message   = $update['message'] ?? [];
+            $purchaseId = null;
+
+            // 1. Try to match via reply_to_message
+            $replyMsgId = $message['reply_to_message']['message_id'] ?? null;
+            if ($replyMsgId) {
+                $parent = PurchaseMessage::where('telegram_message_id', $replyMsgId)->first();
+                if ($parent) {
+                    $purchaseId = $parent->purchase_id;
+                }
+            }
+
+            // 2. Fallback: most recent completed purchase for this Telegram user
+            if (!$purchaseId) {
+                $purchase = Purchase::where('telegram_user_id', (string) $telegramUserId)
+                    ->where('purchase_status', 'completed')
+                    ->latest()
+                    ->first();
+                if ($purchase) {
+                    $purchaseId = $purchase->id;
+                }
+            }
+
+            if (!$purchaseId) {
+                return; // No purchase found — ignore silently
+            }
+
+            PurchaseMessage::create([
+                'purchase_id'         => $purchaseId,
+                'sender_type'         => 'user',
+                'sender_name'         => '@' . ltrim($username, '@'),
+                'message'             => $text,
+                'telegram_message_id' => $message['message_id'] ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('tryStorePurchaseMessage failed', ['error' => $e->getMessage()]);
         }
     }
 

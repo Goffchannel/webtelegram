@@ -14,15 +14,23 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <a href="{{ route('creator.storefront.categories', $creator->creator_slug) }}" class="text-decoration-none text-dark">
                         <div class="card h-100 shadow-sm category-card">
-                            @if ($creator->latestCreatorVideo && $creator->latestCreatorVideo->hasThumbnail())
-                                <div class="position-relative" style="height: 300px;">
-                                    <img src="{{ $creator->latestCreatorVideo->getThumbnailUrl() }}" class="card-img-top" alt="{{ $creator->creator_store_name ?? $creator->name }} thumbnail "
-                                        style="height: 300px; object-fit: cover; object-position: top; ">
+                            @php
+                                $avatarUrl = null;
+                                if ($creator->creator_avatar) {
+                                    $avatarUrl = Str::startsWith($creator->creator_avatar, 'http')
+                                        ? $creator->creator_avatar
+                                        : asset('storage/' . $creator->creator_avatar);
+                                }
+                            @endphp
+                            @if ($avatarUrl)
+                                <div style="height: 220px; overflow: hidden;">
+                                    <img src="{{ $avatarUrl }}" class="card-img-top" alt="{{ $creator->creator_store_name ?? $creator->name }}"
+                                        style="height: 220px; width: 100%; object-fit: cover; object-position: top;">
                                 </div>
                             @else
                                 <div class="card-img-top d-flex align-items-center justify-content-center bg-light"
-                                    style="height: 200px;">
-                                    <i class="fas fa-photo-video fa-3x text-muted"></i>
+                                    style="height: 220px;">
+                                    <i class="fas fa-user fa-4x text-muted"></i>
                                 </div>
                             @endif
 

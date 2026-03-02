@@ -106,6 +106,8 @@ class CreatorController extends Controller
             'paypal_url' => 'nullable|url|max:500',
             'payment_button_html' => 'nullable|string|max:8000',
             'other_payment_notes' => 'nullable|string|max:2000',
+            'creator_avatar_url' => 'nullable|url|max:500',
+            'creator_avatar' => 'nullable|image|max:2048',
         ]);
 
         $sanitizedButtonHtml = isset($validated['payment_button_html'])
@@ -118,12 +120,21 @@ class CreatorController extends Controller
             'other_payment_notes' => $validated['other_payment_notes'] ?? null,
         ];
 
+        $avatarValue = $creator->creator_avatar;
+        if ($request->hasFile('creator_avatar')) {
+            $path = $request->file('creator_avatar')->store('avatars', 'public');
+            $avatarValue = $path;
+        } elseif (!empty($validated['creator_avatar_url'])) {
+            $avatarValue = $validated['creator_avatar_url'];
+        }
+
         $creator->update([
             'creator_store_name' => $validated['creator_store_name'],
             'creator_slug' => Str::slug($validated['creator_slug']),
             'creator_bio' => $validated['creator_bio'] ?? null,
             'telegram_user_id' => $validated['telegram_user_id'] ?? null,
             'creator_payment_methods' => $paymentMethods,
+            'creator_avatar' => $avatarValue,
         ]);
 
         return back()->with('success', 'Perfil de creador actualizado.');

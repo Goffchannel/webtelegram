@@ -29,6 +29,7 @@ class User extends Authenticatable
         'creator_slug',
         'creator_store_name',
         'creator_bio',
+        'creator_avatar',
         'creator_subscription_status',
         'creator_subscription_ends_at',
         'creator_payment_methods',

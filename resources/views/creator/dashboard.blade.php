@@ -22,9 +22,26 @@
 <div class="card mb-4">
     <div class="card-header">Configuracion de tienda</div>
     <div class="card-body">
-        <form method="POST" action="{{ route('creator.profile.update') }}">
+        <form method="POST" action="{{ route('creator.profile.update') }}" enctype="multipart/form-data">
             @csrf
             <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Foto de perfil</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        @if($creator->creator_avatar)
+                            <img src="{{ Str::startsWith($creator->creator_avatar, 'http') ? $creator->creator_avatar : asset('storage/' . $creator->creator_avatar) }}"
+                                 alt="Avatar" class="rounded-circle" style="width:80px;height:80px;object-fit:cover;">
+                        @else
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width:80px;height:80px;">
+                                <i class="fas fa-user fa-2x text-white"></i>
+                            </div>
+                        @endif
+                        <div class="flex-grow-1">
+                            <input type="file" class="form-control mb-2" name="creator_avatar" accept="image/*">
+                            <input type="url" class="form-control" name="creator_avatar_url" placeholder="O pega una URL de imagen" value="{{ old('creator_avatar_url') }}">
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-6">
                     <label class="form-label">Nombre de tienda</label>
                     <input class="form-control" name="creator_store_name" value="{{ old('creator_store_name', $creator->creator_store_name ?? $creator->name) }}" required>

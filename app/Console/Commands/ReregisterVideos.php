@@ -80,7 +80,7 @@ class ReregisterVideos extends Command
                 default     => 'sendDocument',
             };
 
-            $sent = $this->callApi($this->oldToken, $method, [
+            $sent = $this->sendWithRetry($this->oldToken, $method, [
                 'chat_id' => $this->chatId,
                 'caption' => $caption,
                 ($type === 'animation' ? 'animation' : ($type === 'video' ? 'video' : 'document')) => $fileId,
@@ -88,7 +88,7 @@ class ReregisterVideos extends Command
 
             if (!$sent['ok']) {
                 // Intentar con sendDocument como fallback
-                $sent = $this->callApi($this->oldToken, 'sendDocument', [
+                $sent = $this->sendWithRetry($this->oldToken, 'sendDocument', [
                     'chat_id'  => $this->chatId,
                     'caption'  => $caption,
                     'document' => $fileId,
@@ -190,6 +190,27 @@ class ReregisterVideos extends Command
         $this->callApi($this->newToken, 'getUpdates', ['offset' => $offset, 'limit' => 1]);
 
         return $offset;
+    }
+
+    private function sendWithRetry(string $token, string $method, array $data, int $maxRetries = 3): array
+    {
+        for ($i = 0; $i < $maxRetries; $i++) {
+            $result = $this->callApi($token, $method, $data);
+            if ($result['ok']) {
+                return $result;
+            }
+            // Rate limit — esperar el tiempo indicado por Telegram
+            if (isset($result['parameters']['retry_after'])) {
+                $wait = $result['parameters']['retry_after'] + 1;
+                $this->newline();
+                $this->info("Rate limit — esperando {$wait}s...");
+                sleep($wait);
+                continue;
+            }
+            // Otro error — no reintentar
+            return $result;
+        }
+        return ['ok' => false, 'description' => 'Max retries exceeded'];
     }
 
     private function callApi(string $token, string $method, array $data = []): array

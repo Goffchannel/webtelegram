@@ -14,31 +14,69 @@
 
     <style>
         /* Sticky footer using flexbox */
-        html,
-        body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
+        body { display: flex; flex-direction: column; }
+        main { flex: 1; }
+        footer { margin-top: auto; }
+        #theme-toggle { color: white; }
+        #theme-toggle:hover { color: #f8f9fa; }
 
-        body {
+        /* ── Toasts ─────────────────────────────────────────────────── */
+        #toastContainer {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
             display: flex;
             flex-direction: column;
+            gap: .5rem;
+            pointer-events: none;
+            max-width: 380px;
+            width: calc(100vw - 2rem);
         }
-
-        main {
-            flex: 1;
+        .tl-toast {
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 10px;
+            box-shadow: 0 8px 28px rgba(0,0,0,.18);
+            overflow: hidden;
+            pointer-events: all;
+            animation: toastSlideIn .3s cubic-bezier(.21,1.02,.73,1) forwards;
         }
-
-        footer {
-            margin-top: auto;
+        @keyframes toastSlideIn {
+            from { opacity:0; transform: translateX(80px); }
+            to   { opacity:1; transform: translateX(0); }
         }
-
-        #theme-toggle {
-            color: white;
+        .tl-toast.dismissing {
+            animation: toastSlideOut .3s ease forwards;
         }
-
-        #theme-toggle:hover {
-            color: #f8f9fa;
-            /* slightly lighter */
+        @keyframes toastSlideOut {
+            to { opacity:0; transform: translateX(80px); }
+        }
+        .tl-toast-body {
+            display: flex;
+            align-items: flex-start;
+            gap: .6rem;
+            padding: .8rem 1rem;
+        }
+        .tl-toast-icon { font-size: 1.1rem; flex-shrink:0; margin-top:1px; }
+        .tl-toast-msg  { flex: 1; font-size: .9rem; line-height: 1.4; }
+        .tl-toast-close {
+            background: none; border: none; padding: 0;
+            cursor: pointer; opacity: .45; flex-shrink:0;
+            color: var(--bs-body-color); font-size:.9rem;
+            transition: opacity .15s;
+        }
+        .tl-toast-close:hover { opacity:1; }
+        .tl-toast-progress {
+            height: 3px;
+            background: rgba(128,128,128,.15);
+        }
+        .tl-toast-bar {
+            height: 100%;
+            width: 100%;
+            border-radius: 0 0 10px 10px;
+            transition: width linear;
         }
     </style>
 
@@ -187,33 +225,6 @@
 
     <!-- Main Content -->
     <main class="container mt-4">
-        <!-- Flash Messages -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle"></i> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle"></i> <strong>Validation Error:</strong>
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
         @yield('content')
     </main>
 
@@ -297,6 +308,65 @@
                 }
             })
         })()
+    </script>
+
+    <!-- Toast container -->
+    <div id="toastContainer"></div>
+
+    <script>
+    function showToast(message, type, duration) {
+        duration = duration || 10000;
+        var colors = {
+            success: { icon: 'fa-check-circle',       color: '#198754' },
+            error:   { icon: 'fa-exclamation-circle', color: '#dc3545' },
+            warning: { icon: 'fa-exclamation-triangle',color: '#fd7e14' },
+            info:    { icon: 'fa-info-circle',         color: '#0dcaf0' },
+        };
+        var c = colors[type] || colors.success;
+        var toast = document.createElement('div');
+        toast.className = 'tl-toast';
+        toast.innerHTML =
+            '<div class="tl-toast-body">' +
+                '<i class="fas ' + c.icon + ' tl-toast-icon" style="color:' + c.color + '"></i>' +
+                '<span class="tl-toast-msg">' + message + '</span>' +
+                '<button class="tl-toast-close" onclick="dismissToast(this.closest(\'.tl-toast\'))">' +
+                    '<i class="fas fa-times"></i>' +
+                '</button>' +
+            '</div>' +
+            '<div class="tl-toast-progress">' +
+                '<div class="tl-toast-bar" style="background:' + c.color + '"></div>' +
+            '</div>';
+        document.getElementById('toastContainer').appendChild(toast);
+        // Animate progress bar
+        var bar = toast.querySelector('.tl-toast-bar');
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                bar.style.transition = 'width ' + duration + 'ms linear';
+                bar.style.width = '0%';
+            });
+        });
+        toast._timer = setTimeout(function() { dismissToast(toast); }, duration);
+    }
+
+    function dismissToast(toast) {
+        if (!toast || toast._dismissing) return;
+        toast._dismissing = true;
+        clearTimeout(toast._timer);
+        toast.classList.add('dismissing');
+        setTimeout(function() { toast.remove(); }, 300);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('success'))
+            showToast(@json(session('success')), 'success');
+        @endif
+        @if(session('error'))
+            showToast(@json(session('error')), 'error');
+        @endif
+        @if($errors->any())
+            showToast(@json($errors->first()), 'error');
+        @endif
+    });
     </script>
 
     @yield('scripts')

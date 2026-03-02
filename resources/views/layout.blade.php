@@ -12,14 +12,219 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Sticky footer using flexbox */
         html, body { height: 100%; }
-        body { display: flex; flex-direction: column; }
+        body { display: flex; flex-direction: column; font-family: 'Outfit', sans-serif; }
         main { flex: 1; }
         footer { margin-top: auto; }
-        #theme-toggle { color: white; }
-        #theme-toggle:hover { color: #f8f9fa; }
+
+        /* ── Navbar ─────────────────────────────────────────────────── */
+        .site-nav {
+            background: #0d1117;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .site-nav .container {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Brand */
+        .site-nav .nav-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #fff !important;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -.02em;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .site-nav .nav-brand i {
+            color: #4f8ef7;
+            font-size: .95rem;
+        }
+
+        /* Nav links */
+        .site-nav .nav-link-item {
+            color: rgba(255,255,255,.6) !important;
+            font-size: .85rem;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 7px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color .15s, background .15s;
+            white-space: nowrap;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+        }
+        .site-nav .nav-link-item:hover,
+        .site-nav .nav-link-item.show {
+            color: #fff !important;
+            background: rgba(255,255,255,.07);
+        }
+        .site-nav .nav-link-item i { font-size: .8rem; }
+
+        /* Dropdown */
+        .site-nav .nav-dropdown {
+            position: relative;
+        }
+        .site-nav .nav-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 200px;
+            background: #161b25;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 12px;
+            padding: 6px;
+            box-shadow: 0 16px 48px rgba(0,0,0,.4);
+            display: none;
+            z-index: 9999;
+        }
+        .site-nav .nav-dropdown-menu.open { display: block; }
+        .site-nav .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: rgba(255,255,255,.75) !important;
+            text-decoration: none;
+            font-size: .84rem;
+            font-weight: 500;
+            transition: background .15s, color .15s;
+            font-family: 'Outfit', sans-serif;
+        }
+        .site-nav .nav-dropdown-item:hover {
+            background: rgba(79,142,247,.12);
+            color: #fff !important;
+        }
+        .site-nav .nav-dropdown-item i {
+            width: 16px;
+            text-align: center;
+            color: #4f8ef7;
+            font-size: .78rem;
+            flex-shrink: 0;
+        }
+        .site-nav .nav-divider {
+            height: 1px;
+            background: rgba(255,255,255,.07);
+            margin: 4px 6px;
+        }
+        .site-nav .nav-dropdown-item.danger { color: rgba(239,68,68,.85) !important; }
+        .site-nav .nav-dropdown-item.danger:hover { background: rgba(239,68,68,.1); color: #ef4444 !important; }
+        .site-nav .nav-dropdown-item.danger i { color: #ef4444; }
+
+        /* Right side */
+        .site-nav .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Theme toggle */
+        .site-nav .nav-theme-btn {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.08);
+            color: rgba(255,255,255,.6);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all .15s;
+            font-size: .82rem;
+        }
+        .site-nav .nav-theme-btn:hover {
+            background: rgba(255,255,255,.12);
+            color: #fff;
+        }
+
+        /* Guest buttons */
+        .site-nav .nav-btn-ghost {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            color: #fff !important;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: .82rem; font-weight: 600;
+            text-decoration: none;
+            transition: all .15s;
+            font-family: 'Outfit', sans-serif;
+        }
+        .site-nav .nav-btn-ghost:hover {
+            background: rgba(255,255,255,.15);
+        }
+        .site-nav .nav-btn-accent {
+            background: #4f8ef7;
+            border: 1px solid transparent;
+            color: #fff !important;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: .82rem; font-weight: 600;
+            text-decoration: none;
+            transition: background .15s;
+            font-family: 'Outfit', sans-serif;
+        }
+        .site-nav .nav-btn-accent:hover { background: #3b7de8; }
+
+        /* Mobile toggle */
+        .site-nav .nav-toggler {
+            display: none;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 8px;
+            padding: 6px 10px;
+            color: rgba(255,255,255,.8);
+            cursor: pointer;
+            margin-left: auto;
+        }
+        .site-nav .nav-mobile-menu {
+            display: none;
+            background: #0d1117;
+            border-top: 1px solid rgba(255,255,255,.07);
+            padding: 12px 16px;
+        }
+        .site-nav .nav-mobile-menu.open { display: block; }
+        .site-nav .nav-mobile-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 8px;
+            color: rgba(255,255,255,.75) !important;
+            text-decoration: none; font-size: .88rem; font-weight: 500;
+            transition: background .15s;
+            font-family: 'Outfit', sans-serif;
+        }
+        .site-nav .nav-mobile-item:hover { background: rgba(255,255,255,.07); color: #fff !important; }
+        .site-nav .nav-mobile-item i { width: 18px; text-align: center; color: #4f8ef7; }
+        .site-nav .nav-mobile-divider { height:1px; background:rgba(255,255,255,.07); margin: 6px 0; }
+
+        @media (max-width: 991px) {
+            .site-nav .nav-desktop { display: none !important; }
+            .site-nav .nav-toggler { display: flex; align-items: center; gap: 6px; }
+            .site-nav .container { flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 10px; }
+        }
+        @media (min-width: 992px) {
+            .site-nav .nav-toggler { display: none !important; }
+            .site-nav .nav-mobile-menu { display: none !important; }
+        }
 
         /* ── Toasts ─────────────────────────────────────────────────── */
         #toastContainer {
@@ -85,146 +290,165 @@
 
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="site-nav">
         <div class="container">
-            <a class="navbar-brand" href="{{ route('categories.index') }}">
+            {{-- Brand --}}
+            <a class="nav-brand" href="{{ route('categories.index') }}">
                 <i class="fas fa-play-circle"></i> Video Store
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            {{-- Desktop links --}}
+            <div class="nav-desktop" style="display:flex;align-items:center;gap:2px;">
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    {{-- Videos and Purchases Dropdown --}}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="exploreDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-compass"></i> Explore
+                {{-- Explore dropdown --}}
+                <div class="nav-dropdown" id="exploreDropdown">
+                    <button class="nav-link-item" onclick="toggleDropdown('exploreMenu')">
+                        <i class="fas fa-compass"></i> Explore <i class="fas fa-chevron-down" style="font-size:.6rem;opacity:.6;"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="exploreMenu">
+                        <a class="nav-dropdown-item" href="{{ route('categories.index') }}">
+                            <i class="fas fa-store"></i> Ver creadores
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="exploreDropdown">
-                            <li><a class="dropdown-item" href="{{ route('categories.index') }}">
-                                <i class="fas fa-store"></i> Ver creadores
-                            </a></li>
-                            @auth
-                            {{-- <li><a class="dropdown-item" href="{{ route('purchases.index') }}">
-                                <i class="fas fa-shopping-cart"></i> My Purchases
-                            </a></li> --}}
-                            @endauth
-                        </ul>
-                    </li>
-                    {{-- End Videos and Purchases Dropdown --}}
+                    </div>
+                </div>
 
-                    @if($bot['is_configured'])
-                    <li class="nav-item">
-                            <a class="nav-link" href="{{ $bot['url'] }}" target="_blank">
-                            <i class="fab fa-telegram"></i> Start Bot Chat
-                        </a>
-                    </li>
-                    @else
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}" title="Configure bot in admin panel">
-                                <i class="fas fa-cog text-warning"></i> Setup Required
-                            </a>
-                        </li>
-                    @endif
-                </ul>
-
-                {{-- Move Theme Toggle Button to ms-auto (right side) --}}
-                @auth
-                <div class="navbar-nav ms-auto">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> {{ Auth::user()->name }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li></li>
-                                    <a class="dropdown-item" href="{{ route('profile.edit') }}">
-                                        <i class="fas fa-user-edit"></i> Profile
-                                    </a>
-                                </li>
-                                @if (Auth::user()->is_admin)
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('creator.dashboard') }}">
-                                        <i class="fas fa-store"></i> Panel Creador
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.videos.manage') }}">
-                                        <i class="fas fa-video"></i> Admin Videos
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.categories.manage') }}">
-                                        <i class="fas fa-layer-group"></i> Admin Categorías
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.purchases.index') }}">
-                                        <i class="fas fa-money-bill-wave"></i> Admin Compras
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.iptv.index') }}">
-                                        <i class="fas fa-tv"></i> Gestión IPTV
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.bot-manager.index') }}">
-                                        <i class="fas fa-robot"></i> Bot Manager
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.discount-codes.index') }}">
-                                        <i class="fas fa-tag"></i> Códigos descuento
-                                    </a>
-                                </li>
-                                @elseif (Auth::user()->is_creator && Auth::user()->subscribed('creator'))
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('creator.dashboard') }}">
-                                        <i class="fas fa-store"></i> Panel Creador
-                                    </a>
-                                </li>
-                                @else
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('creator.subscription.show') }}">
-                                        <i class="fas fa-user-plus"></i> Hazte Creador ($5/mes)
-                                    </a>
-                                </li>
-                                @endif
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                        {{-- Theme Toggle Button as last item --}}
-                        <button type="button" class="btn nav-link" id="theme-toggle-bootstrap">
-                            <i class="fas fa-moon" id="theme-icon-moon-bootstrap"></i>
-                            <i class="fas fa-sun d-none" id="theme-icon-sun-bootstrap"></i>
-                        </button>
-                    </ul>
-                    @else {{-- Guest actions --}}
-                        <div class="d-flex align-items-center ms-auto gap-2">
-                            <a href="{{ route('logincreator') }}" class="btn btn-outline-light btn-sm">Login</a>
-                            <a href="{{ route('register') }}" class="btn btn-warning btn-sm">Quiero ser un creador</a>
-                            <button type="button" class="btn nav-link" id="theme-toggle-bootstrap">
-                                <i class="fas fa-moon" id="theme-icon-moon-bootstrap"></i>
-                                <i class="fas fa-sun d-none" id="theme-icon-sun-bootstrap"></i>
-                            </button>
-                        </div>
-                    @endauth
+                {{-- Bot link --}}
+                @if($bot['is_configured'])
+                    <a class="nav-link-item" href="{{ $bot['url'] }}" target="_blank">
+                        <i class="fab fa-telegram"></i> Start Bot Chat
+                    </a>
+                @else
+                    <a class="nav-link-item" href="{{ route('login') }}">
+                        <i class="fas fa-cog" style="color:#f59e0b;"></i> Setup Required
+                    </a>
+                @endif
             </div>
+
+            {{-- Right side --}}
+            <div class="nav-right nav-desktop">
+                @auth
+                    {{-- User dropdown --}}
+                    <div class="nav-dropdown" id="userDropdown">
+                        <button class="nav-link-item" onclick="toggleDropdown('userMenu')">
+                            <i class="fas fa-user-circle" style="color:#4f8ef7;font-size:.95rem;"></i>
+                            {{ Auth::user()->name }}
+                            <i class="fas fa-chevron-down" style="font-size:.6rem;opacity:.6;"></i>
+                        </button>
+                        <div class="nav-dropdown-menu" id="userMenu" style="right:0;left:auto;">
+                            <a class="nav-dropdown-item" href="{{ route('profile.edit') }}">
+                                <i class="fas fa-user-pen"></i> Perfil
+                            </a>
+
+                            @if(Auth::user()->is_admin)
+                                <a class="nav-dropdown-item" href="{{ route('creator.dashboard') }}">
+                                    <i class="fas fa-store"></i> Panel Creador
+                                </a>
+                                <div class="nav-divider"></div>
+                                <a class="nav-dropdown-item" href="{{ route('admin.videos.manage') }}">
+                                    <i class="fas fa-video"></i> Admin Videos
+                                </a>
+                                <a class="nav-dropdown-item" href="{{ route('admin.categories.manage') }}">
+                                    <i class="fas fa-layer-group"></i> Admin Categorías
+                                </a>
+                                <a class="nav-dropdown-item" href="{{ route('admin.purchases.index') }}">
+                                    <i class="fas fa-money-bill-wave"></i> Admin Compras
+                                </a>
+                                <a class="nav-dropdown-item" href="{{ route('admin.iptv.index') }}">
+                                    <i class="fas fa-tv"></i> Gestión IPTV
+                                </a>
+                                <a class="nav-dropdown-item" href="{{ route('admin.bot-manager.index') }}">
+                                    <i class="fas fa-robot"></i> Bot Manager
+                                </a>
+                                <a class="nav-dropdown-item" href="{{ route('admin.discount-codes.index') }}">
+                                    <i class="fas fa-tag"></i> Códigos descuento
+                                </a>
+                            @elseif(Auth::user()->is_creator && Auth::user()->subscribed('creator'))
+                                <a class="nav-dropdown-item" href="{{ route('creator.dashboard') }}">
+                                    <i class="fas fa-store"></i> Panel Creador
+                                </a>
+                            @else
+                                <a class="nav-dropdown-item" href="{{ route('creator.subscription.show') }}">
+                                    <i class="fas fa-user-plus"></i> Hazte Creador
+                                </a>
+                            @endif
+
+                            <div class="nav-divider"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="nav-dropdown-item danger" style="width:100%;text-align:left;">
+                                    <i class="fas fa-right-from-bracket"></i> Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('logincreator') }}" class="nav-btn-ghost">Iniciar sesión</a>
+                    <a href="{{ route('register') }}" class="nav-btn-accent">Ser creador</a>
+                @endauth
+
+                {{-- Theme toggle --}}
+                <button type="button" class="nav-theme-btn" id="theme-toggle-bootstrap" title="Cambiar tema">
+                    <i class="fas fa-moon" id="theme-icon-moon-bootstrap"></i>
+                    <i class="fas fa-sun d-none" id="theme-icon-sun-bootstrap"></i>
+                </button>
+            </div>
+
+            {{-- Mobile toggler --}}
+            <button class="nav-toggler" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars" id="mobileMenuIcon"></i>
+            </button>
+        </div>
+
+        {{-- Mobile menu --}}
+        <div class="nav-mobile-menu" id="mobileMenu">
+            <a class="nav-mobile-item" href="{{ route('categories.index') }}">
+                <i class="fas fa-store"></i> Ver creadores
+            </a>
+            @if($bot['is_configured'])
+                <a class="nav-mobile-item" href="{{ $bot['url'] }}" target="_blank">
+                    <i class="fab fa-telegram"></i> Start Bot Chat
+                </a>
+            @endif
+            @auth
+                <div class="nav-mobile-divider"></div>
+                <a class="nav-mobile-item" href="{{ route('profile.edit') }}">
+                    <i class="fas fa-user-pen"></i> Perfil
+                </a>
+                @if(Auth::user()->is_admin || (Auth::user()->is_creator && Auth::user()->subscribed('creator')))
+                    <a class="nav-mobile-item" href="{{ route('creator.dashboard') }}">
+                        <i class="fas fa-store"></i> Panel Creador
+                    </a>
+                @endif
+                @if(Auth::user()->is_admin)
+                    <a class="nav-mobile-item" href="{{ route('admin.purchases.index') }}">
+                        <i class="fas fa-money-bill-wave"></i> Admin Compras
+                    </a>
+                    <a class="nav-mobile-item" href="{{ route('admin.bot-manager.index') }}">
+                        <i class="fas fa-robot"></i> Bot Manager
+                    </a>
+                @endif
+                <div class="nav-mobile-divider"></div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="nav-mobile-item" style="width:100%;background:none;border:none;text-align:left;color:rgba(239,68,68,.85);">
+                        <i class="fas fa-right-from-bracket" style="color:#ef4444;"></i> Cerrar sesión
+                    </button>
+                </form>
+            @else
+                <div class="nav-mobile-divider"></div>
+                <a class="nav-mobile-item" href="{{ route('logincreator') }}">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+                </a>
+                <a class="nav-mobile-item" href="{{ route('register') }}">
+                    <i class="fas fa-user-plus"></i> Ser creador
+                </a>
+            @endauth
+            <div class="nav-mobile-divider"></div>
+            <button type="button" class="nav-mobile-item" id="theme-toggle-bootstrap" style="background:none;border:none;width:100%;text-align:left;">
+                <i class="fas fa-moon" id="theme-icon-moon-bootstrap"></i>
+                <i class="fas fa-sun d-none" id="theme-icon-sun-bootstrap"></i>
+                <span id="themeLabel">Modo oscuro</span>
+            </button>
         </div>
     </nav>
 
@@ -375,6 +599,34 @@
     </script>
 
     @yield('scripts')
+
+    <script>
+    // ── Custom navbar dropdowns ──────────────────────────────────────
+    function toggleDropdown(id) {
+        const menu = document.getElementById(id);
+        const isOpen = menu.classList.contains('open');
+        // Close all
+        document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('open'));
+        document.querySelectorAll('.nav-link-item').forEach(b => b.classList.remove('show'));
+        if (!isOpen) {
+            menu.classList.add('open');
+            menu.previousElementSibling?.classList.add('show');
+        }
+    }
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        const icon = document.getElementById('mobileMenuIcon');
+        menu.classList.toggle('open');
+        icon.className = menu.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+    }
+    // Close dropdowns on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.nav-dropdown') && !e.target.closest('#theme-toggle-bootstrap')) {
+            document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('open'));
+            document.querySelectorAll('.nav-link-item').forEach(b => b.classList.remove('show'));
+        }
+    });
+    </script>
 </body>
 
 </html>

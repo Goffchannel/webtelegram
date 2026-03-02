@@ -1,0 +1,1 @@
+INSERT INTO "public"."telegram_bots" ("id", "token", "bot_id", "username", "first_name", "description", "is_active", "fetched_at", "created_at", "updated_at") VALUES ('1', '8167188126:AAFLVU_pbBL-mnCko7nlnjHVT35K6NJLLpE', '8167188126', 'XshopVideobot', 'Xshop', null, 'true', '2025-07-04 21:40:06', '2025-07-04 21:40:06', '2025-07-04 21:40:06');

@@ -1971,10 +1971,21 @@ class VideoController extends Controller
 
             // ── Anti-flood ──────────────────────────────────────────────────
             if ($group->getSetting('antiflood_enabled') && $msgId) {
-                $maxMsgs  = (int) $group->getSetting('antiflood_max_messages', 5);
-                $seconds  = (int) $group->getSetting('antiflood_seconds', 10);
-                $floodKey = "flood:{$group->id}:{$userId}";
-                $count    = (int) Cache::get($floodKey, 0) + 1;
+                $mutedKey = "muted:{$group->id}:{$userId}";
+
+                // If user is already muted: silently delete and skip
+                if (Cache::has($mutedKey)) {
+                    Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/deleteMessage", [
+                        'chat_id' => $chatId, 'message_id' => $msgId,
+                    ]);
+                    return;
+                }
+
+                $maxMsgs      = (int) $group->getSetting('antiflood_max_messages', 5);
+                $seconds      = (int) $group->getSetting('antiflood_seconds', 10);
+                $muteDuration = (int) $group->getSetting('antiflood_mute_duration', 5);
+                $floodKey     = "flood:{$group->id}:{$userId}";
+                $count        = (int) Cache::get($floodKey, 0) + 1;
                 Cache::put($floodKey, $count, $seconds);
 
                 if ($count > $maxMsgs) {
@@ -1987,9 +1998,14 @@ class VideoController extends Controller
                             'chat_id'     => $chatId,
                             'user_id'     => (int) $userId,
                             'permissions' => json_encode(['can_send_messages' => false]),
-                            'until_date'  => now()->addMinutes(5)->timestamp,
+                            'until_date'  => now()->addMinutes($muteDuration)->timestamp,
                         ]);
-                        $this->sendTelegramMessage($chatId, "🚫 {$mention}, silenciado 5 min por flood.");
+                        $durationText = $muteDuration >= 60
+                            ? round($muteDuration / 60, 1) . ' h'
+                            : $muteDuration . ' min';
+                        $this->sendTelegramMessage($chatId, "🚫 {$mention}, silenciado {$durationText} por flood.");
+                        // Mark as muted so subsequent messages are silently deleted
+                        Cache::put($mutedKey, 1, $muteDuration * 60);
                     } elseif ($floodAction === 'ban') {
                         Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/banChatMember", [
                             'chat_id' => $chatId, 'user_id' => (int) $userId,

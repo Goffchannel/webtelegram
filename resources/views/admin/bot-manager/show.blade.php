@@ -269,11 +269,24 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label small fw-semibold">Acción</label>
-                                        <select name="antiflood_action" class="form-select form-select-sm">
+                                        <select name="antiflood_action" class="form-select form-select-sm"
+                                                onchange="toggleMuteDuration(this.value)">
                                             <option value="delete" {{ $group->getSetting('antiflood_action') === 'delete' ? 'selected' : '' }}>Solo eliminar mensaje</option>
-                                            <option value="mute" {{ $group->getSetting('antiflood_action', 'mute') === 'mute' ? 'selected' : '' }}>Silenciar 5 min</option>
-                                            <option value="ban" {{ $group->getSetting('antiflood_action') === 'ban' ? 'selected' : '' }}>Banear</option>
+                                            <option value="mute"   {{ $group->getSetting('antiflood_action', 'mute') === 'mute' ? 'selected' : '' }}>Silenciar</option>
+                                            <option value="ban"    {{ $group->getSetting('antiflood_action') === 'ban' ? 'selected' : '' }}>Banear</option>
                                         </select>
+                                    </div>
+                                    <div class="col-12" id="muteDurationBlock"
+                                         style="{{ $group->getSetting('antiflood_action', 'mute') === 'mute' ? '' : 'display:none' }}">
+                                        <label class="form-label small fw-semibold">Duración del silencio</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" name="antiflood_mute_duration"
+                                                   class="form-control form-control-sm"
+                                                   min="1" max="10080"
+                                                   value="{{ $group->getSetting('antiflood_mute_duration', 5) }}">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                        <div class="form-text">Ej: 5 min, 60 = 1 h, 1440 = 1 día</div>
                                     </div>
                                 </div>
                             </div>
@@ -832,6 +845,9 @@ function toggleNightMode(checked) {
 }
 function toggleBlock(id, checked) {
     document.getElementById(id).style.display = checked ? '' : 'none';
+}
+function toggleMuteDuration(action) {
+    document.getElementById('muteDurationBlock').style.display = action === 'mute' ? '' : 'none';
 }
 
 function openRecurrenceModal(broadcastId, recurrence, time, day, timezone) {

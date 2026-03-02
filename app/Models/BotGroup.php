@@ -78,10 +78,11 @@ class BotGroup extends Model
             'blacklist_words'     => [],
             'blacklist_action'    => 'delete_only',
             // Anti-flood
-            'antiflood_enabled'      => false,
-            'antiflood_max_messages' => 5,
-            'antiflood_seconds'      => 10,
-            'antiflood_action'       => 'mute',
+            'antiflood_enabled'       => false,
+            'antiflood_max_messages'  => 5,
+            'antiflood_seconds'       => 10,
+            'antiflood_action'        => 'mute',
+            'antiflood_mute_duration' => 5,
             // Warnings
             'warn_before_ban'    => false,
             'max_warnings'       => 3,

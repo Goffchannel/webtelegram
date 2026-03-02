@@ -434,7 +434,15 @@
                                 @if($groupTarget?->scheduled_at)
                                     <br><i class="fas fa-clock me-1 text-warning"></i>Programado: {{ $groupTarget->scheduled_at->format('d/m/Y H:i') }}
                                 @endif
+                                @if($groupTarget?->sent_at)
+                                    <br><i class="fas fa-check me-1 text-success"></i>Enviado: {{ $groupTarget->sent_at->format('d/m/Y H:i') }}
+                                @endif
                             </div>
+                            @if($groupTarget?->status === 'failed' && $groupTarget->error)
+                                <div class="alert alert-danger py-1 px-2 mb-2" style="font-size:.72rem">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ $groupTarget->error }}
+                                </div>
+                            @endif
 
                             {{-- Trigger --}}
                             <form method="POST"

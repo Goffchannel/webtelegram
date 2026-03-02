@@ -86,7 +86,7 @@ class VideoController extends Controller
         try {
             $videos = Video::with(['category', 'creator'])->orderBy('created_at', 'desc')->paginate(15);
             $videos->loadCount('availableServiceLines');
-            $categories = Category::orderBy('name')->get();
+            $categories = Category::with('creator')->orderBy('name')->get();
 
             // Initialize $bot array
             $bot = [

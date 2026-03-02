@@ -578,7 +578,7 @@
                             <label for="edit-details-category" class="form-label">Category</label>
                             <select class="form-select" id="edit-details-category" name="category_id" required>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    <option value="{{ $category->id }}">{{ $category->name }} -- {{ $category->creator->creator_store_name ?? $category->creator->name ?? 'Sin creador' }}</option>
                                 @endforeach
                             </select>
                         </div>

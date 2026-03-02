@@ -84,7 +84,7 @@ class VideoController extends Controller
     public function manage()
     {
         try {
-            $videos = Video::with('category')->orderBy('created_at', 'desc')->paginate(15);
+            $videos = Video::with(['category', 'creator'])->orderBy('created_at', 'desc')->paginate(15);
             $videos->loadCount('availableServiceLines');
             $categories = Category::orderBy('name')->get();
 

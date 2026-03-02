@@ -283,6 +283,7 @@
                     <thead>
                         <tr>
                                                     <th>Title</th>
+                                                    <th>Creador</th>
                                                     <th>Description</th>
                             <th>Price</th>
                                                     <th>Category</th>
@@ -298,6 +299,22 @@
                                                             <strong>{{ $video->title }}</strong><br>
                                                             <small class="text-muted">Created:
                                                                 {{ $video->created_at->format('M j, Y H:i') }}</small>
+                                </td>
+                                <td>
+                                    @if($video->creator)
+                                        <div>
+                                            <span class="fw-semibold small">{{ $video->creator->name }}</span><br>
+                                            @if($video->creator->creator_slug)
+                                                <a href="{{ route('creator.storefront', $video->creator) }}"
+                                                   target="_blank"
+                                                   class="small text-muted text-decoration-none">
+                                                    <i class="fas fa-store me-1"></i>{{ $video->creator->creator_slug }}
+                                                </a>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-muted small">Admin</span>
+                                    @endif
                                 </td>
                                 <td>
                                                             <div
@@ -349,6 +366,14 @@
                                                                     onclick="editVideoThumbnail({{ $video->id }}, '{{ $video->getThumbnailUrl() }}', '{{ $video->thumbnail_url }}', '{{ $video->thumbnail_blob_url }}', '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->blur_intensity }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
                                                                     <i class="fas fa-image"></i>
                                                                 </button>
+                                                                @if($video->creator?->creator_slug)
+                                                                <a class="btn btn-outline-success"
+                                                                   title="Ver página del producto"
+                                                                   href="{{ route('creator.checkout.form', ['creator' => $video->creator, 'video' => $video]) }}"
+                                                                   target="_blank">
+                                                                    <i class="fas fa-external-link-alt"></i>
+                                                                </a>
+                                                                @endif
                                                                 @if($video->isServiceProduct())
                                                                 <a class="btn btn-outline-secondary" title="Manage service lines" href="{{ route('admin.videos.service-lines.show', $video) }}">
                                                                     <i class="fas fa-key"></i>

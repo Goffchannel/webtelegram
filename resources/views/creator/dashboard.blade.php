@@ -44,7 +44,8 @@
 .cr-avatar {
     width: 76px; height: 76px;
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
+    background: #0a0e16;
     border: 3px solid var(--cr-accent);
     box-shadow: 0 0 0 4px rgba(79,142,247,.2);
 }
@@ -396,12 +397,12 @@
                     <div class="cr-avatar-edit">
                         @if($avatarSrc)
                             <img src="{{ $avatarSrc }}" id="avatarPreview" alt="Avatar"
-                                 style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--cr-accent);">
+                                 style="width:72px;height:72px;border-radius:50%;object-fit:contain;background:#0a0e16;border:2px solid var(--cr-accent);">
                         @else
                             <div id="avatarPreviewPlaceholder" style="width:72px;height:72px;border-radius:50%;background:var(--cr-bg);border:2px dashed var(--cr-border);display:flex;align-items:center;justify-content:center;color:var(--cr-muted);font-size:24px;flex-shrink:0;">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <img src="" id="avatarPreview" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--cr-accent);display:none;">
+                            <img src="" id="avatarPreview" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:contain;background:#0a0e16;border:2px solid var(--cr-accent);display:none;">
                         @endif
                         <div style="flex:1;">
                             <input type="file" class="cr-input" name="creator_avatar" accept="image/*" id="avatarFile"

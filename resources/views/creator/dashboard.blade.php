@@ -20,7 +20,8 @@
     --cr-font: 'Outfit', sans-serif;
 }
 
-.creator-shell * { font-family: var(--cr-font); }
+.creator-shell { font-family: var(--cr-font); }
+.creator-shell *:not(i):not([class*="fa"]):not([class*="fab"]) { font-family: var(--cr-font); }
 
 /* ── Profile Header ───────────────────────────────── */
 .cr-header {
@@ -797,6 +798,8 @@
         </div>
     </div>
 </div>
+
+@endsection
 
 @section('scripts')
 <script>

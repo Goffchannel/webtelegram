@@ -11,6 +11,17 @@
                         <i class="fas fa-shopping-cart me-2"></i>
                         Purchase Management
                     </h2>
+                    <div class="btn-group" role="group">
+                        <a href="{{ route('admin.videos.manage') }}" class="btn btn-outline-primary {{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
+                            <i class="fas fa-video me-1"></i>Videos
+                        </a>
+                        <a href="{{ route('admin.categories.manage') }}" class="btn btn-outline-primary {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                            <i class="fas fa-layer-group me-1"></i>Categories
+                        </a>
+                        <a href="{{ route('admin.purchases.index') }}" class="btn btn-outline-primary {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}">
+                            <i class="fas fa-shopping-cart me-1"></i>Purchases
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Statistics Cards -->

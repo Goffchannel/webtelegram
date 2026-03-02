@@ -20,7 +20,7 @@
                                     <i class="fas fa-layer-group me-1"></i>Categories
                                 </a>
                                 <a href="{{ route('admin.purchases.index') }}"
-                                    class="btn btn-outline-success {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}">
+                                    class="btn btn-outline-primary {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}">
                                     <i class="fas fa-shopping-cart me-1"></i>Purchases
                                 </a>
                             </div>

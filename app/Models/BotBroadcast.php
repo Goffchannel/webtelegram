@@ -17,6 +17,10 @@ class BotBroadcast extends Model
         'scheduled_at',
         'sent_at',
         'created_by',
+        'recurrence',
+        'recurrence_time',
+        'recurrence_day',
+        'recurrence_timezone',
     ];
 
     protected $casts = [

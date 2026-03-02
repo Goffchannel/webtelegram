@@ -9,7 +9,9 @@ use App\Models\Category;
 use App\Models\BotBroadcast;
 use App\Models\BotGroup;
 use App\Models\BotGroupBan;
+use App\Models\BotGroupWarning;
 use App\Models\Purchase;
+use Illuminate\Support\Facades\Cache;
 use App\Models\PurchaseMessage;
 use App\Models\User;
 use App\Models\ServiceAccessLine;
@@ -1938,18 +1940,21 @@ class VideoController extends Controller
     private function handleGroupMessage(array $message): void
     {
         try {
-            $chatId   = $message['chat']['id'] ?? null;
-            $text     = $message['text'] ?? ($message['caption'] ?? '');
-            $fromUser = $message['from'] ?? [];
-            $userId   = (string) ($fromUser['id'] ?? '');
-            $username = $fromUser['username'] ?? null;
+            $chatId    = $message['chat']['id'] ?? null;
+            $text      = $message['text'] ?? ($message['caption'] ?? '');
+            $fromUser  = $message['from'] ?? [];
+            $userId    = (string) ($fromUser['id'] ?? '');
+            $username  = $fromUser['username'] ?? null;
             $firstName = $fromUser['first_name'] ?? 'Usuario';
-            $msgId    = $message['message_id'] ?? null;
+            $msgId     = $message['message_id'] ?? null;
 
             if (!$chatId) return;
 
             $group = BotGroup::where('chat_id', $chatId)->where('is_active', true)->first();
             if (!$group) return;
+
+            $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
+            $mention  = $username ? "@{$username}" : $firstName;
 
             // ── Welcome new members ─────────────────────────────────────────
             if (isset($message['new_chat_member']) && $group->getSetting('welcome_enabled')) {
@@ -1962,7 +1967,44 @@ class VideoController extends Controller
                 return;
             }
 
-            if (!$text) return;
+            if (!$text || !$userId) return;
+
+            // ── Anti-flood ──────────────────────────────────────────────────
+            if ($group->getSetting('antiflood_enabled') && $msgId) {
+                $maxMsgs  = (int) $group->getSetting('antiflood_max_messages', 5);
+                $seconds  = (int) $group->getSetting('antiflood_seconds', 10);
+                $floodKey = "flood:{$group->id}:{$userId}";
+                $count    = (int) Cache::get($floodKey, 0) + 1;
+                Cache::put($floodKey, $count, $seconds);
+
+                if ($count > $maxMsgs) {
+                    Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/deleteMessage", [
+                        'chat_id' => $chatId, 'message_id' => $msgId,
+                    ]);
+                    $floodAction = $group->getSetting('antiflood_action', 'mute');
+                    if ($floodAction === 'mute') {
+                        Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/restrictChatMember", [
+                            'chat_id'     => $chatId,
+                            'user_id'     => (int) $userId,
+                            'permissions' => json_encode(['can_send_messages' => false]),
+                            'until_date'  => now()->addMinutes(5)->timestamp,
+                        ]);
+                        $this->sendTelegramMessage($chatId, "🚫 {$mention}, silenciado 5 min por flood.");
+                    } elseif ($floodAction === 'ban') {
+                        Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/banChatMember", [
+                            'chat_id' => $chatId, 'user_id' => (int) $userId,
+                        ]);
+                        $group->bans()->create([
+                            'telegram_user_id'  => $userId,
+                            'telegram_username' => $username,
+                            'reason'            => 'Auto-ban: flood de mensajes',
+                            'banned_at'         => now(),
+                        ]);
+                    }
+                    Cache::forget($floodKey);
+                    return;
+                }
+            }
 
             // ── Custom commands ─────────────────────────────────────────────
             $command = $group->matchCommand($text);
@@ -1974,54 +2016,110 @@ class VideoController extends Controller
             // ── Broadcast triggers ──────────────────────────────────────────
             $broadcast = BotBroadcast::where('trigger', $text)->first();
             if ($broadcast) {
-                $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
                 Http::timeout(30)->post(
                     "https://api.telegram.org/bot{$botToken}/{$broadcast->sendMethod()}",
                     array_filter([
-                        'chat_id'            => $chatId,
+                        'chat_id'             => $chatId,
                         $broadcast->fileKey() => $broadcast->telegram_file_id,
-                        'caption'            => $broadcast->caption,
-                        'parse_mode'         => 'Markdown',
+                        'caption'             => $broadcast->caption,
+                        'parse_mode'          => 'Markdown',
                     ])
                 );
                 return;
+            }
+
+            // ── Blacklist ───────────────────────────────────────────────────
+            if ($group->getSetting('blacklist_enabled') && $msgId) {
+                $words   = $group->getSetting('blacklist_words', []);
+                $textLow = strtolower($text);
+                $matched = false;
+                foreach ($words as $word) {
+                    if ($word && str_contains($textLow, $word)) { $matched = true; break; }
+                }
+                if ($matched) {
+                    Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/deleteMessage", [
+                        'chat_id' => $chatId, 'message_id' => $msgId,
+                    ]);
+                    $this->applyModerationAction(
+                        $group, $botToken, $chatId, $userId, $username, $firstName,
+                        $group->getSetting('blacklist_action', 'delete_only'),
+                        'Auto-ban: palabra prohibida'
+                    );
+                    return;
+                }
             }
 
             // ── Auto-delete links ───────────────────────────────────────────
             if ($group->getSetting('auto_delete_links') && $msgId) {
                 $hasLink = preg_match('/(https?:\/\/[^\s]+|t\.me\/[^\s]+)/i', $text);
                 if ($hasLink) {
-                    $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
-
-                    // Delete the message
                     Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/deleteMessage", [
-                        'chat_id'    => $chatId,
-                        'message_id' => $msgId,
+                        'chat_id' => $chatId, 'message_id' => $msgId,
                     ]);
-
-                    $action = $group->getSetting('delete_link_action', 'delete_only');
-
-                    if ($action === 'delete_and_warn' && $userId) {
-                        $mention = $username ? "@{$username}" : $firstName;
-                        $this->sendTelegramMessage($chatId, "⚠️ {$mention}, no está permitido publicar enlaces en este grupo.");
-                    } elseif ($action === 'delete_and_ban' && $userId) {
-                        Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/banChatMember", [
-                            'chat_id' => $chatId,
-                            'user_id' => (int) $userId,
-                        ]);
-                        // Record the ban
-                        $group->bans()->create([
-                            'telegram_user_id'  => $userId,
-                            'telegram_username' => $username,
-                            'reason'            => 'Auto-ban: publicó un enlace',
-                            'banned_at'         => now(),
-                        ]);
-                        Log::info("BotManager: auto-banned user {$userId} in group {$chatId}");
-                    }
+                    $this->applyModerationAction(
+                        $group, $botToken, $chatId, $userId, $username, $firstName,
+                        $group->getSetting('delete_link_action', 'delete_only'),
+                        'Auto-ban: publicó un enlace'
+                    );
                 }
             }
         } catch (\Exception $e) {
             Log::error('BotManager handleGroupMessage error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Apply a moderation action (warn/ban) with optional progressive warnings.
+     */
+    private function applyModerationAction(
+        BotGroup $group, string $botToken, $chatId,
+        string $userId, ?string $username, string $firstName,
+        string $action, string $banReason
+    ): void {
+        $mention = $username ? "@{$username}" : $firstName;
+
+        if ($action === 'delete_and_warn') {
+            $this->sendTelegramMessage($chatId, "⚠️ {$mention}, este contenido no está permitido en el grupo.");
+        } elseif ($action === 'delete_and_ban') {
+            if ($group->getSetting('warn_before_ban')) {
+                $maxWarnings = (int) $group->getSetting('max_warnings', 3);
+                $warning = BotGroupWarning::firstOrNew(
+                    ['bot_group_id' => $group->id, 'telegram_user_id' => $userId]
+                );
+                $warning->telegram_username = $username;
+                $warning->count = ($warning->count ?? 0) + 1;
+                $warning->reason = $banReason;
+                $warning->last_warned_at = now();
+                $warning->save();
+
+                if ($warning->count >= $maxWarnings) {
+                    Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/banChatMember", [
+                        'chat_id' => $chatId, 'user_id' => (int) $userId,
+                    ]);
+                    $group->bans()->create([
+                        'telegram_user_id'  => $userId,
+                        'telegram_username' => $username,
+                        'reason'            => $banReason . " (aviso {$warning->count}/{$maxWarnings})",
+                        'banned_at'         => now(),
+                    ]);
+                    $warning->delete();
+                    $this->sendTelegramMessage($chatId, "🚫 {$mention} ha sido baneado tras {$maxWarnings} avisos.");
+                } else {
+                    $remaining = $maxWarnings - $warning->count;
+                    $this->sendTelegramMessage($chatId, "⚠️ {$mention}, aviso {$warning->count}/{$maxWarnings}. Te quedan {$remaining} avisos antes del ban.");
+                }
+            } else {
+                Http::timeout(10)->post("https://api.telegram.org/bot{$botToken}/banChatMember", [
+                    'chat_id' => $chatId, 'user_id' => (int) $userId,
+                ]);
+                $group->bans()->create([
+                    'telegram_user_id'  => $userId,
+                    'telegram_username' => $username,
+                    'reason'            => $banReason,
+                    'banned_at'         => now(),
+                ]);
+                Log::info("BotManager: auto-banned user {$userId} in group {$chatId}");
+            }
         }
     }
 

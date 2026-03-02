@@ -177,6 +177,11 @@
                                         <i class="fas fa-robot"></i> Bot Manager
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.discount-codes.index') }}">
+                                        <i class="fas fa-tag"></i> Códigos descuento
+                                    </a>
+                                </li>
                                 @elseif (Auth::user()->is_creator && Auth::user()->subscribed('creator'))
                                 <li>
                                     <a class="dropdown-item" href="{{ route('creator.dashboard') }}">

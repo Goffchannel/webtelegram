@@ -65,6 +65,15 @@
             <i class="fas fa-bullhorn me-1"></i>Broadcast
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-warnings">
+            <i class="fas fa-exclamation-triangle me-1"></i>Avisos
+            @php $warnCount = \App\Models\BotGroupWarning::where('bot_group_id', $group->id)->count(); @endphp
+            @if($warnCount > 0)
+                <span class="badge text-bg-warning ms-1">{{ $warnCount }}</span>
+            @endif
+        </a>
+    </li>
 </ul>
 
 <div class="tab-content">
@@ -202,6 +211,95 @@
                                         <span class="badge text-bg-primary"><i class="fas fa-moon me-1"></i>Modo noche activo ahora</span>
                                     @endif
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Blacklist --}}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-ban me-1 text-danger"></i>Palabras prohibidas</h6>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="blacklist_enabled"
+                                       id="blacklist_enabled" value="1"
+                                       {{ $group->getSetting('blacklist_enabled') ? 'checked' : '' }}
+                                       onchange="toggleBlock('blacklistBlock', this.checked)">
+                                <label class="form-check-label" for="blacklist_enabled">Eliminar mensajes con palabras prohibidas</label>
+                            </div>
+                            <div id="blacklistBlock" style="{{ $group->getSetting('blacklist_enabled') ? '' : 'display:none' }}">
+                                <label class="form-label small fw-semibold">Palabras (una por línea)</label>
+                                <textarea name="blacklist_words_raw" class="form-control form-control-sm font-monospace" rows="4"
+                                          placeholder="spam&#10;casino&#10;oferta gratis">{{ implode("\n", $group->getSetting('blacklist_words', [])) }}</textarea>
+                                <label class="form-label small fw-semibold mt-2">Acción</label>
+                                <select name="blacklist_action" class="form-select form-select-sm">
+                                    <option value="delete_only" {{ $group->getSetting('blacklist_action') === 'delete_only' ? 'selected' : '' }}>Solo eliminar</option>
+                                    <option value="delete_and_warn" {{ $group->getSetting('blacklist_action') === 'delete_and_warn' ? 'selected' : '' }}>Eliminar + avisar</option>
+                                    <option value="delete_and_ban" {{ $group->getSetting('blacklist_action') === 'delete_and_ban' ? 'selected' : '' }}>Eliminar + banear</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Anti-flood --}}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-tachometer-alt me-1 text-danger"></i>Anti-flood</h6>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="antiflood_enabled"
+                                       id="antiflood_enabled" value="1"
+                                       {{ $group->getSetting('antiflood_enabled') ? 'checked' : '' }}
+                                       onchange="toggleBlock('antifloodBlock', this.checked)">
+                                <label class="form-check-label" for="antiflood_enabled">Limitar mensajes por usuario</label>
+                            </div>
+                            <div id="antifloodBlock" style="{{ $group->getSetting('antiflood_enabled') ? '' : 'display:none' }}">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">Máx. mensajes</label>
+                                        <input type="number" name="antiflood_max_messages" class="form-control form-control-sm"
+                                               min="2" max="100" value="{{ $group->getSetting('antiflood_max_messages', 5) }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">En segundos</label>
+                                        <input type="number" name="antiflood_seconds" class="form-control form-control-sm"
+                                               min="5" max="300" value="{{ $group->getSetting('antiflood_seconds', 10) }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold">Acción</label>
+                                        <select name="antiflood_action" class="form-select form-select-sm">
+                                            <option value="delete" {{ $group->getSetting('antiflood_action') === 'delete' ? 'selected' : '' }}>Solo eliminar mensaje</option>
+                                            <option value="mute" {{ $group->getSetting('antiflood_action', 'mute') === 'mute' ? 'selected' : '' }}>Silenciar 5 min</option>
+                                            <option value="ban" {{ $group->getSetting('antiflood_action') === 'ban' ? 'selected' : '' }}>Banear</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Warnings before ban --}}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-exclamation-triangle me-1 text-warning"></i>Avisos antes de banear</h6>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" name="warn_before_ban"
+                                       id="warn_before_ban" value="1"
+                                       {{ $group->getSetting('warn_before_ban') ? 'checked' : '' }}
+                                       onchange="toggleBlock('warnBlock', this.checked)">
+                                <label class="form-check-label" for="warn_before_ban">
+                                    Acumular avisos antes de banear
+                                </label>
+                            </div>
+                            <div id="warnBlock" style="{{ $group->getSetting('warn_before_ban') ? '' : 'display:none' }}">
+                                <label class="form-label small fw-semibold">Número de avisos para banear</label>
+                                <input type="number" name="max_warnings" class="form-control form-control-sm"
+                                       min="1" max="10" value="{{ $group->getSetting('max_warnings', 3) }}">
+                                <div class="form-text">Aplica cuando la acción es "Eliminar + banear" en links o blacklist.</div>
                             </div>
                         </div>
                     </div>
@@ -453,20 +551,41 @@
                             </form>
                             <div class="form-text" style="font-size:.7rem">Trigger: el usuario escribe esto en el grupo → bot envía el vídeo</div>
                         </div>
-                        <div class="card-footer py-2 d-flex gap-1">
-                            <form method="POST"
-                                  action="{{ route('admin.bot-manager.broadcasts.send-to-group', [$group, $bc]) }}"
-                                  class="flex-fill"
-                                  onsubmit="return confirm('¿Enviar este broadcast a {{ addslashes($group->chat_title) }}?')">
-                                @csrf
-                                <button type="submit" class="btn btn-primary btn-sm w-100">
-                                    <i class="fas fa-paper-plane me-1"></i>Enviar ahora
-                                </button>
-                            </form>
+                        <div class="card-footer py-2 d-flex gap-1 flex-wrap">
+                            @if($groupTarget?->status === 'failed')
+                                {{-- Retry failed send --}}
+                                <form method="POST"
+                                      action="{{ route('admin.bot-manager.broadcasts.retry-target', [$group, $groupTarget]) }}"
+                                      class="flex-fill"
+                                      onsubmit="return confirm('¿Reintentar el envío fallido?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger btn-sm w-100">
+                                        <i class="fas fa-redo me-1"></i>Reintentar
+                                    </button>
+                                </form>
+                            @else
+                                <form method="POST"
+                                      action="{{ route('admin.bot-manager.broadcasts.send-to-group', [$group, $bc]) }}"
+                                      class="flex-fill"
+                                      onsubmit="return confirm('¿Enviar este broadcast a {{ addslashes($group->chat_title) }}?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                                        <i class="fas fa-paper-plane me-1"></i>Enviar ahora
+                                    </button>
+                                </form>
+                            @endif
                             <button class="btn btn-sm btn-outline-primary flex-shrink-0"
                                     onclick="openScheduleGroupModal({{ $bc->id }})"
                                     title="Programar envío">
                                 <i class="fas fa-clock"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                                    onclick="openRecurrenceModal({{ $bc->id }}, '{{ $bc->recurrence ?? '' }}', '{{ $bc->recurrence_time ?? '10:00' }}', '{{ $bc->recurrence_day ?? '' }}', '{{ $bc->recurrence_timezone ?? 'Europe/Madrid' }}')"
+                                    title="Repetición automática">
+                                <i class="fas fa-sync-alt"></i>
+                                @if($bc->recurrence && $bc->recurrence !== 'none')
+                                    <span class="badge text-bg-info ms-1" style="font-size:.6rem">{{ ucfirst($bc->recurrence) }}</span>
+                                @endif
                             </button>
                         </div>
                     </div>
@@ -506,8 +625,129 @@
                     </div>
                 </div>
             </div>
+        {{-- Modal: recurrence --}}
+        <div class="modal fade" id="recurrenceModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h6 class="modal-title"><i class="fas fa-sync-alt me-1"></i>Repetición automática</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="recurrenceForm" method="POST">
+                        @csrf @method('PATCH')
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Frecuencia</label>
+                                <select name="recurrence" id="recurrenceType" class="form-select" onchange="toggleRecurrenceDay()">
+                                    <option value="">Sin repetición</option>
+                                    <option value="daily">Diaria</option>
+                                    <option value="weekly">Semanal</option>
+                                    <option value="monthly">Mensual</option>
+                                </select>
+                            </div>
+                            <div id="recurrenceDetails" style="display:none">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">Hora de envío</label>
+                                        <input type="time" name="recurrence_time" id="recurrenceTime" class="form-control form-control-sm" value="10:00">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">Zona horaria</label>
+                                        <select name="recurrence_timezone" class="form-select form-select-sm">
+                                            @foreach(['Europe/Madrid'=>'España','Europe/London'=>'UK','Europe/Paris'=>'CET','America/New_York'=>'EST','America/Mexico_City'=>'México','America/Bogota'=>'Colombia','America/Argentina/Buenos_Aires'=>'Argentina','UTC'=>'UTC'] as $tz => $label)
+                                                <option value="{{ $tz }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="recurrenceDayBlock" style="display:none" class="mb-2">
+                                    <label class="form-label small fw-semibold" id="recurrenceDayLabel">Día</label>
+                                    <input type="number" name="recurrence_day" id="recurrenceDay" class="form-control form-control-sm" min="0" max="31">
+                                    <div class="form-text" id="recurrenceDayHelp"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer py-2">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save me-1"></i>Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         @endif
 
+    </div>
+
+    {{-- ─── Tab: Avisos ─────────────────────────────────────────────────── --}}
+    <div class="tab-pane fade" id="tab-warnings">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="mb-0">Avisos acumulados</h5>
+                <p class="text-muted small mb-0">Usuarios con infracciones detectadas por el bot. Puedes resetear sus avisos manualmente.</p>
+            </div>
+        </div>
+
+        @php
+            $groupWarnings = \App\Models\BotGroupWarning::where('bot_group_id', $group->id)
+                ->orderByDesc('last_warned_at')->get();
+        @endphp
+
+        @if($groupWarnings->isEmpty())
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-check-circle fa-2x mb-2 text-success"></i><br>
+                No hay usuarios con avisos acumulados. Buen comportamiento en el grupo.
+            </div>
+        @else
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Avisos</th>
+                            <th>Máx.</th>
+                            <th>Último motivo</th>
+                            <th>Último aviso</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($groupWarnings as $warn)
+                        @php $maxWarn = $group->getSetting('max_warnings', 3); @endphp
+                        <tr>
+                            <td>
+                                <div class="font-monospace small">{{ $warn->telegram_user_id }}</div>
+                                @if($warn->telegram_username)
+                                    <small class="text-muted">@{{ $warn->telegram_username }}</small>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="badge {{ $warn->count >= $maxWarn ? 'text-bg-danger' : ($warn->count >= $maxWarn - 1 ? 'text-bg-warning' : 'text-bg-secondary') }}">
+                                    {{ $warn->count }}
+                                </span>
+                            </td>
+                            <td><small class="text-muted">{{ $maxWarn }}</small></td>
+                            <td><small>{{ $warn->reason ?? '—' }}</small></td>
+                            <td><small>{{ $warn->last_warned_at?->format('d/m/Y H:i') ?? '—' }}</small></td>
+                            <td>
+                                <form method="POST"
+                                      action="{{ route('admin.bot-manager.warnings.reset', [$group, $warn]) }}"
+                                      onsubmit="return confirm('¿Resetear avisos de este usuario?')">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-xs btn-outline-secondary" title="Resetear avisos">
+                                        <i class="fas fa-undo me-1"></i>Resetear
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
     </div>
 
 </div>{{-- end tab-content --}}
@@ -589,6 +829,49 @@ function toggleWelcome(checked) {
 }
 function toggleNightMode(checked) {
     document.getElementById('nightModeBlock').style.display = checked ? '' : 'none';
+}
+function toggleBlock(id, checked) {
+    document.getElementById(id).style.display = checked ? '' : 'none';
+}
+
+function openRecurrenceModal(broadcastId, recurrence, time, day, timezone) {
+    const baseUrl = "{{ url('admin/bot-manager/' . $group->id . '/broadcast-recurrence') }}";
+    document.getElementById('recurrenceForm').action = baseUrl + '/' + broadcastId;
+
+    const typeEl = document.getElementById('recurrenceType');
+    typeEl.value = recurrence || '';
+    document.getElementById('recurrenceTime').value = time || '10:00';
+    document.getElementById('recurrenceDay').value  = day || '';
+
+    // Set timezone select
+    const tzSel = document.querySelector('[name="recurrence_timezone"]');
+    if (tzSel) tzSel.value = timezone || 'Europe/Madrid';
+
+    toggleRecurrenceDay();
+    new bootstrap.Modal(document.getElementById('recurrenceModal')).show();
+}
+
+function toggleRecurrenceDay() {
+    const type    = document.getElementById('recurrenceType').value;
+    const details = document.getElementById('recurrenceDetails');
+    const dayBlk  = document.getElementById('recurrenceDayBlock');
+    const dayLbl  = document.getElementById('recurrenceDayLabel');
+    const dayHelp = document.getElementById('recurrenceDayHelp');
+
+    details.style.display = type ? '' : 'none';
+    if (type === 'weekly') {
+        dayBlk.style.display = '';
+        dayLbl.textContent   = 'Día de la semana';
+        dayHelp.textContent  = '0 = Lunes, 1 = Martes, ... 6 = Domingo';
+        document.getElementById('recurrenceDay').max = 6;
+    } else if (type === 'monthly') {
+        dayBlk.style.display = '';
+        dayLbl.textContent   = 'Día del mes';
+        dayHelp.textContent  = '1–31 (si el mes tiene menos días se ajusta al último)';
+        document.getElementById('recurrenceDay').max = 31;
+    } else {
+        dayBlk.style.display = 'none';
+    }
 }
 
 function editCommand(id, trigger, response, isActive) {

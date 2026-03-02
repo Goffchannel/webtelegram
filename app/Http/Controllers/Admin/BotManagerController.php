@@ -8,6 +8,7 @@ use App\Models\BotBroadcastTarget;
 use App\Models\BotGroup;
 use App\Models\BotGroupBan;
 use App\Models\BotGroupCommand;
+use App\Models\BotGroupWarning;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -79,29 +80,53 @@ class BotManagerController extends Controller
     public function update(Request $request, BotGroup $group)
     {
         $request->validate([
-            'auto_delete_links'  => 'boolean',
-            'delete_link_action' => 'in:delete_only,delete_and_warn,delete_and_ban',
-            'welcome_enabled'    => 'boolean',
-            'welcome_message'    => 'nullable|string|max:500',
-            'is_active'          => 'boolean',
-            'night_mode_enabled'  => 'boolean',
-            'night_mode_start'    => 'nullable|date_format:H:i',
-            'night_mode_end'      => 'nullable|date_format:H:i',
-            'night_mode_timezone' => 'nullable|timezone',
+            'auto_delete_links'      => 'boolean',
+            'delete_link_action'     => 'in:delete_only,delete_and_warn,delete_and_ban',
+            'welcome_enabled'        => 'boolean',
+            'welcome_message'        => 'nullable|string|max:500',
+            'is_active'              => 'boolean',
+            'night_mode_enabled'     => 'boolean',
+            'night_mode_start'       => 'nullable|date_format:H:i',
+            'night_mode_end'         => 'nullable|date_format:H:i',
+            'night_mode_timezone'    => 'nullable|timezone',
+            'blacklist_enabled'      => 'boolean',
+            'blacklist_action'       => 'in:delete_only,delete_and_warn,delete_and_ban',
+            'antiflood_enabled'      => 'boolean',
+            'antiflood_max_messages' => 'integer|min:2|max:100',
+            'antiflood_seconds'      => 'integer|min:5|max:300',
+            'antiflood_action'       => 'in:delete,mute,ban',
+            'warn_before_ban'        => 'boolean',
+            'max_warnings'           => 'integer|min:1|max:10',
         ]);
+
+        // Parse blacklist words from textarea (one per line)
+        $blacklistWords = collect(explode("\n", $request->input('blacklist_words_raw', '')))
+            ->map(fn($w) => strtolower(trim($w)))
+            ->filter()
+            ->values()
+            ->all();
 
         $group->update([
             'is_active' => $request->boolean('is_active', $group->is_active),
             'settings'  => [
-                'auto_delete_links'   => $request->boolean('auto_delete_links'),
-                'delete_link_action'  => $request->input('delete_link_action', 'delete_only'),
-                'welcome_enabled'     => $request->boolean('welcome_enabled'),
-                'welcome_message'     => $request->input('welcome_message', BotGroup::defaultSettings()['welcome_message']),
-                'night_mode_enabled'  => $request->boolean('night_mode_enabled'),
-                'night_mode_start'    => $request->input('night_mode_start', '23:00'),
-                'night_mode_end'      => $request->input('night_mode_end', '08:00'),
-                'night_mode_timezone' => $request->input('night_mode_timezone', 'Europe/Madrid'),
-                'night_mode_active'   => $group->getSetting('night_mode_active', false), // preserve runtime state
+                'auto_delete_links'      => $request->boolean('auto_delete_links'),
+                'delete_link_action'     => $request->input('delete_link_action', 'delete_only'),
+                'welcome_enabled'        => $request->boolean('welcome_enabled'),
+                'welcome_message'        => $request->input('welcome_message', BotGroup::defaultSettings()['welcome_message']),
+                'night_mode_enabled'     => $request->boolean('night_mode_enabled'),
+                'night_mode_start'       => $request->input('night_mode_start', '23:00'),
+                'night_mode_end'         => $request->input('night_mode_end', '08:00'),
+                'night_mode_timezone'    => $request->input('night_mode_timezone', 'Europe/Madrid'),
+                'night_mode_active'      => $group->getSetting('night_mode_active', false),
+                'blacklist_enabled'      => $request->boolean('blacklist_enabled'),
+                'blacklist_words'        => $blacklistWords,
+                'blacklist_action'       => $request->input('blacklist_action', 'delete_only'),
+                'antiflood_enabled'      => $request->boolean('antiflood_enabled'),
+                'antiflood_max_messages' => (int) $request->input('antiflood_max_messages', 5),
+                'antiflood_seconds'      => (int) $request->input('antiflood_seconds', 10),
+                'antiflood_action'       => $request->input('antiflood_action', 'mute'),
+                'warn_before_ban'        => $request->boolean('warn_before_ban'),
+                'max_warnings'           => (int) $request->input('max_warnings', 3),
             ],
         ]);
 
@@ -352,6 +377,55 @@ class BotManagerController extends Controller
         $broadcast->update(['trigger' => $trigger]);
 
         return back()->with('success', $trigger ? "Trigger «{$trigger}» guardado." : 'Trigger eliminado.');
+    }
+
+    // ── Feature 9: Retry failed target ───────────────────────────────────
+
+    public function retryTarget(BotGroup $group, BotBroadcastTarget $target)
+    {
+        $target->update(['status' => 'pending', 'error' => null, 'scheduled_at' => null]);
+        $broadcast = $target->broadcast;
+        if ($broadcast) {
+            $this->dispatchBroadcast($broadcast->fresh(['targets.group']));
+        }
+        return back()->with('success', 'Reintentando envío...');
+    }
+
+    // ── Feature 1: Warnings management ───────────────────────────────────
+
+    public function warnings(BotGroup $group)
+    {
+        $warnings = BotGroupWarning::where('bot_group_id', $group->id)
+            ->orderByDesc('last_warned_at')
+            ->get();
+        return response()->json($warnings);
+    }
+
+    public function resetWarning(BotGroup $group, BotGroupWarning $warning)
+    {
+        $warning->delete();
+        return back()->with('success', 'Avisos del usuario reseteados.');
+    }
+
+    // ── Feature 4: Recurrence settings per broadcast ──────────────────────
+
+    public function saveRecurrence(Request $request, BotGroup $group, BotBroadcast $broadcast)
+    {
+        $request->validate([
+            'recurrence'          => 'nullable|in:daily,weekly,monthly',
+            'recurrence_time'     => 'nullable|date_format:H:i',
+            'recurrence_day'      => 'nullable|integer|min:0|max:31',
+            'recurrence_timezone' => 'nullable|timezone',
+        ]);
+
+        $broadcast->update([
+            'recurrence'          => $request->input('recurrence') ?: null,
+            'recurrence_time'     => $request->input('recurrence_time', '10:00'),
+            'recurrence_day'      => $request->input('recurrence_day'),
+            'recurrence_timezone' => $request->input('recurrence_timezone', 'Europe/Madrid'),
+        ]);
+
+        return back()->with('success', 'Recurrencia guardada.');
     }
 
     // ── Internal: dispatch a broadcast now ────────────────────────────────

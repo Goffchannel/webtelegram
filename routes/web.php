@@ -176,6 +176,18 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::post('/{group}/send-broadcast/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'sendBroadcastToGroup'])->name('broadcasts.send-to-group');
         Route::post('/{group}/schedule-broadcast/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'scheduleToGroup'])->name('broadcasts.schedule-to-group');
         Route::patch('/{group}/broadcast-trigger/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'saveBroadcastTrigger'])->name('broadcasts.trigger');
+        Route::patch('/{group}/broadcast-recurrence/{broadcast}', [\App\Http\Controllers\Admin\BotManagerController::class, 'saveRecurrence'])->name('broadcasts.recurrence');
+        Route::post('/{group}/retry-target/{target}', [\App\Http\Controllers\Admin\BotManagerController::class, 'retryTarget'])->name('broadcasts.retry-target');
+        Route::delete('/{group}/warnings/{warning}', [\App\Http\Controllers\Admin\BotManagerController::class, 'resetWarning'])->name('warnings.reset');
+    });
+
+    // Discount codes
+    Route::prefix('admin/discount-codes')->name('admin.discount-codes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\DiscountCodeController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\DiscountCodeController::class, 'store'])->name('store');
+        Route::patch('/{discountCode}/toggle', [\App\Http\Controllers\Admin\DiscountCodeController::class, 'toggle'])->name('toggle');
+        Route::delete('/{discountCode}', [\App\Http\Controllers\Admin\DiscountCodeController::class, 'destroy'])->name('destroy');
+        Route::post('/validate', [\App\Http\Controllers\Admin\DiscountCodeController::class, 'validate'])->name('validate');
     });
 
     // Service access: renew / revoke

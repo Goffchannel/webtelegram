@@ -72,7 +72,19 @@ class BotGroup extends Model
             'night_mode_start'    => '23:00',
             'night_mode_end'      => '08:00',
             'night_mode_timezone' => 'Europe/Madrid',
-            'night_mode_active'   => false,  // runtime state: is night mode currently active?
+            'night_mode_active'   => false,
+            // Blacklist
+            'blacklist_enabled'   => false,
+            'blacklist_words'     => [],
+            'blacklist_action'    => 'delete_only',
+            // Anti-flood
+            'antiflood_enabled'      => false,
+            'antiflood_max_messages' => 5,
+            'antiflood_seconds'      => 10,
+            'antiflood_action'       => 'mute',
+            // Warnings
+            'warn_before_ban'    => false,
+            'max_warnings'       => 3,
         ];
     }
 

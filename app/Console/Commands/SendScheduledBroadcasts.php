@@ -73,10 +73,45 @@ class SendScheduledBroadcasts extends Command
             }
         }
 
+        // ── 3. Reschedule recurring broadcasts ──────────────────────────────
+        foreach ($due as $broadcast) {
+            if ($broadcast->recurrence && $broadcast->recurrence !== 'none') {
+                $nextAt = $this->nextRecurrence($broadcast);
+                if ($nextAt) {
+                    $broadcast->update(['status' => 'pending', 'scheduled_at' => $nextAt]);
+                    $broadcast->targets()->update(['status' => 'pending', 'sent_at' => null, 'error' => null]);
+                    $this->info("Rescheduled recurring broadcast #{$broadcast->id} → {$nextAt}");
+                }
+            }
+        }
+
         if ($due->isEmpty() && $dueTargets->isEmpty()) {
             $this->line('No scheduled broadcasts due.');
         }
 
         return self::SUCCESS;
+    }
+
+    private function nextRecurrence(\App\Models\BotBroadcast $broadcast): ?\Carbon\Carbon
+    {
+        $tz   = $broadcast->recurrence_timezone ?? 'Europe/Madrid';
+        $time = $broadcast->recurrence_time    ?? '10:00';
+        [$h, $m] = explode(':', $time);
+        $now  = \Carbon\Carbon::now($tz);
+
+        switch ($broadcast->recurrence) {
+            case 'daily':
+                $next = $now->copy()->addDay()->setTime((int)$h, (int)$m, 0);
+                return $next;
+            case 'weekly':
+                $day  = (int) ($broadcast->recurrence_day ?? 0); // 0=Mon ... 6=Sun
+                $next = $now->copy()->next(\Carbon\Carbon::getDays()[$day] ?? 'Monday')->setTime((int)$h, (int)$m, 0);
+                return $next;
+            case 'monthly':
+                $day  = (int) ($broadcast->recurrence_day ?? 1);
+                $next = $now->copy()->addMonth()->setDay(min($day, $now->copy()->addMonth()->daysInMonth))->setTime((int)$h, (int)$m, 0);
+                return $next;
+        }
+        return null;
     }
 }

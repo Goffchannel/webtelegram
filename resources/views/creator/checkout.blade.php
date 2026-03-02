@@ -2,102 +2,360 @@
 
 @section('title', 'Comprar: ' . $video->title)
 
+@section('styles')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --ch-bg: #0e1117;
+    --ch-surface: #161b25;
+    --ch-border: #252d3d;
+    --ch-accent: #4f8ef7;
+    --ch-success: #22c55e;
+    --ch-warning: #f59e0b;
+    --ch-danger: #ef4444;
+    --ch-text: #e2e8f0;
+    --ch-muted: #64748b;
+    --ch-font: 'Outfit', sans-serif;
+}
+.ch-shell { font-family: var(--ch-font); }
+.ch-shell *:not(i):not([class*="fa"]):not([class*="fab"]) { font-family: var(--ch-font); }
+
+/* ── Product preview card ── */
+.ch-product-card {
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 14px; overflow: hidden;
+    margin-bottom: 16px;
+}
+.ch-product-thumb {
+    height: 200px; background: #0e1117;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+.ch-product-thumb img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+}
+.ch-product-thumb-placeholder {
+    color: rgba(255,255,255,.2); font-size: 3rem;
+}
+.ch-product-info { padding: 16px 20px; }
+.ch-product-store {
+    font-size: .78rem; color: var(--ch-muted);
+    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+}
+.ch-product-title {
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--bs-body-color, #212529);
+    letter-spacing: -.02em; margin: 0 0 6px;
+}
+.ch-product-desc {
+    font-size: .82rem; color: var(--ch-muted);
+    margin: 0 0 12px; line-height: 1.45;
+}
+
+/* ── Price box ── */
+.ch-price-box {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 12px 16px;
+    background: rgba(79,142,247,.07);
+    border: 1px solid rgba(79,142,247,.18);
+    border-radius: 10px;
+    margin-bottom: 0;
+}
+.ch-price-current {
+    font-size: 1.6rem; font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    color: var(--ch-accent); letter-spacing: -.03em;
+}
+.ch-price-current.discounted { color: var(--ch-success); }
+.ch-price-original {
+    font-size: .95rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--ch-muted);
+    text-decoration: line-through;
+}
+.ch-discount-applied {
+    display: none;
+    font-size: .78rem; color: var(--ch-success);
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.2);
+    border-radius: 20px; padding: 2px 10px;
+    font-weight: 600;
+}
+
+/* ── Service info ── */
+.ch-service-info {
+    background: rgba(79,142,247,.07);
+    border: 1px solid rgba(79,142,247,.18);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: .84rem; margin-top: 12px;
+    color: var(--bs-body-color, #212529);
+    display: flex; gap: 16px; flex-wrap: wrap;
+}
+.ch-service-info span { display: flex; align-items: center; gap: 5px; }
+.ch-service-info i { color: var(--ch-accent); }
+
+/* ── Card ── */
+.ch-card {
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 14px; overflow: hidden;
+    margin-bottom: 16px;
+}
+.ch-card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    font-weight: 600; font-size: .88rem;
+    color: var(--bs-body-color, #212529);
+    display: flex; align-items: center; gap: 8px;
+}
+.ch-card-header i { color: var(--ch-accent); }
+.ch-card-body { padding: 20px; }
+
+/* ── Payment methods ── */
+.ch-payment-info {
+    background: rgba(79,142,247,.06);
+    border: 1px solid rgba(79,142,247,.18);
+    border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 12px; font-size: .84rem;
+    color: var(--bs-body-color, #212529);
+}
+.ch-payment-info strong { color: var(--ch-accent); }
+.ch-payment-info a { color: var(--ch-accent); word-break: break-all; }
+.ch-payment-notes {
+    background: var(--bs-secondary-bg, #f8f9fa);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 12px; font-size: .84rem;
+    white-space: pre-wrap;
+    color: var(--bs-body-color, #212529);
+}
+
+/* ── Discount ── */
+.ch-discount-row { display: flex; gap: 8px; }
+.ch-discount-input {
+    flex: 1;
+    background: var(--bs-secondary-bg, #f8f9fa) !important;
+    border: 1px solid var(--bs-border-color, #dee2e6) !important;
+    border-radius: 8px !important; padding: 9px 12px !important;
+    font-family: 'DM Mono', monospace !important;
+    font-size: .88rem !important; text-transform: uppercase;
+    color: var(--bs-body-color, #212529) !important;
+    transition: border-color .2s !important;
+}
+.ch-discount-input:focus {
+    outline: none !important;
+    border-color: var(--ch-success) !important;
+    box-shadow: 0 0 0 3px rgba(34,197,94,.12) !important;
+}
+.ch-discount-btn {
+    padding: 9px 16px; border-radius: 8px;
+    background: rgba(34,197,94,.12); color: var(--ch-success);
+    border: 1px solid rgba(34,197,94,.25); font-weight: 600;
+    font-size: .85rem; cursor: pointer; transition: all .2s;
+    white-space: nowrap;
+}
+.ch-discount-btn:hover { background: var(--ch-success); color: #fff; }
+.ch-discount-msg { font-size: .8rem; margin-top: 6px; min-height: 1.2em; }
+
+/* ── Form ── */
+.ch-label {
+    font-size: .75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--ch-muted); display: block; margin-bottom: 6px;
+}
+.ch-input {
+    background: var(--bs-secondary-bg, #f8f9fa) !important;
+    border: 1px solid var(--bs-border-color, #dee2e6) !important;
+    border-radius: 8px !important; padding: 9px 12px !important;
+    font-size: .88rem !important; width: 100%;
+    color: var(--bs-body-color, #212529) !important;
+    transition: border-color .2s !important;
+}
+.ch-input:focus {
+    outline: none !important;
+    border-color: var(--ch-accent) !important;
+    box-shadow: 0 0 0 3px rgba(79,142,247,.12) !important;
+}
+.ch-input-prefix { display: flex; align-items: center; }
+.ch-prefix {
+    background: var(--bs-border-color, #dee2e6);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-right: none; border-radius: 8px 0 0 8px;
+    padding: 9px 12px; font-size: .88rem; color: var(--ch-muted);
+}
+.ch-input-prefix .ch-input { border-radius: 0 8px 8px 0 !important; }
+
+/* ── Submit ── */
+.ch-submit {
+    width: 100%; padding: 13px;
+    background: var(--ch-success); color: #fff;
+    border: none; border-radius: 10px;
+    font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: background .2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--ch-font); margin-top: 20px;
+}
+.ch-submit:hover { background: #16a34a; }
+
+/* ── Back link ── */
+.ch-back {
+    background: transparent;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    color: var(--ch-muted); border-radius: 8px;
+    padding: 7px 14px; font-size: .82rem; font-weight: 500;
+    text-decoration: none; display: inline-flex;
+    align-items: center; gap: 6px; transition: all .2s;
+    margin-bottom: 20px;
+}
+.ch-back:hover { color: var(--bs-body-color, #212529); border-color: var(--ch-accent); }
+
+.ch-notice {
+    font-size: .78rem; color: var(--ch-muted);
+    margin-top: 14px; text-align: center;
+    display: flex; align-items: flex-start; gap: 6px; justify-content: center;
+}
+</style>
+@endsection
+
 @section('content')
+<div class="ch-shell">
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm">
-            <div class="card-header">Compra directa al creador</div>
-            <div class="card-body">
-                <h4>{{ $video->title }}</h4>
-                <p class="text-muted">Creador: {{ $creator->creator_store_name ?? $creator->name }}</p>
-                <p>{{ $video->description }}</p>
+<div class="col-lg-6">
 
-                {{-- Price display (updates live when discount applied) --}}
-                <div class="mb-4">
-                    <h5 id="priceDisplay">Precio: ${{ number_format($video->price, 2) }}</h5>
-                    <div id="discountSummary" class="d-none alert alert-success py-2 px-3 small"></div>
-                </div>
+    <a href="{{ url()->previous() }}" class="ch-back">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
 
-                @if($video->isServiceProduct())
-                    <div class="alert alert-info">
-                        <strong>Servicio de acceso:</strong> {{ $video->duration_days ?? 30 }} dias<br>
-                        <strong>Stock disponible:</strong> {{ $video->availableServiceLines()->count() }}
-                    </div>
-                @endif
-
-                @if(!empty($methods['paypal_url']))
-                    <div class="alert alert-info">
-                        <strong>PayPal:</strong>
-                        <a href="{{ $methods['paypal_url'] }}" target="_blank">{{ $methods['paypal_url'] }}</a>
-                    </div>
-                @endif
-
-                @if(!empty($methods['payment_button_html']))
-                    <div class="alert alert-light border">
-                        <strong>Boton personalizado del creador:</strong>
-                        <div class="mt-2">{!! $methods['payment_button_html'] !!}</div>
-                    </div>
-                @endif
-
-                @if(!empty($methods['other_payment_notes']))
-                    <div class="alert alert-secondary" style="white-space: pre-wrap;">{{ $methods['other_payment_notes'] }}</div>
-                @endif
-
-                {{-- Discount code --}}
-                <div class="card bg-light border-0 mb-4">
-                    <div class="card-body py-3">
-                        <label class="form-label fw-semibold small mb-2">
-                            <i class="fas fa-tag me-1 text-success"></i>¿Tienes un código de descuento?
-                        </label>
-                        <div class="input-group input-group-sm">
-                            <input type="text" id="discountCodeInput" class="form-control font-monospace text-uppercase"
-                                   placeholder="CÓDIGO" maxlength="50"
-                                   oninput="this.value=this.value.toUpperCase(); resetDiscount()">
-                            <button class="btn btn-outline-success" type="button" onclick="applyDiscount()">
-                                Aplicar
-                            </button>
-                        </div>
-                        <div id="discountMsg" class="form-text mt-1"></div>
-                    </div>
-                </div>
-
-                <form method="POST" action="{{ route('creator.checkout.submit', ['creator' => $creator->creator_slug, 'video' => $video->id]) }}">
-                    @csrf
-                    <input type="hidden" name="discount_code" id="discountCodeHidden">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Tu usuario de Telegram</label>
-                            <div class="input-group">
-                                <span class="input-group-text">@</span>
-                                <input class="form-control" name="telegram_username" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Metodo usado</label>
-                            <select class="form-select" name="payment_method" required>
-                                <option value="paypal">PayPal</option>
-                                <option value="boton_personalizado">Boton personalizado</option>
-                                <option value="otro">Otro metodo</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Referencia de pago (opcional)</label>
-                            <input class="form-control" name="payment_reference" placeholder="ID de operacion">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">URL de comprobante (opcional)</label>
-                            <input class="form-control" name="proof_url" placeholder="https://...">
-                        </div>
-                    </div>
-                    <button class="btn btn-success mt-3" type="submit">Ya he pagado - enviar para revision</button>
-                </form>
-
-                <hr>
-                <small class="text-muted">El pago y reembolso lo gestiona directamente el creador. Tu acceso al video se activa cuando el creador apruebe el pago.</small>
+    {{-- Product preview --}}
+    <div class="ch-product-card">
+        @if($video->hasThumbnail())
+            <div class="ch-product-thumb">
+                <img src="{{ $video->getThumbnailUrl() }}" alt="{{ $video->title }}">
             </div>
+        @endif
+        <div class="ch-product-info">
+            <p class="ch-product-store">
+                <i class="fas fa-store"></i> {{ $creator->creator_store_name ?? $creator->name }}
+            </p>
+            <h2 class="ch-product-title">{{ $video->title }}</h2>
+            @if($video->description)
+                <p class="ch-product-desc">{{ $video->description }}</p>
+            @endif
+
+            {{-- Price display --}}
+            <div class="ch-price-box">
+                <span class="ch-price-original" id="priceOriginal" style="display:none;">${{ number_format($video->price, 2) }}</span>
+                <span class="ch-price-current" id="priceCurrent">${{ number_format($video->price, 2) }}</span>
+                <span class="ch-discount-applied" id="discountAppliedBadge"></span>
+            </div>
+
+            @if($video->isServiceProduct())
+                <div class="ch-service-info">
+                    <span><i class="fas fa-calendar-alt"></i> {{ $video->duration_days ?? 30 }} días de acceso</span>
+                    <span><i class="fas fa-box"></i> Stock: {{ $video->availableServiceLines()->count() }}</span>
+                </div>
+            @endif
         </div>
     </div>
+
+    {{-- Payment methods --}}
+    @if(!empty($methods['paypal_url']) || !empty($methods['payment_button_html']) || !empty($methods['other_payment_notes']))
+    <div class="ch-card">
+        <div class="ch-card-header">
+            <i class="fas fa-wallet"></i> Métodos de pago del creador
+        </div>
+        <div class="ch-card-body">
+            @if(!empty($methods['paypal_url']))
+                <div class="ch-payment-info">
+                    <strong><i class="fab fa-paypal me-1"></i>PayPal:</strong>
+                    <a href="{{ $methods['paypal_url'] }}" target="_blank">{{ $methods['paypal_url'] }}</a>
+                </div>
+            @endif
+            @if(!empty($methods['payment_button_html']))
+                <div class="ch-payment-info">
+                    <strong><i class="fas fa-hand-pointer me-1"></i>Botón de pago:</strong>
+                    <div class="mt-2">{!! $methods['payment_button_html'] !!}</div>
+                </div>
+            @endif
+            @if(!empty($methods['other_payment_notes']))
+                <div class="ch-payment-notes">{{ $methods['other_payment_notes'] }}</div>
+            @endif
+        </div>
+    </div>
+    @endif
+
+    {{-- Discount code --}}
+    <div class="ch-card">
+        <div class="ch-card-header">
+            <i class="fas fa-tag"></i> Código de descuento
+        </div>
+        <div class="ch-card-body">
+            <div class="ch-discount-row">
+                <input type="text" id="discountCodeInput" class="ch-discount-input"
+                       placeholder="CÓDIGO" maxlength="50"
+                       oninput="this.value=this.value.toUpperCase(); resetDiscount()">
+                <button class="ch-discount-btn" type="button" onclick="applyDiscount()">
+                    <i class="fas fa-check me-1"></i> Aplicar
+                </button>
+            </div>
+            <div id="discountMsg" class="ch-discount-msg"></div>
+        </div>
+    </div>
+
+    {{-- Checkout form --}}
+    <div class="ch-card">
+        <div class="ch-card-header">
+            <i class="fas fa-credit-card"></i> Confirmar pago
+        </div>
+        <div class="ch-card-body">
+            <form method="POST" action="{{ route('creator.checkout.submit', ['creator' => $creator->creator_slug, 'video' => $video->id]) }}">
+                @csrf
+                <input type="hidden" name="discount_code" id="discountCodeHidden">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="ch-label">Tu usuario de Telegram</label>
+                        <div class="ch-input-prefix">
+                            <span class="ch-prefix">@</span>
+                            <input class="ch-input" name="telegram_username" required placeholder="usuario">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ch-label">Método de pago usado</label>
+                        <select class="ch-input" name="payment_method" required>
+                            <option value="paypal">PayPal</option>
+                            <option value="boton_personalizado">Botón personalizado</option>
+                            <option value="otro">Otro método</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ch-label">Referencia <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+                        <input class="ch-input" name="payment_reference" placeholder="ID de operación">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ch-label">Comprobante URL <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+                        <input class="ch-input" name="proof_url" placeholder="https://...">
+                    </div>
+                </div>
+
+                <button class="ch-submit" type="submit">
+                    <i class="fas fa-paper-plane"></i> Ya pagué — enviar para revisión
+                </button>
+            </form>
+
+            <p class="ch-notice">
+                <i class="fas fa-info-circle" style="flex-shrink:0;margin-top:2px;"></i>
+                El creador verificará tu pago y activará el acceso manualmente.
+            </p>
+        </div>
+    </div>
+
 </div>
+</div>
+</div>{{-- /ch-shell --}}
 @endsection
 
 @section('scripts')
@@ -109,7 +367,7 @@ function applyDiscount() {
     const msg  = document.getElementById('discountMsg');
 
     if (!code) {
-        msg.className = 'form-text text-warning mt-1';
+        msg.style.color = 'var(--ch-warning)';
         msg.textContent = 'Introduce un código.';
         return;
     }
@@ -126,33 +384,40 @@ function applyDiscount() {
     .then(data => {
         if (data.valid) {
             document.getElementById('discountCodeHidden').value = code;
-            document.getElementById('priceDisplay').innerHTML =
-                `Precio: <s class="text-muted">$${basePrice.toFixed(2)}</s> <strong class="text-success">$${data.final_amount.toFixed(2)}</strong>`;
-            const summary = document.getElementById('discountSummary');
-            summary.className = 'alert alert-success py-2 px-3 small';
-            summary.innerHTML = `<i class="fas fa-check-circle me-1"></i><strong>${code}</strong> — ${data.description || 'Descuento aplicado'}: <strong>${data.formatted}</strong>`;
-            msg.className = 'form-text text-success mt-1';
-            msg.textContent = '✓ Código aplicado correctamente.';
+
+            const currentEl  = document.getElementById('priceCurrent');
+            const originalEl = document.getElementById('priceOriginal');
+            const badgeEl    = document.getElementById('discountAppliedBadge');
+
+            currentEl.textContent = `$${data.final_amount.toFixed(2)}`;
+            currentEl.classList.add('discounted');
+            originalEl.style.display = '';
+            badgeEl.textContent = `−${data.formatted}`;
+            badgeEl.style.display = 'inline-flex';
+
+            msg.style.color = 'var(--ch-success)';
+            msg.textContent = '✓ Código aplicado.';
         } else {
             resetDiscount();
-            msg.className = 'form-text text-danger mt-1';
+            msg.style.color = 'var(--ch-danger)';
             msg.textContent = '✗ ' + (data.message || 'Código inválido.');
         }
     })
     .catch(() => {
-        msg.className = 'form-text text-danger mt-1';
+        msg.style.color = 'var(--ch-danger)';
         msg.textContent = 'Error al verificar el código.';
     });
 }
 
 function resetDiscount() {
     document.getElementById('discountCodeHidden').value = '';
-    document.getElementById('priceDisplay').innerHTML = `Precio: $${basePrice.toFixed(2)}`;
-    document.getElementById('discountSummary').className = 'd-none alert alert-success py-2 px-3 small';
+    document.getElementById('priceCurrent').textContent = `$${basePrice.toFixed(2)}`;
+    document.getElementById('priceCurrent').classList.remove('discounted');
+    document.getElementById('priceOriginal').style.display = 'none';
+    document.getElementById('discountAppliedBadge').style.display = 'none';
     document.getElementById('discountMsg').textContent = '';
 }
 
-// Allow pressing Enter in the code input
 document.getElementById('discountCodeInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') { e.preventDefault(); applyDiscount(); }
 });

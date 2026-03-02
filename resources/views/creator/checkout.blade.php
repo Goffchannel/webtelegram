@@ -11,7 +11,13 @@
                 <h4>{{ $video->title }}</h4>
                 <p class="text-muted">Creador: {{ $creator->creator_store_name ?? $creator->name }}</p>
                 <p>{{ $video->description }}</p>
-                <h5 class="mb-4">Precio: ${{ number_format($video->price, 2) }}</h5>
+
+                {{-- Price display (updates live when discount applied) --}}
+                <div class="mb-4">
+                    <h5 id="priceDisplay">Precio: ${{ number_format($video->price, 2) }}</h5>
+                    <div id="discountSummary" class="d-none alert alert-success py-2 px-3 small"></div>
+                </div>
+
                 @if($video->isServiceProduct())
                     <div class="alert alert-info">
                         <strong>Servicio de acceso:</strong> {{ $video->duration_days ?? 30 }} dias<br>
@@ -37,8 +43,27 @@
                     <div class="alert alert-secondary" style="white-space: pre-wrap;">{{ $methods['other_payment_notes'] }}</div>
                 @endif
 
+                {{-- Discount code --}}
+                <div class="card bg-light border-0 mb-4">
+                    <div class="card-body py-3">
+                        <label class="form-label fw-semibold small mb-2">
+                            <i class="fas fa-tag me-1 text-success"></i>¿Tienes un código de descuento?
+                        </label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="discountCodeInput" class="form-control font-monospace text-uppercase"
+                                   placeholder="CÓDIGO" maxlength="50"
+                                   oninput="this.value=this.value.toUpperCase(); resetDiscount()">
+                            <button class="btn btn-outline-success" type="button" onclick="applyDiscount()">
+                                Aplicar
+                            </button>
+                        </div>
+                        <div id="discountMsg" class="form-text mt-1"></div>
+                    </div>
+                </div>
+
                 <form method="POST" action="{{ route('creator.checkout.submit', ['creator' => $creator->creator_slug, 'video' => $video->id]) }}">
                     @csrf
+                    <input type="hidden" name="discount_code" id="discountCodeHidden">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Tu usuario de Telegram</label>
@@ -73,4 +98,63 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+const basePrice = {{ (float) $video->price }};
+
+function applyDiscount() {
+    const code = document.getElementById('discountCodeInput').value.trim();
+    const msg  = document.getElementById('discountMsg');
+
+    if (!code) {
+        msg.className = 'form-text text-warning mt-1';
+        msg.textContent = 'Introduce un código.';
+        return;
+    }
+
+    fetch('{{ route('discount-codes.validate') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ code, amount: basePrice }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.valid) {
+            document.getElementById('discountCodeHidden').value = code;
+            document.getElementById('priceDisplay').innerHTML =
+                `Precio: <s class="text-muted">$${basePrice.toFixed(2)}</s> <strong class="text-success">$${data.final_amount.toFixed(2)}</strong>`;
+            const summary = document.getElementById('discountSummary');
+            summary.className = 'alert alert-success py-2 px-3 small';
+            summary.innerHTML = `<i class="fas fa-check-circle me-1"></i><strong>${code}</strong> — ${data.description || 'Descuento aplicado'}: <strong>${data.formatted}</strong>`;
+            msg.className = 'form-text text-success mt-1';
+            msg.textContent = '✓ Código aplicado correctamente.';
+        } else {
+            resetDiscount();
+            msg.className = 'form-text text-danger mt-1';
+            msg.textContent = '✗ ' + (data.message || 'Código inválido.');
+        }
+    })
+    .catch(() => {
+        msg.className = 'form-text text-danger mt-1';
+        msg.textContent = 'Error al verificar el código.';
+    });
+}
+
+function resetDiscount() {
+    document.getElementById('discountCodeHidden').value = '';
+    document.getElementById('priceDisplay').innerHTML = `Precio: $${basePrice.toFixed(2)}`;
+    document.getElementById('discountSummary').className = 'd-none alert alert-success py-2 px-3 small';
+    document.getElementById('discountMsg').textContent = '';
+}
+
+// Allow pressing Enter in the code input
+document.getElementById('discountCodeInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); applyDiscount(); }
+});
+</script>
 @endsection

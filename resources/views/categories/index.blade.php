@@ -6,18 +6,6 @@
     <div class="text-center mb-5">
         <h1><i class="fas fa-store text-primary"></i> Explorar Creadores</h1>
         <p class="lead text-muted">Selecciona un creador para ver su tienda</p>
-        <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
-            @guest
-                <a href="{{ route('logincreator') }}" class="btn btn-outline-primary">Login</a>
-                <a href="{{ route('register') }}" class="btn btn-warning">Quiero ser un creador</a>
-            @else
-                @if (Auth::user()->is_creator && Auth::user()->subscribed('creator'))
-                    <a href="{{ route('creator.dashboard') }}" class="btn btn-warning">Ir a mi panel de creador</a>
-                @else
-                    <a href="{{ route('creator.subscription.show') }}" class="btn btn-warning">Activar modo creador</a>
-                @endif
-            @endguest
-        </div>
     </div>
 
     @if ($creators->count() > 0)

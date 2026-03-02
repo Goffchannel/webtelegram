@@ -3,10 +3,29 @@
 @section('title', ($creator->creator_store_name ?? $creator->name) . ' - Categorias')
 
 @section('content')
-<div class="mb-4">
-    <h1 class="mb-1"><i class="fas fa-store text-primary"></i> {{ $creator->creator_store_name ?? $creator->name }}</h1>
-    <p class="text-muted mb-0">{{ $creator->creator_bio ?: 'Contenido premium del creador' }}</p>
+<div class="mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+        <h1 class="mb-1"><i class="fas fa-store text-primary"></i> {{ $creator->creator_store_name ?? $creator->name }}</h1>
+        <p class="text-muted mb-0">{{ $creator->creator_bio ?: 'Contenido premium del creador' }}</p>
+    </div>
+    @if(!$creator->is_admin)
+    <a href="{{ route('creator.cart.show', $creator->creator_slug) }}"
+       class="btn btn-primary position-relative" id="cartHeaderBtn">
+        <i class="fas fa-shopping-cart"></i> Carrito
+        <span id="cartBadgeHeader" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+    </a>
+    @endif
 </div>
+
+@if(!$creator->is_admin)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const count = JSON.parse(localStorage.getItem('cart_{{ $creator->creator_slug }}') || '[]').length;
+    const badge = document.getElementById('cartBadgeHeader');
+    if (badge && count > 0) { badge.textContent = count; badge.style.display = ''; }
+});
+</script>
+@endif
 
 @if($categories->count() > 0)
     <div class="row">

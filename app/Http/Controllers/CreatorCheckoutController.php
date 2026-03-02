@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DiscountCode;
 use App\Models\Purchase;
 use App\Models\User;
 use App\Models\Video;
@@ -44,9 +45,10 @@ class CreatorCheckoutController extends Controller
 
         $validated = $request->validate([
             'telegram_username' => 'required|string|max:255',
-            'payment_method' => 'required|string|max:80',
+            'payment_method'    => 'required|string|max:80',
             'payment_reference' => 'nullable|string|max:255',
-            'proof_url' => 'nullable|url|max:500',
+            'proof_url'         => 'nullable|url|max:500',
+            'discount_code'     => 'nullable|string|max:50',
         ]);
 
         $cleanUsername = ltrim(trim($validated['telegram_username']), '@');
@@ -60,26 +62,67 @@ class CreatorCheckoutController extends Controller
             return back()->with('error', 'Ya tienes este video aprobado para tu usuario de Telegram.');
         }
 
+        $baseAmount     = (float) $video->price;
+        $discountAmount = 0.0;
+        $appliedCode    = null;
+
+        if (!empty($validated['discount_code'])) {
+            $discountCode = DiscountCode::where('code', strtoupper($validated['discount_code']))->first();
+            if ($discountCode && $discountCode->isValid($baseAmount)) {
+                $discountAmount = $discountCode->apply($baseAmount);
+                $appliedCode    = strtoupper($validated['discount_code']);
+                $discountCode->increment('used_count');
+            }
+        }
+
+        $finalAmount = max(0, round($baseAmount - $discountAmount, 2));
+
         $purchase = Purchase::create([
-            'video_id' => $video->id,
-            'creator_id' => $creator->id,
-            'amount' => $video->price,
-            'currency' => 'usd',
-            'telegram_username' => $cleanUsername,
-            'purchase_status' => 'completed',
+            'video_id'            => $video->id,
+            'creator_id'          => $creator->id,
+            'amount'              => $finalAmount,
+            'currency'            => 'usd',
+            'telegram_username'   => $cleanUsername,
+            'purchase_status'     => 'completed',
             'verification_status' => 'pending',
-            'delivery_status' => 'pending',
-            'delivery_attempts' => 0,
-            'payment_method' => $validated['payment_method'],
-            'payment_reference' => $validated['payment_reference'] ?? null,
-            'proof_url' => $validated['proof_url'] ?? null,
-            'payment_instructions' => $this->resolveInstructions($creator, $validated['payment_method']),
-            'customer_email' => null,
-            'stripe_session_id' => 'manual_' . now()->timestamp . '_' . bin2hex(random_bytes(4)),
+            'delivery_status'     => 'pending',
+            'delivery_attempts'   => 0,
+            'payment_method'      => $validated['payment_method'],
+            'payment_reference'   => $validated['payment_reference'] ?? null,
+            'proof_url'           => $validated['proof_url'] ?? null,
+            'payment_instructions'=> $this->resolveInstructions($creator, $validated['payment_method']),
+            'customer_email'      => null,
+            'stripe_session_id'   => 'manual_' . now()->timestamp . '_' . bin2hex(random_bytes(4)),
+            'discount_code'       => $appliedCode,
+            'discount_amount'     => $discountAmount,
         ]);
 
         return redirect()->route('purchase.view', $purchase->purchase_uuid)
             ->with('success', 'Solicitud registrada. El creador validara tu pago manualmente.');
+    }
+
+    public function validateDiscount(Request $request)
+    {
+        $request->validate([
+            'code'   => 'required|string',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        $code = DiscountCode::where('code', strtoupper($request->code))->first();
+
+        if (!$code || !$code->isValid((float) $request->amount)) {
+            return response()->json(['valid' => false, 'message' => 'Código inválido, expirado o sin usos disponibles.']);
+        }
+
+        $discount = $code->apply((float) $request->amount);
+
+        return response()->json([
+            'valid'        => true,
+            'discount'     => $discount,
+            'formatted'    => '€' . number_format($discount, 2),
+            'final_amount' => round((float) $request->amount - $discount, 2),
+            'description'  => $code->description,
+        ]);
     }
 
     private function resolveInstructions(User $creator, string $method): ?string
@@ -87,9 +130,9 @@ class CreatorCheckoutController extends Controller
         $methods = $creator->creator_payment_methods ?? [];
 
         return match ($method) {
-            'paypal' => $methods['paypal_url'] ?? null,
-            'boton_personalizado' => $methods['payment_button_html'] ?? null,
-            default => $methods['other_payment_notes'] ?? null,
+            'paypal'             => $methods['paypal_url'] ?? null,
+            'boton_personalizado'=> $methods['payment_button_html'] ?? null,
+            default              => $methods['other_payment_notes'] ?? null,
         };
     }
 }

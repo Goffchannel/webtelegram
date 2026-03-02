@@ -59,6 +59,8 @@ class Purchase extends Model
         'refunded_at',
         'stripe_metadata',
         'delivery_metadata',
+        'discount_code',
+        'discount_amount',
     ];
 
     /**

@@ -348,5 +348,9 @@ Route::get('/store/{creator:creator_slug}/categories', [CreatorController::class
 Route::get('/store/{creator:creator_slug}/categories/{category}', [CreatorController::class, 'storefrontCategory'])->name('creator.storefront.category');
 Route::get('/store/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'form'])->name('creator.checkout.form');
 Route::post('/store/{creator:creator_slug}/videos/{video}/checkout', [CreatorCheckoutController::class, 'submit'])->name('creator.checkout.submit');
+Route::get('/store/{creator:creator_slug}/cart', [\App\Http\Controllers\CreatorCartController::class, 'show'])->name('creator.cart.show');
+Route::post('/store/{creator:creator_slug}/cart', [\App\Http\Controllers\CreatorCartController::class, 'checkout'])->name('creator.cart.checkout');
+Route::get('/store/{creator:creator_slug}/cart/success', [\App\Http\Controllers\CreatorCartController::class, 'success'])->name('creator.cart.success');
+Route::post('/api/discount-codes/validate', [CreatorCheckoutController::class, 'validateDiscount'])->name('discount-codes.validate');
 
 require __DIR__ . '/auth.php';

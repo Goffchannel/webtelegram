@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(xargs grep -l \"sendMessage\\\\|sendTelegram\")"
+      "Bash(xargs grep -l \"sendMessage\\\\|sendTelegram\")",
+      "Bash(xargs grep -l \"storefront\\\\|categories\")"
     ]
   }
 }

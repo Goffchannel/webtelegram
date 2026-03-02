@@ -339,7 +339,7 @@
                                 {{ $purchase->created_at->format('d/m/y H:i') }}
                             </td>
                             <td><strong>{{ $purchase->video->title ?? 'N/A' }}</strong></td>
-                            <td style="font-family:'DM Mono',monospace;font-size:.82rem;">@{{ $purchase->telegram_username }}</td>
+                            <td style="font-family:'DM Mono',monospace;font-size:.82rem;">{{ $purchase->telegram_username ?? '—' }}</td>
                             <td>
                                 @if($purchase->verification_status === 'verified')
                                     <span class="cr-badge cr-badge-success">Aprobado</span>
@@ -846,6 +846,4 @@ document.getElementById('avatarFile')?.addEventListener('change', function() {
     reader.readAsDataURL(file);
 });
 </script>
-@append
-
 @endsection

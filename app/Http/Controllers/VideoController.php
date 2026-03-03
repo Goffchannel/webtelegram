@@ -886,6 +886,26 @@ class VideoController extends Controller
     }
 
     /**
+     * Bulk update category for multiple videos
+     */
+    public function bulkUpdateCategory(Request $request)
+    {
+        $validated = $request->validate([
+            'video_ids'   => 'required|array|min:1|max:200',
+            'video_ids.*' => 'integer|exists:videos,id',
+            'category_id' => 'required|integer|exists:categories,id',
+        ]);
+
+        $updated = Video::whereIn('id', $validated['video_ids'])
+            ->update(['category_id' => $validated['category_id']]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$updated} video(s) movidos a la nueva categoría.",
+        ]);
+    }
+
+    /**
      * Get webhook status
      */
     public function webhookStatus()

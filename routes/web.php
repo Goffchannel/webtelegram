@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified', 'creator'])->group(function () {
 Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
     // Admin video management routes
     Route::get('/admin/videos', [VideoController::class, 'manage'])->name('admin.videos.manage');
+    Route::post('/admin/videos/bulk-category', [VideoController::class, 'bulkUpdateCategory'])->name('admin.videos.bulk-category');
     Route::put('/admin/videos/{video}', [VideoController::class, 'update'])->name('admin.videos.update');
     Route::delete('/admin/videos/{video}', [VideoController::class, 'destroy'])->name('admin.videos.destroy');
     Route::post('/admin/videos/{video}/test', [VideoController::class, 'testVideo'])->name('admin.videos.test');

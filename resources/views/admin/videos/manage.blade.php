@@ -278,10 +278,31 @@
                             </div>
                             <div class="card-body">
                                 @if (count($videos) > 0)
+
+                                {{-- Bulk action bar --}}
+                                <div id="bulk-bar" style="display:none; position:sticky; top:64px; z-index:100; background:#1e2d45; border:1px solid #3a5080; border-radius:10px; padding:10px 16px; margin-bottom:12px; display:none; align-items:center; gap:12px; flex-wrap:wrap;">
+                                    <span id="bulk-count" style="color:#a0b4d0; font-size:.88rem; font-weight:600;"></span>
+                                    <select id="bulk-category-select" class="form-select form-select-sm" style="max-width:260px; background:#0d1117; color:#e2e8f0; border-color:#3a5080;">
+                                        <option value="">— Seleccionar categoría —</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}">{{ $category->name }} -- {{ $category->creator->creator_store_name ?? $category->creator->name ?? 'Sin creador' }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button class="btn btn-sm btn-primary" onclick="bulkChangeCategory()" style="white-space:nowrap;">
+                                        <i class="fas fa-layer-group me-1"></i> Cambiar categoría
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
+                                        <i class="fas fa-times me-1"></i> Deseleccionar
+                                    </button>
+                                </div>
+
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th style="width:36px;">
+                                <input type="checkbox" id="check-all" class="form-check-input" title="Seleccionar todos" onchange="toggleAll(this)">
+                            </th>
                                                     <th>Title</th>
                                                     <th>Creador</th>
                                                     <th>Description</th>
@@ -294,7 +315,10 @@
                     </thead>
                     <tbody>
                                                 @foreach ($videos as $video)
-                            <tr>
+                            <tr data-video-id="{{ $video->id }}">
+                                <td style="vertical-align:middle;">
+                                    <input type="checkbox" class="form-check-input video-check" value="{{ $video->id }}" onchange="updateBulkBar()">
+                                </td>
                                 <td>
                                                             <strong>{{ $video->title }}</strong><br>
                                                             <small class="text-muted">Created:
@@ -781,6 +805,68 @@
         document.addEventListener('DOMContentLoaded', function() {
             checkWebhookStatus();
         });
+
+        // ── Bulk category change ────────────────────────────────────
+        function getSelectedIds() {
+            return [...document.querySelectorAll('.video-check:checked')].map(c => c.value);
+        }
+
+        function updateBulkBar() {
+            const ids = getSelectedIds();
+            const bar = document.getElementById('bulk-bar');
+            const countEl = document.getElementById('bulk-count');
+            if (ids.length > 0) {
+                bar.style.display = 'flex';
+                countEl.textContent = ids.length + ' video' + (ids.length !== 1 ? 's' : '') + ' seleccionado' + (ids.length !== 1 ? 's' : '');
+            } else {
+                bar.style.display = 'none';
+            }
+            document.getElementById('check-all').indeterminate =
+                ids.length > 0 && ids.length < document.querySelectorAll('.video-check').length;
+            document.getElementById('check-all').checked =
+                ids.length > 0 && ids.length === document.querySelectorAll('.video-check').length;
+        }
+
+        function toggleAll(checkbox) {
+            document.querySelectorAll('.video-check').forEach(c => c.checked = checkbox.checked);
+            updateBulkBar();
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.video-check').forEach(c => c.checked = false);
+            document.getElementById('check-all').checked = false;
+            document.getElementById('check-all').indeterminate = false;
+            document.getElementById('bulk-bar').style.display = 'none';
+        }
+
+        function bulkChangeCategory() {
+            const ids = getSelectedIds();
+            const categoryId = document.getElementById('bulk-category-select').value;
+            if (!ids.length) return showAlert('warning', 'No hay videos seleccionados.');
+            if (!categoryId) return showAlert('warning', 'Selecciona una categoría primero.');
+
+            if (!confirm(`¿Cambiar la categoría de ${ids.length} video(s)?`)) return;
+
+            fetch('{{ route('admin.videos.bulk-category') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ video_ids: ids, category_id: categoryId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message);
+                    clearSelection();
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showAlert('danger', data.error || 'Error al cambiar categorías.');
+                }
+            })
+            .catch(() => showAlert('danger', 'Error de red.'));
+        }
 
         // Check webhook status and update UI accordingly
         function checkWebhookStatus() {

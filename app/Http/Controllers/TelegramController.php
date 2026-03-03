@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Purchase;
+use App\Models\Setting;
 use App\Models\Video;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -72,15 +75,25 @@ class TelegramController extends Controller
                 return;
             }
 
+            // Extract Telegram thumbnail file_id if available
+            $thumbFileId = $video['thumbnail']['file_id'] ?? $video['thumb']['file_id'] ?? null;
+
             // Create new video entry
             $videoData = [
-                'title' => $caption ?: $fileName,
-                'description' => "Video uploaded via Telegram bot\nDuration: " . gmdate("H:i:s", $duration) . "\nFile size: " . $this->formatFileSize($fileSize) . "\nUploaded by: {$firstName}" . ($username ? " (@{$username})" : ""),
-                'price' => 0.00, // Default price - admin will set later
+                'title'            => $caption ?: $fileName,
+                'description'      => "Auto-captured from Telegram",
+                'price'            => 0.00,
                 'telegram_file_id' => $fileId,
+                'duration'         => $duration ?: null,
+                'file_size'        => $fileSize ?: null,
             ];
 
             $newVideo = Video::create($videoData);
+
+            // Download and store Telegram thumbnail automatically
+            if ($thumbFileId) {
+                $this->saveTelegramThumbnail($newVideo, $thumbFileId);
+            }
 
             // Send confirmation to the user
             $message = "🎬 *Video Captured Successfully!*\n\n";
@@ -109,6 +122,41 @@ class TelegramController extends Controller
             ]);
 
             $this->sendMessage($chatId, "❌ Sorry, there was an error processing your video. Please try again later.");
+        }
+    }
+
+    /**
+     * Download Telegram thumbnail and store it locally, then update the video record.
+     */
+    private function saveTelegramThumbnail(Video $video, string $thumbFileId): void
+    {
+        try {
+            $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
+            if (!$botToken) return;
+
+            // Step 1: get file path from Telegram
+            $fileInfo = Http::timeout(10)->get("https://api.telegram.org/bot{$botToken}/getFile", [
+                'file_id' => $thumbFileId,
+            ]);
+
+            if (!$fileInfo->successful() || empty($fileInfo->json('result.file_path'))) return;
+
+            $filePath = $fileInfo->json('result.file_path');
+
+            // Step 2: download the image bytes
+            $imageResponse = Http::timeout(15)->get("https://api.telegram.org/file/bot{$botToken}/{$filePath}");
+
+            if (!$imageResponse->successful()) return;
+
+            // Step 3: store to public disk
+            $storagePath = "thumbnails/tg_{$video->id}.jpg";
+            Storage::disk('public')->put($storagePath, $imageResponse->body());
+
+            // Step 4: update video record
+            $video->update(['thumbnail_path' => $storagePath]);
+
+        } catch (\Exception $e) {
+            Log::warning("Failed to save Telegram thumbnail for video {$video->id}: " . $e->getMessage());
         }
     }
 

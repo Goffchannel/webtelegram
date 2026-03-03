@@ -34,6 +34,8 @@ class Video extends Model
         'fan_message',
         'access_instructions',
         'duration_days',
+        'duration',
+        'file_size',
     ];
 
     /**

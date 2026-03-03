@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +12,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+    /* Override Bootstrap dark theme with our palette */
+    [data-bs-theme="dark"] {
+        --bs-body-bg:            #0e1117;
+        --bs-body-color:         #e2e8f0;
+        --bs-border-color:       #252d3d;
+        --bs-card-bg:            #161b25;
+        --bs-card-border-color:  #252d3d;
+        --bs-card-cap-bg:        rgba(255,255,255,.04);
+        --bs-modal-bg:           #161b25;
+        --bs-modal-border-color: #252d3d;
+        --bs-modal-header-border-color: #252d3d;
+        --bs-modal-footer-border-color: #252d3d;
+        --bs-input-bg:           #0d1117;
+        --bs-input-border-color: #252d3d;
+        --bs-input-color:        #e2e8f0;
+        --bs-input-focus-bg:     #0a0e16;
+        --bs-input-focus-border-color: #4f8ef7;
+        --bs-dropdown-bg:        #161b25;
+        --bs-dropdown-border-color: #252d3d;
+        --bs-dropdown-link-color: #e2e8f0;
+        --bs-dropdown-link-hover-bg: rgba(79,142,247,.1);
+        --bs-pagination-bg:      #161b25;
+        --bs-pagination-border-color: #252d3d;
+        --bs-pagination-color:   #64748b;
+        --bs-pagination-hover-bg: rgba(79,142,247,.1);
+        --bs-pagination-active-bg: #4f8ef7;
+        --bs-pagination-active-border-color: #4f8ef7;
+        --bs-table-bg:           transparent;
+        --bs-table-striped-bg:   rgba(255,255,255,.025);
+        --bs-table-hover-bg:     rgba(79,142,247,.07);
+        --bs-table-border-color: #252d3d;
+    }
+
     :root {
         --ad-bg:      #0e1117;
         --ad-sidebar: #090c12;

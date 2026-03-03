@@ -20,14 +20,13 @@ class CategoryController extends Controller
                             ->where('creator_subscription_status', 'active');
                     });
             })
-            ->whereHas('creatorVideos', function ($query) {
-                $query->whereHas('category', function ($categoryQuery) {
-                    $categoryQuery->where('is_hidden', false);
-                });
+            ->whereHas('creatorCategories', function ($query) {
+                $query->where('is_hidden', false);
             })
             ->withCount(['creatorVideos as videos_count' => function ($query) {
                 $query->whereHas('category', function ($categoryQuery) {
-                    $categoryQuery->where('is_hidden', false);
+                    $categoryQuery->where('is_hidden', false)
+                                  ->whereColumn('categories.creator_id', 'videos.creator_id');
                 });
             }])
             ->with('latestCreatorVideo')

@@ -181,6 +181,10 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::delete('/{group}/warnings/{warning}', [\App\Http\Controllers\Admin\BotManagerController::class, 'resetWarning'])->name('warnings.reset');
     });
 
+    // Mi Tienda (admin's own creator store)
+    Route::get('/admin/my-store', [\App\Http\Controllers\Admin\MyStoreController::class, 'index'])->name('admin.my-store.index');
+    Route::post('/admin/my-store/profile', [\App\Http\Controllers\Admin\MyStoreController::class, 'updateProfile'])->name('admin.my-store.profile.update');
+
     // Discount codes
     Route::prefix('admin/discount-codes')->name('admin.discount-codes.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\DiscountCodeController::class, 'index'])->name('index');

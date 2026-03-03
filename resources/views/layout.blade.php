@@ -340,27 +340,27 @@
                             </a>
 
                             @if(Auth::user()->is_admin)
-                                <a class="nav-dropdown-item" href="{{ route('creator.dashboard') }}">
-                                    <i class="fas fa-store"></i> Panel Creador
+                                <a class="nav-dropdown-item" href="{{ route('admin.my-store.index') }}">
+                                    <i class="fas fa-store"></i> Mi Tienda
                                 </a>
                                 <div class="nav-divider"></div>
                                 <a class="nav-dropdown-item" href="{{ route('admin.videos.manage') }}">
-                                    <i class="fas fa-video"></i> Admin Videos
-                                </a>
-                                <a class="nav-dropdown-item" href="{{ route('admin.categories.manage') }}">
-                                    <i class="fas fa-layer-group"></i> Admin Categorías
+                                    <i class="fas fa-video"></i> Videos
                                 </a>
                                 <a class="nav-dropdown-item" href="{{ route('admin.purchases.index') }}">
-                                    <i class="fas fa-money-bill-wave"></i> Admin Compras
+                                    <i class="fas fa-money-bill-wave"></i> Compras
+                                </a>
+                                <a class="nav-dropdown-item" href="{{ route('admin.categories.manage') }}">
+                                    <i class="fas fa-layer-group"></i> Categorías
+                                </a>
+                                <a class="nav-dropdown-item" href="{{ route('admin.discount-codes.index') }}">
+                                    <i class="fas fa-tag"></i> Descuentos
                                 </a>
                                 <a class="nav-dropdown-item" href="{{ route('admin.iptv.index') }}">
-                                    <i class="fas fa-tv"></i> Gestión IPTV
+                                    <i class="fas fa-tv"></i> IPTV
                                 </a>
                                 <a class="nav-dropdown-item" href="{{ route('admin.bot-manager.index') }}">
                                     <i class="fas fa-robot"></i> Bot Manager
-                                </a>
-                                <a class="nav-dropdown-item" href="{{ route('admin.discount-codes.index') }}">
-                                    <i class="fas fa-tag"></i> Códigos descuento
                                 </a>
                             @elseif(Auth::user()->is_creator && Auth::user()->subscribed('creator'))
                                 <a class="nav-dropdown-item" href="{{ route('creator.dashboard') }}">
@@ -414,17 +414,22 @@
                 <a class="nav-mobile-item" href="{{ route('profile.edit') }}">
                     <i class="fas fa-user-pen"></i> Perfil
                 </a>
-                @if(Auth::user()->is_admin || (Auth::user()->is_creator && Auth::user()->subscribed('creator')))
-                    <a class="nav-mobile-item" href="{{ route('creator.dashboard') }}">
-                        <i class="fas fa-store"></i> Panel Creador
-                    </a>
-                @endif
                 @if(Auth::user()->is_admin)
+                    <a class="nav-mobile-item" href="{{ route('admin.my-store.index') }}">
+                        <i class="fas fa-store"></i> Mi Tienda
+                    </a>
+                    <a class="nav-mobile-item" href="{{ route('admin.videos.manage') }}">
+                        <i class="fas fa-video"></i> Videos
+                    </a>
                     <a class="nav-mobile-item" href="{{ route('admin.purchases.index') }}">
-                        <i class="fas fa-money-bill-wave"></i> Admin Compras
+                        <i class="fas fa-money-bill-wave"></i> Compras
                     </a>
                     <a class="nav-mobile-item" href="{{ route('admin.bot-manager.index') }}">
                         <i class="fas fa-robot"></i> Bot Manager
+                    </a>
+                @elseif(Auth::user()->is_creator && Auth::user()->subscribed('creator'))
+                    <a class="nav-mobile-item" href="{{ route('creator.dashboard') }}">
+                        <i class="fas fa-store"></i> Panel Creador
                     </a>
                 @endif
                 <div class="nav-mobile-divider"></div>

@@ -894,7 +894,7 @@ class VideoController extends Controller
             $botToken = Setting::get('telegram_bot_token') ?: config('telegram.bots.mybot.token');
             $url = "https://api.telegram.org/bot{$botToken}/getWebhookInfo";
 
-            $response = Http::get($url);
+            $response = Http::timeout(8)->get($url);
 
             if ($response->successful()) {
                 return response()->json([

@@ -34,6 +34,9 @@ class CreatorController extends Controller
 
         $categories = Category::where('creator_id', $creator->id)
             ->where('is_hidden', false)
+            ->whereHas('videos', function ($query) use ($creator) {
+                $query->where('creator_id', $creator->id);
+            })
             ->withCount(['videos' => function ($query) use ($creator) {
                 $query->where('creator_id', $creator->id);
             }])

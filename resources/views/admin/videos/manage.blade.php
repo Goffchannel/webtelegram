@@ -784,9 +784,13 @@
 
         // Check webhook status and update UI accordingly
         function checkWebhookStatus() {
-            fetch('{{ route('admin.videos.webhook-status') }}')
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            fetch('{{ route('admin.videos.webhook-status') }}', { signal: controller.signal })
                 .then(response => response.json())
                 .then(data => {
+                    clearTimeout(timeoutId);
                     const statusBadge = document.getElementById('webhook-status');
                     if (data.success) {
                         isWebhookActive = data.webhook_info.url && data.webhook_info.url.length > 0;
@@ -801,8 +805,9 @@
                     }
                 })
                 .catch(error => {
+                    clearTimeout(timeoutId);
                     const statusBadge = document.getElementById('webhook-status');
-                    statusBadge.textContent = 'Error';
+                    statusBadge.textContent = error.name === 'AbortError' ? 'Timeout' : 'Error';
                     statusBadge.className = 'ms-2 badge text-bg-danger';
                     console.error('Failed to check webhook status:', error);
                 });

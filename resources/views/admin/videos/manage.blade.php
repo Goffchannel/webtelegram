@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('title', 'Manage Videos')
 
@@ -8,22 +8,8 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <div class="d-flex justify-content-between align-items-center mb-6">
-                            <h2 class="text-2xl font-bold mb-0">Telebot Admin Panel</h2>
-                            <div class="btn-group" role="group">
-                                <a href="{{ route('admin.videos.manage') }}"
-                                    class="btn btn-outline-primary {{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
-                                    <i class="fas fa-video me-1"></i>Videos
-                                </a>
-                                <a href="{{ route('admin.categories.manage') }}"
-                                    class="btn btn-outline-primary {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                                    <i class="fas fa-layer-group me-1"></i>Categories
-                                </a>
-                                <a href="{{ route('admin.purchases.index') }}"
-                                    class="btn btn-outline-primary {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}">
-                                    <i class="fas fa-shopping-cart me-1"></i>Purchases
-                                </a>
-                            </div>
+                        <div class="mb-4">
+                            <h2 class="fw-bold mb-0"><i class="fas fa-video me-2 text-primary"></i>Videos</h2>
                         </div>
 
                         <!-- Token Management Section -->

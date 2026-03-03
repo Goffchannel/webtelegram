@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('title', 'Purchase Management')
 
@@ -6,22 +6,11 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>
-                        <i class="fas fa-shopping-cart me-2"></i>
-                        Purchase Management
+                <div class="mb-4">
+                    <h2 class="fw-bold mb-0">
+                        <i class="fas fa-shopping-cart me-2 text-primary"></i>
+                        Compras
                     </h2>
-                    <div class="btn-group" role="group">
-                        <a href="{{ route('admin.videos.manage') }}" class="btn btn-outline-primary {{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
-                            <i class="fas fa-video me-1"></i>Videos
-                        </a>
-                        <a href="{{ route('admin.categories.manage') }}" class="btn btn-outline-primary {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                            <i class="fas fa-layer-group me-1"></i>Categories
-                        </a>
-                        <a href="{{ route('admin.purchases.index') }}" class="btn btn-outline-primary {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}">
-                            <i class="fas fa-shopping-cart me-1"></i>Purchases
-                        </a>
-                    </div>
                 </div>
 
                 <!-- Statistics Cards -->

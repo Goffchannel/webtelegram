@@ -11,7 +11,8 @@
       "Bash(npx playwright --version)",
       "Bash(npx @playwright/mcp --version)",
       "Bash(node -e \"require\\(''/c/Users/Manuel/AppData/Roaming/npm/node_modules/@playwright/mcp/node_modules/playwright''\\); console.log\\(''found''\\)\")",
-      "Bash(node /tmp/screenshot2.js)"
+      "Bash(node /tmp/screenshot2.js)",
+      "Bash(test -f \"c:/Users/Manuel/Documents/vscode/webtelegram/telebot/resources/views/admin/layout.blade.php\")"
     ]
   }
 }

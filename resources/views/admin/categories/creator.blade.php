@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('admin.layout')
 
 @section('title', 'Categorias de ' . ($creator->creator_store_name ?? $creator->name))
 

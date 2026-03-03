@@ -117,6 +117,20 @@
     font-size: 2.5rem;
     background: #0e1117;
 }
+.vc-duration {
+    position: absolute;
+    bottom: 7px; right: 7px;
+    background: rgba(0,0,0,.75);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: .03em;
+    pointer-events: none;
+    z-index: 2;
+}
 .vc-lock-overlay {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
@@ -279,10 +293,16 @@
                             <span>Preview after purchase</span>
                         </div>
                     @endif
+                    @if($video->duration)
+                        <span class="vc-duration">{{ $video->duration >= 3600 ? gmdate('H:i:s', $video->duration) : gmdate('i:s', $video->duration) }}</span>
+                    @endif
                 </div>
             @else
-                <div class="vc-thumb-placeholder">
+                <div class="vc-thumb-placeholder" style="position:relative;">
                     <i class="fas fa-video"></i>
+                    @if($video->duration)
+                        <span class="vc-duration">{{ $video->duration >= 3600 ? gmdate('H:i:s', $video->duration) : gmdate('i:s', $video->duration) }}</span>
+                    @endif
                 </div>
             @endif
 

@@ -341,7 +341,7 @@
 
                             @if(Auth::user()->is_admin)
                                 <a class="nav-dropdown-item" href="{{ route('admin.my-store.index') }}">
-                                    <i class="fas fa-store"></i> Mi Tienda
+                                    <i class="fas fa-store"></i> Perfil de Tienda
                                 </a>
                                 <div class="nav-divider"></div>
                                 <a class="nav-dropdown-item" href="{{ route('admin.videos.manage') }}">
@@ -416,7 +416,7 @@
                 </a>
                 @if(Auth::user()->is_admin)
                     <a class="nav-mobile-item" href="{{ route('admin.my-store.index') }}">
-                        <i class="fas fa-store"></i> Mi Tienda
+                        <i class="fas fa-store"></i> Perfil de Tienda
                     </a>
                     <a class="nav-mobile-item" href="{{ route('admin.videos.manage') }}">
                         <i class="fas fa-video"></i> Videos

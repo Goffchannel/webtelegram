@@ -183,26 +183,41 @@ code { background: #252d3d; color: #93c5fd; padding: 1px 5px; border-radius: 4px
                                             {{-- ================================================ --}}
                                             {{-- IPTV / Service access: call-to-action prominente --}}
                                             {{-- ================================================ --}}
-                                            <div class="text-center py-3">
-                                                <div style="font-size: 3.5rem; line-height:1;" class="mb-2">📺</div>
-                                                <h5 class="fw-bold mb-1">¡Tu suscripción IPTV está activa!</h5>
-                                                <p class="text-muted mb-3" style="font-size:.95rem;">
-                                                    Pulsa el botón para obtener tu enlace personal de Plooplayer.
-                                                </p>
-                                                <a class="btn btn-success btn-lg px-5 fw-bold shadow"
-                                                   target="_blank"
-                                                   href="{{ route('service.access.show', $purchase->serviceAccess->access_token) }}"
-                                                   style="font-size:1.1rem;">
-                                                    <i class="fas fa-tv me-2"></i>Obtener mi enlace IPTV
-                                                </a>
-                                                <div class="mt-3 d-flex justify-content-center gap-4 text-muted" style="font-size:.82rem;">
-                                                    <span><i class="fas fa-calendar-alt me-1"></i>Expira: <strong>{{ $purchase->serviceAccess->expires_at->format('d/m/Y') }}</strong></span>
-                                                    <span><i class="fas fa-clock me-1"></i>Activado: {{ $purchase->delivered_at->format('H:i') }}</span>
+                                            <div class="py-2">
+                                                <div class="text-center mb-3">
+                                                    <div style="font-size: 3rem; line-height:1;" class="mb-1">📺</div>
+                                                    <h5 class="fw-bold mb-0">¡Tu suscripción IPTV está activa!</h5>
+                                                    <div class="d-flex justify-content-center gap-3 mt-2 text-muted" style="font-size:.82rem;">
+                                                        <span><i class="fas fa-calendar-alt me-1"></i>Expira: <strong>{{ $purchase->serviceAccess->expires_at->format('d/m/Y') }}</strong></span>
+                                                        <span><i class="fas fa-clock me-1"></i>Activado: {{ $purchase->delivered_at->format('H:i') }}</span>
+                                                    </div>
                                                 </div>
-                                                <p class="text-muted mt-3 mb-0" style="font-size:.8rem;">
-                                                    <i class="fas fa-info-circle me-1"></i>
-                                                    En esa página encontrarás el enlace para copiar y pegar en <strong>Plooplayer</strong>.
-                                                </p>
+
+                                                {{-- Paso a paso Plooplayer --}}
+                                                <div style="background:#0e1117;border:1px solid #252d3d;border-radius:12px;padding:16px 20px;" class="mb-3">
+                                                    <p class="fw-semibold mb-2" style="color:#e2e8f0;font-size:.9rem;">
+                                                        <i class="fas fa-list-ol me-2" style="color:#4f8ef7;"></i>Cómo ver tu IPTV en Plooplayer:
+                                                    </p>
+                                                    <ol style="color:#94a3b8;font-size:.85rem;padding-left:1.2rem;margin:0;line-height:1.9;">
+                                                        <li>Descarga <strong style="color:#e2e8f0;">Plooplayer</strong> en tu dispositivo (Android / iOS / Smart TV)</li>
+                                                        <li>Pulsa el botón verde de abajo para obtener <strong style="color:#e2e8f0;">tu enlace personal</strong></li>
+                                                        <li>En la página siguiente, copia el enlace que aparece</li>
+                                                        <li>Abre Plooplayer → <em>Añadir lista</em> → pega el enlace → guarda</li>
+                                                        <li>¡Listo! Ya puedes ver todos los canales</li>
+                                                    </ol>
+                                                </div>
+
+                                                <div class="text-center">
+                                                    <a class="btn btn-success btn-lg px-5 fw-bold shadow"
+                                                       target="_blank"
+                                                       href="{{ route('service.access.show', $purchase->serviceAccess->access_token) }}"
+                                                       style="font-size:1.05rem;">
+                                                        <i class="fas fa-tv me-2"></i>Obtener mi enlace IPTV
+                                                    </a>
+                                                    <p class="text-muted mt-2 mb-0" style="font-size:.8rem;">
+                                                        <i class="fas fa-shield-alt me-1"></i>Enlace personal e intransferible — no lo compartas
+                                                    </p>
+                                                </div>
                                             </div>
                                         @else
                                             <div class="alert alert-success">

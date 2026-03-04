@@ -55,6 +55,7 @@ class ServiceAccessManager
                 'access_token'            => Str::random(64),
                 'expires_at'              => now()->addDays($durationDays),
                 'status'                  => 'active',
+                'max_ips'                 => 2, // allow browser + Plooplayer app
             ]);
 
             // Only mark inventory (non-shared) lines as assigned.

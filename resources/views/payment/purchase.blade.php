@@ -2,6 +2,34 @@
 
 @section('title', 'Compra completada')
 
+@section('styles')
+<style>
+body { background: #0e1117 !important; }
+main.container { max-width: 100% !important; padding: 16px !important; margin-top: 0 !important; }
+.card { background: #161b25; border-color: #252d3d; color: #e2e8f0; }
+.card-header { background: #1e2535; border-color: #252d3d; color: #e2e8f0; }
+.text-muted { color: #64748b !important; }
+.alert-success { background: #14291a; border-color: #22c55e; color: #86efac; }
+.alert-warning { background: #2a2010; border-color: #f59e0b; color: #fcd34d; }
+.alert-info    { background: #0e1e2a; border-color: #4f8ef7; color: #93c5fd; }
+.alert-danger  { background: #2a1010; border-color: #ef4444; color: #fca5a5; }
+.alert-secondary { background: #1a1f2e; border-color: #252d3d; color: #94a3b8; }
+.badge.bg-success { background: #22c55e !important; color: #0a1a0f; }
+.btn-outline-secondary { border-color: #475569; color: #94a3b8; }
+.btn-outline-secondary:hover { background: #1e2535; color: #e2e8f0; }
+.btn-outline-danger { border-color: #ef4444; color: #fca5a5; }
+code { background: #252d3d; color: #93c5fd; padding: 1px 5px; border-radius: 4px; }
+.modal-content { background: #161b25; border-color: #252d3d; color: #e2e8f0; }
+.modal-header  { border-color: #252d3d; }
+.modal-footer  { border-color: #252d3d; }
+.form-control  { background: #0e1117; border-color: #252d3d; color: #e2e8f0; }
+.form-control:focus { background: #0e1117; border-color: #4f8ef7; color: #e2e8f0; box-shadow: 0 0 0 3px rgba(79,142,247,.2); }
+.input-group-text { background: #1e2535; border-color: #252d3d; color: #94a3b8; }
+.form-text { color: #64748b; }
+.form-select { background: #0e1117; border-color: #252d3d; color: #e2e8f0; }
+</style>
+@endsection
+
 @section('content')
     @php
         $isManualCreatorFlow = $purchase->creator_id && $purchase->creator && !$purchase->creator->is_admin;
@@ -34,8 +62,8 @@
                                 <div class="card mb-3">
                                     <div class="card-body">
                                         <h6 class="card-title">
-                                            <i class="fas fa-video me-2"></i>
-                                            Detalles del video
+                                            <i class="fas {{ $isServiceProduct ? 'fa-tv' : 'fa-video' }} me-2"></i>
+                                            {{ $isServiceProduct ? 'Detalles del servicio' : 'Detalles del video' }}
                                         </h6>
                                         <h5>{{ $purchase->video->title }}</h5>
                                         @if ($purchase->video->description)
@@ -54,9 +82,12 @@
                                             Informacion de la compra
                                         </h6>
                                         <p><strong>ID de compra:</strong> {{ $purchase->purchase_uuid }}</p>
-                                        <p><strong>Date:</strong> {{ $purchase->created_at->format('M d, Y H:i:s') }}</p>
+                                        <p><strong>Fecha:</strong> {{ $purchase->created_at->format('d/m/Y H:i:s') }}</p>
                                         <p><strong>Estado:</strong>
-                                            <span class="badge bg-success">{{ ucfirst($purchase->purchase_status) }}</span>
+                                            <span class="badge bg-success">
+                                                @php $statusLabels = ['completed' => 'Completado', 'pending' => 'Pendiente', 'failed' => 'Fallido', 'refunded' => 'Reembolsado']; @endphp
+                                                {{ $statusLabels[$purchase->purchase_status] ?? ucfirst($purchase->purchase_status) }}
+                                            </span>
                                         </p>
                                         @if ($purchase->customer_email)
                                             <p><strong>Email:</strong> {{ $purchase->customer_email }}</p>
@@ -80,12 +111,16 @@
                                             <i class="fas fa-clock me-2"></i>
                                             @if($isManualCreatorFlow)
                                                 Pendiente de aprobacion del creador
+                                            @elseif($isServiceProduct)
+                                                Activa tu suscripcion en Telegram
                                             @else
                                                 Esperando verificacion en Telegram
                                             @endif
                                         </h6>
                                         @if($isManualCreatorFlow)
                                             <p class="mb-2">Tu solicitud fue enviada al creador. Cuando valide tu pago, el acceso quedara activo para tu usuario de Telegram.</p>
+                                        @elseif($isServiceProduct)
+                                            <p class="mb-2">Tu compra se proceso correctamente. Sigue estos pasos para activar tu acceso:</p>
                                         @else
                                             <p class="mb-2">Para recibir tu video, sigue estos pasos:</p>
                                         @endif
@@ -96,7 +131,9 @@
                                                 </li>
                                                 <li>Cuando el creador apruebe, vuelve a este mismo enlace y sigue las instrucciones de entrega.</li>
                                             @endif
-                                            @if(!$purchase->creator_id && !$isServiceProduct)
+                                            @if($isServiceProduct)
+                                                <li>Pulsa el botón de abajo para activar tu suscripción en Telegram</li>
+                                            @elseif(!$purchase->creator_id)
                                                 <li>Abre Telegram y busca nuestro bot</li>
                                                 <li>Envia el comando <code>/start</code> al bot</li>
                                             @endif
@@ -122,15 +159,20 @@
                                             <div class="mt-3 text-center">
                                                 @if($bot['is_configured'])
                                                     <a href="{{ $bot['url'] }}?start=getvideo_{{ $purchase->video_id }}" target="_blank" class="btn btn-success btn-lg">
-                                                    <i class="fab fa-telegram me-2"></i>Recibir video ahora
-                                                </a>
+                                                        <i class="fab fa-telegram me-2"></i>
+                                                        {{ $isServiceProduct ? 'Activar suscripción IPTV' : 'Recibir video ahora' }}
+                                                    </a>
                                                 @else
                                                     <a href="{{ route('login') }}" class="btn btn-warning btn-lg">
                                                         <i class="fas fa-cog me-2"></i>Falta configurar bot
                                                     </a>
                                                 @endif
                                                 <p class="text-muted mt-2 mb-0">
-                                                    <small><i class="fas fa-info-circle me-1"></i>Pulsa este boton para recibir tu video con el comando <code>/getvideo {{ $purchase->video_id }}</code>.</small>
+                                                    @if($isServiceProduct)
+                                                        <small><i class="fas fa-info-circle me-1"></i>El bot te enviará tu enlace de acceso IPTV personal al instante.</small>
+                                                    @else
+                                                        <small><i class="fas fa-info-circle me-1"></i>Pulsa este boton para recibir tu video con el comando <code>/getvideo {{ $purchase->video_id }}</code>.</small>
+                                                    @endif
                                                 </p>
                                             </div>
                                         @endif

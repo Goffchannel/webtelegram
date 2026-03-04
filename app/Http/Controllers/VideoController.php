@@ -1694,7 +1694,17 @@ class VideoController extends Controller
                 ? url('/iptv/' . $token)
                 : route('service.access.show', $token);
 
-            $this->sendTelegramMessage($chatId, "Acceso activo: {$accessUrl}\nExpira: " . $purchase->serviceAccess->expires_at->format('Y-m-d H:i'));
+            $this->sendTelegramMessage($chatId, "📺 *Acceso IPTV activo*\n\n🔗 {$accessUrl}\n\n📅 Expira: " . $purchase->serviceAccess->expires_at->format('d/m/Y H:i'));
+
+            // Mark as verified + delivered so the purchase page shows the active state
+            $updates = ['verification_status' => 'verified'];
+            if (!$purchase->telegram_user_id) {
+                $updates['telegram_user_id'] = $telegramUserId;
+            }
+            $purchase->update($updates);
+            if ($purchase->delivery_status !== 'delivered') {
+                $purchase->markAsDelivered();
+            }
             return;
         }
 

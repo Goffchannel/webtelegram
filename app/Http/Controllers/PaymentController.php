@@ -156,6 +156,12 @@ class PaymentController extends Controller
 
             if ($video->isServiceProduct()) {
                 $this->serviceAccessManager->provisionForPurchase($purchase);
+                // Service access is provisioned immediately — mark as verified + delivered
+                // so the purchase page shows the IPTV link right away without requiring the bot.
+                if ($purchase->delivery_status !== 'delivered') {
+                    $purchase->update(['verification_status' => 'verified']);
+                    $purchase->markAsDelivered();
+                }
             }
 
             // Redirect to secure purchase page using UUID
@@ -348,10 +354,6 @@ class PaymentController extends Controller
                 'delivery_attempts' => 0,
                 'stripe_metadata' => $session->metadata->toArray(),
             ]);
-
-            if ($video->isServiceProduct()) {
-                $this->serviceAccessManager->provisionForPurchase($purchase);
-            }
 
             Log::info('Purchase record created successfully', [
                 'purchase_id' => $purchase->id,

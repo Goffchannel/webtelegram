@@ -4,6 +4,10 @@
 
 @section('styles')
 <style>
+/* Make the full page dark — override the public layout's white body + container mt-4 */
+body { background: #0e1117 !important; }
+main.container { max-width: 100% !important; padding: 0 !important; margin-top: 0 !important; }
+
 :root {
     --pf-bg:      #0e1117;
     --pf-surface: #161b25;

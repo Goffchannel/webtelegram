@@ -15,6 +15,7 @@ use App\Http\Controllers\CreatorCheckoutController;
 use App\Http\Controllers\CreatorSubscriptionController;
 use App\Http\Controllers\ServiceAccessController;
 use App\Http\Controllers\IptvController;
+use App\Http\Controllers\PaypalController;
 use Illuminate\Support\Facades\Auth;
 
 // Customer-facing routes
@@ -346,6 +347,8 @@ Route::get('/run-migrations-setup-once', function () {
 
 // API routes
 Route::post('/api/create-payment-intent', [PaymentController::class, 'createPaymentIntent'])->name('api.create-payment-intent');
+Route::post('/api/paypal/create-order', [PaypalController::class, 'createOrder'])->name('api.paypal.create-order');
+Route::post('/api/paypal/capture-order', [PaypalController::class, 'captureOrder'])->name('api.paypal.capture-order');
 
 // Public creator storefront routes (use /store/* to avoid conflicts with /creator/subscription)
 Route::get('/store/{creator:creator_slug}', [CreatorController::class, 'storefront'])->name('creator.storefront');

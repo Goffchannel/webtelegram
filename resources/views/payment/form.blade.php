@@ -428,6 +428,16 @@ main.container { max-width: 100% !important; padding: 0 !important; margin-top: 
                         <i class="fas fa-lock"></i>
                         Pagar ${{ number_format($video->price, 2) }} con Stripe
                     </button>
+                    @if($paypalConfigured ?? false)
+                        <div style="margin-top:10px; position:relative;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                                <div style="flex:1;height:1px;background:var(--pf-border);"></div>
+                                <span style="font-size:.72rem;color:var(--pf-muted);">o paga con</span>
+                                <div style="flex:1;height:1px;background:var(--pf-border);"></div>
+                            </div>
+                            <div id="paypal-button-container"></div>
+                        </div>
+                    @endif
                 @else
                     <button type="button" class="pf-btn" disabled>
                         <i class="fas fa-cog"></i> Pagos desactivados
@@ -444,11 +454,21 @@ main.container { max-width: 100% !important; padding: 0 !important; margin-top: 
 @endsection
 
 @section('scripts')
+@if($paypalConfigured ?? false)
+<script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency=USD"></script>
+@endif
 <script>
 function toggleBlur(img, intensity) {
     const blurred = img.style.filter && img.style.filter.includes('blur');
     img.style.filter = blurred ? 'none' : `blur(${intensity}px)`;
     img.style.transition = 'filter .3s';
+}
+
+function showAlert(type, msg) {
+    const cls = type === 'error' ? 'pf-alert-error' : 'pf-alert-success';
+    const ico = type === 'error' ? 'exclamation-circle' : 'check-circle';
+    document.getElementById('pf-alerts').innerHTML =
+        `<div class="pf-alert ${cls}"><i class="fas fa-${ico}"></i><span>${msg}</span></div>`;
 }
 
 (function() {
@@ -508,13 +528,68 @@ function toggleBlur(img, intensity) {
             btn.disabled = false;
         });
     });
-
-    function showAlert(type, msg) {
-        const cls = type === 'error' ? 'pf-alert-error' : 'pf-alert-success';
-        const ico = type === 'error' ? 'exclamation-circle' : 'check-circle';
-        document.getElementById('pf-alerts').innerHTML =
-            `<div class="pf-alert ${cls}"><i class="fas fa-${ico}"></i><span>${msg}</span></div>`;
-    }
 })();
+
+@if($paypalConfigured ?? false)
+if (typeof paypal !== 'undefined') {
+    paypal.Buttons({
+        style: {
+            layout: 'horizontal',
+            color:  'gold',
+            shape:  'rect',
+            label:  'paypal',
+            tagline: false,
+        },
+        createOrder: function() {
+            const username = document.getElementById('telegram_username').value.trim();
+            if (!username) {
+                showAlert('error', 'Introduce tu usuario de Telegram antes de pagar con PayPal.');
+                return Promise.reject('no username');
+            }
+            document.getElementById('pf-alerts').innerHTML = '';
+            return fetch('{{ route('api.paypal.create-order') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({
+                    video_id: {{ $video->id }},
+                    telegram_username: username,
+                }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showAlert('error', data.error);
+                    return Promise.reject(data.error);
+                }
+                return data.order_id;
+            });
+        },
+        onApprove: function(data) {
+            return fetch('{{ route('api.paypal.capture-order') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({ order_id: data.orderID }),
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    window.location.href = result.redirect_url;
+                } else {
+                    showAlert('error', result.error || 'Error al procesar el pago con PayPal.');
+                }
+            });
+        },
+        onError: function() {
+            showAlert('error', 'Error en PayPal. Por favor inténtalo de nuevo.');
+        },
+    }).render('#paypal-button-container');
+}
+@endif
 </script>
 @endsection

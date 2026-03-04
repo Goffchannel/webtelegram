@@ -12,7 +12,14 @@
       "Bash(npx @playwright/mcp --version)",
       "Bash(node -e \"require\\(''/c/Users/Manuel/AppData/Roaming/npm/node_modules/@playwright/mcp/node_modules/playwright''\\); console.log\\(''found''\\)\")",
       "Bash(node /tmp/screenshot2.js)",
-      "Bash(test -f \"c:/Users/Manuel/Documents/vscode/webtelegram/telebot/resources/views/admin/layout.blade.php\")"
+      "Bash(test -f \"c:/Users/Manuel/Documents/vscode/webtelegram/telebot/resources/views/admin/layout.blade.php\")",
+      "Bash(xargs grep -l \"admin.tokens.save-all\\\\|save-all.*route\\\\|tokens.*save\")",
+      "Bash(xargs grep -l \"settings\")",
+      "Bash(php artisan make:migration add_paypal_email_to_users_table --table=users)",
+      "Bash(php artisan migrate --path=database/migrations/2026_03_04_000001_add_paypal_email_to_users_table.php)",
+      "Bash(where php)",
+      "Bash(/c/laragon/bin/php/php8.3.3/php.exe artisan migrate --path=database/migrations/2026_03_04_000001_add_paypal_email_to_users_table.php)",
+      "Bash(/c/xampp/php/php.exe artisan migrate --path=database/migrations/2026_03_04_000001_add_paypal_email_to_users_table.php)"
     ]
   }
 }

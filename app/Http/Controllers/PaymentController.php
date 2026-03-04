@@ -57,7 +57,12 @@ class PaymentController extends Controller
             return back()->withErrors(['payment' => 'Payment system not configured. Please contact the administrator.']);
         }
 
-        return view('payment.form', compact('video'));
+        // PayPal config
+        $paypal = new \App\Services\PayPalService();
+        $paypalConfigured = $paypal->isConfigured();
+        $paypalClientId   = $paypalConfigured ? $paypal->getClientId() : null;
+
+        return view('payment.form', compact('video', 'paypalConfigured', 'paypalClientId'));
     }
 
     /**

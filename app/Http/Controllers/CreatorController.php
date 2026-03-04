@@ -107,6 +107,7 @@ class CreatorController extends Controller
             'creator_bio' => 'nullable|string|max:1200',
             'telegram_user_id' => 'nullable|digits_between:4,20',
             'paypal_url' => 'nullable|url|max:500',
+            'paypal_email' => 'nullable|email|max:255',
             'payment_button_html' => 'nullable|string|max:8000',
             'other_payment_notes' => 'nullable|string|max:2000',
             'creator_avatar_url' => 'nullable|url|max:500',
@@ -136,6 +137,7 @@ class CreatorController extends Controller
             'creator_slug' => Str::slug($validated['creator_slug']),
             'creator_bio' => $validated['creator_bio'] ?? null,
             'telegram_user_id' => $validated['telegram_user_id'] ?? null,
+            'paypal_email' => $validated['paypal_email'] ?? null,
             'creator_payment_methods' => $paymentMethods,
             'creator_avatar' => $avatarValue,
         ]);

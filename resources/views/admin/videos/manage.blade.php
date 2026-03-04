@@ -515,6 +515,58 @@
                             <div class="form-text">Price creators pay monthly. Stripe price will be generated automatically.</div>
                         </div>
 
+                        <!-- PayPal Configuration -->
+                        <hr class="my-3">
+                        <h6 class="text-muted mb-3"><i class="fab fa-paypal text-primary"></i> PayPal</h6>
+
+                        <div class="mb-3">
+                            <label for="modal_paypal_mode" class="form-label">
+                                <i class="fas fa-toggle-on text-warning"></i> Modo PayPal
+                            </label>
+                            <select class="form-control" id="modal_paypal_mode">
+                                <option value="sandbox" {{ ($paypalMode ?? 'sandbox') === 'sandbox' ? 'selected' : '' }}>Sandbox (pruebas)</option>
+                                <option value="live" {{ ($paypalMode ?? 'sandbox') === 'live' ? 'selected' : '' }}>Live (producción)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modal_paypal_sandbox_client_id" class="form-label">
+                                <i class="fab fa-paypal text-info"></i> Sandbox Client ID
+                            </label>
+                            <input type="text" class="form-control" id="modal_paypal_sandbox_client_id"
+                                placeholder="AaBbCc..."
+                                value="{{ $paypalSandboxClientId ? substr($paypalSandboxClientId, 0, 10) . str_repeat('*', 20) : '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modal_paypal_sandbox_client_secret" class="form-label">
+                                <i class="fas fa-key text-info"></i> Sandbox Client Secret
+                            </label>
+                            <input type="password" class="form-control" id="modal_paypal_sandbox_client_secret"
+                                placeholder="EHRQjmkpZ..."
+                                value="{{ $paypalSandboxClientSecret ? str_repeat('*', 30) . substr($paypalSandboxClientSecret, -6) : '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modal_paypal_live_client_id" class="form-label">
+                                <i class="fab fa-paypal text-success"></i> Live Client ID
+                            </label>
+                            <input type="text" class="form-control" id="modal_paypal_live_client_id"
+                                placeholder="AaBbCc..."
+                                value="{{ $paypalLiveClientId ? substr($paypalLiveClientId, 0, 10) . str_repeat('*', 20) : '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modal_paypal_live_client_secret" class="form-label">
+                                <i class="fas fa-key text-success"></i> Live Client Secret
+                            </label>
+                            <input type="password" class="form-control" id="modal_paypal_live_client_secret"
+                                placeholder="EHRQjmkpZ..."
+                                value="{{ $paypalLiveClientSecret ? str_repeat('*', 30) . substr($paypalLiveClientSecret, -6) : '' }}">
+                            <div class="form-text">Obtén las credenciales en <a href="https://developer.paypal.com/dashboard/" target="_blank">developer.paypal.com</a></div>
+                        </div>
+                        <hr class="my-3">
+
                         <!-- Vercel Blob Storage Token -->
                         <div class="mb-3">
                             <label for="modal_vercel_blob_token" class="form-label">
@@ -1185,9 +1237,14 @@
             const vercelBlobToken = document.getElementById('modal_vercel_blob_token').value.trim();
             const vercelBlobStoreId = document.getElementById('modal_vercel_blob_store_id').value.trim();
             const vercelBlobBaseUrl = document.getElementById('modal_vercel_blob_base_url').value.trim();
+            const paypalMode = document.getElementById('modal_paypal_mode').value;
+            const paypalSandboxClientId = document.getElementById('modal_paypal_sandbox_client_id').value.trim();
+            const paypalSandboxClientSecret = document.getElementById('modal_paypal_sandbox_client_secret').value.trim();
+            const paypalLiveClientId = document.getElementById('modal_paypal_live_client_id').value.trim();
+            const paypalLiveClientSecret = document.getElementById('modal_paypal_live_client_secret').value.trim();
 
             // Validate required fields
-            if (!telegramToken && !stripeKey && !stripeSecret && !stripeWebhookSecret && !creatorMonthlyPriceUsd && !vercelBlobToken && !vercelBlobStoreId && !vercelBlobBaseUrl) {
+            if (!telegramToken && !stripeKey && !stripeSecret && !stripeWebhookSecret && !creatorMonthlyPriceUsd && !vercelBlobToken && !vercelBlobStoreId && !vercelBlobBaseUrl && !paypalSandboxClientId && !paypalSandboxClientSecret && !paypalLiveClientId && !paypalLiveClientSecret) {
                 showAlert('warning', 'Please enter at least one token to save');
                 return;
             }
@@ -1201,6 +1258,11 @@
             if (vercelBlobToken && !vercelBlobToken.includes('*')) tokens.vercel_blob_token = vercelBlobToken;
             if (vercelBlobStoreId) tokens.vercel_blob_store_id = vercelBlobStoreId;
             if (vercelBlobBaseUrl) tokens.vercel_blob_base_url = vercelBlobBaseUrl;
+            tokens.paypal_mode = paypalMode;
+            if (paypalSandboxClientId && !paypalSandboxClientId.includes('*')) tokens.paypal_sandbox_client_id = paypalSandboxClientId;
+            if (paypalSandboxClientSecret && !paypalSandboxClientSecret.includes('*')) tokens.paypal_sandbox_client_secret = paypalSandboxClientSecret;
+            if (paypalLiveClientId && !paypalLiveClientId.includes('*')) tokens.paypal_live_client_id = paypalLiveClientId;
+            if (paypalLiveClientSecret && !paypalLiveClientSecret.includes('*')) tokens.paypal_live_client_secret = paypalLiveClientSecret;
 
             fetch('{{ route('admin.tokens.save-all') }}', {
                     method: 'POST',

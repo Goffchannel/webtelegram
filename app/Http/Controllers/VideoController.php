@@ -111,6 +111,13 @@ class VideoController extends Controller
             $vercelBlobStoreId = Setting::get('vercel_blob_store_id');
             $vercelBlobBaseUrl = Setting::get('vercel_blob_base_url');
 
+            // PayPal settings
+            $paypalMode               = Setting::get('paypal_mode', 'sandbox');
+            $paypalSandboxClientId    = Setting::get('paypal_sandbox_client_id', '');
+            $paypalSandboxClientSecret = Setting::get('paypal_sandbox_client_secret', '');
+            $paypalLiveClientId       = Setting::get('paypal_live_client_id', '');
+            $paypalLiveClientSecret   = Setting::get('paypal_live_client_secret', '');
+
             try {
                 $botToken = $telegramToken ?: config('telegram.bots.mybot.token');
                 if ($botToken && $botToken !== 'YOUR-BOT-TOKEN') {
@@ -144,6 +151,11 @@ class VideoController extends Controller
                 'vercelBlobToken',
                 'vercelBlobStoreId',
                 'vercelBlobBaseUrl',
+                'paypalMode',
+                'paypalSandboxClientId',
+                'paypalSandboxClientSecret',
+                'paypalLiveClientId',
+                'paypalLiveClientSecret',
                 'bot' // Pass the $bot variable to the view
             ));
         } catch (Exception $e) {
@@ -761,6 +773,41 @@ class VideoController extends Controller
                     $baseUrl = rtrim($baseUrl, '/');
                     Setting::set('vercel_blob_base_url', $baseUrl);
                     $savedTokens[] = 'Vercel Blob Base URL';
+                }
+            }
+
+            // PayPal settings
+            if (isset($tokens['paypal_mode'])) {
+                $mode = in_array($tokens['paypal_mode'], ['sandbox', 'live']) ? $tokens['paypal_mode'] : 'sandbox';
+                Setting::set('paypal_mode', $mode);
+                $savedTokens[] = 'PayPal Mode (' . $mode . ')';
+            }
+            if (isset($tokens['paypal_sandbox_client_id'])) {
+                $val = trim($tokens['paypal_sandbox_client_id']);
+                if (!empty($val)) {
+                    Setting::set('paypal_sandbox_client_id', $val);
+                    $savedTokens[] = 'PayPal Sandbox Client ID';
+                }
+            }
+            if (isset($tokens['paypal_sandbox_client_secret'])) {
+                $val = trim($tokens['paypal_sandbox_client_secret']);
+                if (!empty($val)) {
+                    Setting::set('paypal_sandbox_client_secret', $val);
+                    $savedTokens[] = 'PayPal Sandbox Client Secret';
+                }
+            }
+            if (isset($tokens['paypal_live_client_id'])) {
+                $val = trim($tokens['paypal_live_client_id']);
+                if (!empty($val)) {
+                    Setting::set('paypal_live_client_id', $val);
+                    $savedTokens[] = 'PayPal Live Client ID';
+                }
+            }
+            if (isset($tokens['paypal_live_client_secret'])) {
+                $val = trim($tokens['paypal_live_client_secret']);
+                if (!empty($val)) {
+                    Setting::set('paypal_live_client_secret', $val);
+                    $savedTokens[] = 'PayPal Live Client Secret';
                 }
             }
 

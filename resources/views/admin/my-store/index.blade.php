@@ -153,6 +153,12 @@ textarea.ms-input { resize: vertical; min-height: 80px; }
                            value="{{ old('paypal_url', $paymentMethods['paypal_url'] ?? '') }}">
                 </div>
                 <div class="col-12">
+                    <label class="ms-label">Email PayPal (para recibir pagos directos vía API)</label>
+                    <input class="ms-input" name="paypal_email" type="email"
+                           placeholder="tu@email.com"
+                           value="{{ old('paypal_email', $creator->paypal_email ?? '') }}">
+                </div>
+                <div class="col-12">
                     <label class="ms-label">HTML de botón de pago personalizado</label>
                     <textarea class="ms-input" name="payment_button_html" placeholder="<a href='...'>Pagar</a>">{{ old('payment_button_html', $paymentMethods['payment_button_html'] ?? '') }}</textarea>
                 </div>

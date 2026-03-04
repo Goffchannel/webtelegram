@@ -441,6 +441,13 @@
                                value="{{ old('paypal_url', data_get($creator->creator_payment_methods, 'paypal_url')) }}"
                                placeholder="https://paypal.me/...">
                     </div>
+                    <div class="col-md-6">
+                        <label class="cr-label">Email PayPal (para recibir pagos directos)</label>
+                        <input class="cr-input" type="email" name="paypal_email"
+                               value="{{ old('paypal_email', $creator->paypal_email) }}"
+                               placeholder="tu@email.com">
+                        <small style="color:var(--cr-muted);font-size:.75rem;">Email asociado a tu cuenta PayPal para recibir pagos directos vía API.</small>
+                    </div>
                     <div class="col-md-12">
                         <label class="cr-label">Botón de pago personalizado (HTML)</label>
                         <textarea class="cr-input" name="payment_button_html" rows="3"

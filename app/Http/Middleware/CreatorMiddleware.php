@@ -25,20 +25,22 @@ class CreatorMiddleware
                 ->with('error', 'Debes activar tu membresia de creador para acceder a esta seccion.');
         }
 
-        if (!$user->subscribed('creator')) {
-            $user->update([
-                'creator_subscription_status' => 'inactive',
-                'is_creator' => false,
-            ]);
-
-            return redirect()->route('creator.subscription.show')
-                ->with('error', 'Tu membresia de creador no esta activa.');
+        // Trust our own DB status first. The Stripe webhook (HandleSuccessfulPayment)
+        // keeps this field in sync and sets it to 'inactive' when a subscription lapses.
+        // Cashier's subscribed() only works reliably after the webhook fires, so we
+        // don't use it to immediately downgrade — only to upgrade if it's ahead of us.
+        if ($user->creator_subscription_status === 'active') {
+            return $next($request);
         }
 
-        if ($user->creator_subscription_status !== 'active') {
+        // DB says not active — double-check live via Cashier (handles already-active subs
+        // whose DB field is stale for any reason).
+        if ($user->subscribed('creator')) {
             $user->update(['creator_subscription_status' => 'active']);
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect()->route('creator.subscription.show')
+            ->with('error', 'Tu membresia de creador no esta activa.');
     }
 }

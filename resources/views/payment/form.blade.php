@@ -318,11 +318,20 @@ main.container { max-width: 100% !important; padding: 0 !important; margin-top: 
                     <span class="pf-badge pf-badge-blue">
                         <i class="fas fa-tv"></i> Acceso {{ $video->duration_days ?? 30 }} días
                     </span>
-                    @php $stock = $video->availableServiceLines()->count(); @endphp
-                    <span class="pf-badge {{ $stock > 0 ? 'pf-badge-green' : 'pf-badge-amber' }}">
-                        <i class="fas fa-{{ $stock > 0 ? 'check' : 'exclamation-triangle' }}"></i>
-                        {{ $stock > 0 ? "Stock: {$stock}" : 'Sin stock' }}
-                    </span>
+                    @php
+                        $sharedLine = $video->serviceLines()->where('is_shared', true)->exists();
+                        $stock = $sharedLine ? 1 : $video->availableServiceLines()->count();
+                    @endphp
+                    @if($sharedLine)
+                        <span class="pf-badge pf-badge-green">
+                            <i class="fas fa-infinity"></i> Disponible
+                        </span>
+                    @else
+                        <span class="pf-badge {{ $stock > 0 ? 'pf-badge-green' : 'pf-badge-amber' }}">
+                            <i class="fas fa-{{ $stock > 0 ? 'check' : 'exclamation-triangle' }}"></i>
+                            {{ $stock > 0 ? "Stock: {$stock}" : 'Sin stock' }}
+                        </span>
+                    @endif
                 @else
                     @if($video->duration)
                         <span class="pf-badge pf-badge-blue">
@@ -410,7 +419,7 @@ main.container { max-width: 100% !important; padding: 0 !important; margin-top: 
                 @enderror
                 <p class="pf-hint">Sin @. El acceso/video se enviará a esta cuenta de Telegram.</p>
 
-                @if($video->isServiceProduct() && $video->availableServiceLines()->count() === 0)
+                @if($video->isServiceProduct() && !$video->serviceLines()->where('is_shared', true)->exists() && $video->availableServiceLines()->count() === 0)
                     <button type="button" class="pf-btn" disabled>
                         <i class="fas fa-exclamation-triangle"></i> Sin stock disponible
                     </button>

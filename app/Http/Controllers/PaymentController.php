@@ -211,19 +211,12 @@ class PaymentController extends Controller
             abort(404, 'Purchase not found');
         }
 
-        // Auto-fix IPTV purchases stuck in pending: serviceAccess already exists but
-        // delivery was never marked (e.g. created before auto-verify logic was in place).
-        if (
-            $purchase->video?->isServiceProduct() &&
-            $purchase->serviceAccess &&
-            !$purchase->serviceAccess->isExpired() &&
-            $purchase->delivery_status !== 'delivered'
-        ) {
-            if ($purchase->verification_status === 'pending') {
-                $purchase->update(['verification_status' => 'verified']);
-            }
-            $purchase->markAsDelivered(['service_access' => true]);
-            $purchase->refresh();
+        // For service products with completed payment, always ensure provisioning
+        // has happened and the purchase is marked as delivered.
+        // provisionForPurchase is idempotent — safe to call on every page load.
+        if ($purchase->video?->isServiceProduct() && $purchase->purchase_status === 'completed') {
+            $this->serviceAccessManager->provisionForPurchase($purchase);
+            $purchase->refresh()->load(['serviceAccess.line', 'video', 'creator']);
         }
 
         return view('payment.purchase', compact('purchase'));

@@ -34,6 +34,9 @@ code { background: #252d3d; color: #93c5fd; padding: 1px 5px; border-radius: 4px
     @php
         $isManualCreatorFlow = $purchase->creator_id && $purchase->creator && !$purchase->creator->is_admin;
         $isServiceProduct = $purchase->video && $purchase->video->isServiceProduct();
+        // For IPTV: treat as "delivered" in the view if serviceAccess exists and is valid,
+        // regardless of delivery_status (provisioning is guaranteed at this point).
+        $iptvReady = $isServiceProduct && $purchase->serviceAccess && !$purchase->serviceAccess->isExpired();
     @endphp
     <div class="container">
         <div class="row justify-content-center">
@@ -105,7 +108,55 @@ code { background: #252d3d; color: #93c5fd; padding: 1px 5px; border-radius: 4px
                                     Estado de entrega
                                 </h6>
 
-                                @if ($purchase->verification_status === 'pending')
+                                @if ($iptvReady)
+                                    {{-- ================================================ --}}
+                                    {{-- IPTV activo: mostrar instrucciones directamente   --}}
+                                    {{-- (sin esperar bot ni verificacion manual)          --}}
+                                    {{-- ================================================ --}}
+                                    <div class="py-2">
+                                        <div class="text-center mb-3">
+                                            <div style="font-size: 3rem; line-height:1;" class="mb-1">📺</div>
+                                            <h5 class="fw-bold mb-0">¡Tu suscripción IPTV está activa!</h5>
+                                            <div class="d-flex justify-content-center gap-3 mt-2 text-muted" style="font-size:.82rem;">
+                                                <span><i class="fas fa-calendar-alt me-1"></i>Expira: <strong>{{ $purchase->serviceAccess->expires_at->format('d/m/Y') }}</strong></span>
+                                            </div>
+                                        </div>
+
+                                        {{-- Paso a paso Plooplayer --}}
+                                        <div style="background:#0e1117;border:1px solid #252d3d;border-radius:12px;padding:16px 20px;" class="mb-3">
+                                            <p class="fw-semibold mb-2" style="color:#e2e8f0;font-size:.9rem;">
+                                                <i class="fas fa-list-ol me-2" style="color:#4f8ef7;"></i>Cómo ver tu IPTV en Plooplayer:
+                                            </p>
+                                            <ol style="color:#94a3b8;font-size:.85rem;padding-left:1.2rem;margin:0;line-height:1.9;">
+                                                <li>Descarga <strong style="color:#e2e8f0;">Plooplayer</strong> en tu dispositivo (Android / iOS / Smart TV)</li>
+                                                <li>Pulsa el botón verde de abajo para obtener <strong style="color:#e2e8f0;">tu enlace personal</strong></li>
+                                                <li>En la página siguiente, copia el enlace que aparece</li>
+                                                <li>Abre Plooplayer → <em>Añadir lista</em> → pega el enlace → guarda</li>
+                                                <li>¡Listo! Ya puedes ver todos los canales</li>
+                                            </ol>
+                                        </div>
+
+                                        <div class="text-center">
+                                            <a class="btn btn-success btn-lg px-5 fw-bold shadow"
+                                               target="_blank"
+                                               href="{{ route('service.access.show', $purchase->serviceAccess->access_token) }}"
+                                               style="font-size:1.05rem;">
+                                                <i class="fas fa-tv me-2"></i>Obtener mi enlace IPTV
+                                            </a>
+                                            <p class="text-muted mt-2 mb-0" style="font-size:.8rem;">
+                                                <i class="fas fa-shield-alt me-1"></i>Enlace personal e intransferible — no lo compartas
+                                            </p>
+                                            @if(isset($bot) && $bot['is_configured'])
+                                                <div class="mt-3">
+                                                    <a href="{{ $bot['url'] }}?start=getvideo_{{ $purchase->video_id }}" target="_blank"
+                                                       class="btn btn-outline-secondary btn-sm">
+                                                        <i class="fab fa-telegram me-1"></i>También recibir enlace por Telegram
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @elseif ($purchase->verification_status === 'pending')
                                     <div class="alert alert-warning">
                                         <h6 class="alert-heading">
                                             <i class="fas fa-clock me-2"></i>

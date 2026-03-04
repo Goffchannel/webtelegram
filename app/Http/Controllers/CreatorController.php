@@ -28,7 +28,7 @@ class CreatorController extends Controller
 
     public function storefront(User $creator)
     {
-        if (!$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
+        if (!$creator->is_creator || (!$creator->is_admin && $creator->creator_subscription_status !== 'active')) {
             abort(404);
         }
 
@@ -48,7 +48,7 @@ class CreatorController extends Controller
 
     public function storefrontCategory(User $creator, Category $category)
     {
-        if (!$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
+        if (!$creator->is_creator || (!$creator->is_admin && $creator->creator_subscription_status !== 'active')) {
             abort(404);
         }
 

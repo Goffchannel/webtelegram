@@ -12,7 +12,7 @@ class CreatorCheckoutController extends Controller
 {
     public function form(User $creator, Video $video)
     {
-        if ($video->creator_id !== $creator->id || !$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
+        if ($video->creator_id !== $creator->id || !$creator->is_creator || (!$creator->is_admin && $creator->creator_subscription_status !== 'active')) {
             abort(404);
         }
 
@@ -31,7 +31,7 @@ class CreatorCheckoutController extends Controller
 
     public function submit(Request $request, User $creator, Video $video)
     {
-        if ($video->creator_id !== $creator->id || !$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
+        if ($video->creator_id !== $creator->id || !$creator->is_creator || (!$creator->is_admin && $creator->creator_subscription_status !== 'active')) {
             abort(404);
         }
 

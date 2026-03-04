@@ -12,7 +12,7 @@ class CreatorCartController extends Controller
 {
     public function show(User $creator)
     {
-        if (!$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
+        if (!$creator->is_creator || (!$creator->is_admin && $creator->creator_subscription_status !== 'active')) {
             abort(404);
         }
         if ($creator->is_admin) {
@@ -24,7 +24,7 @@ class CreatorCartController extends Controller
 
     public function checkout(Request $request, User $creator)
     {
-        if (!$creator->is_creator || (!$creator->is_admin && !$creator->subscribed('creator'))) {
+        if (!$creator->is_creator || (!$creator->is_admin && $creator->creator_subscription_status !== 'active')) {
             abort(404);
         }
         if ($creator->is_admin) {

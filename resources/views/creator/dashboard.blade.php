@@ -685,6 +685,26 @@
                                                        placeholder="https://...">
                                             </div>
                                             <div class="col-md-12">
+                                                <label class="cr-label">
+                                                    <i class="fab fa-telegram" style="color:var(--cr-accent);"></i>
+                                                    Telegram File ID
+                                                    @if($video->telegram_file_id)
+                                                        <span style="color:var(--cr-success);font-size:.75rem;margin-left:6px;">✓ Vinculado</span>
+                                                    @else
+                                                        <span style="color:var(--cr-warning);font-size:.75rem;margin-left:6px;">Sin vincular</span>
+                                                    @endif
+                                                </label>
+                                                <input name="telegram_file_id" class="cr-input"
+                                                       value="{{ $video->telegram_file_id }}"
+                                                       placeholder="Se asigna automáticamente al enviar el video al bot">
+                                                @if(!$video->telegram_file_id)
+                                                    <small style="color:var(--cr-muted);font-size:.74rem;">
+                                                        Envía el video al bot {{ $bot['is_configured'] ? '@'.$bot['username'] : '' }} con el título como caption y se vinculará automáticamente.
+                                                        Asegúrate de tener tu <strong>Telegram User ID</strong> configurado en el tab Perfil.
+                                                    </small>
+                                                @endif
+                                            </div>
+                                            <div class="col-md-12">
                                                 <label class="cr-label">Descripción larga</label>
                                                 <textarea name="long_description" class="cr-input" rows="2">{{ $video->long_description }}</textarea>
                                             </div>

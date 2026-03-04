@@ -1319,12 +1319,15 @@ class VideoController extends Controller
                         'category_id' => $this->resolveDefaultCategoryId($uploaderCreator),
                     ]);
 
+                    $dashboardUrl = rtrim(config('app.url'), '/') . '/creator/dashboard#productos';
                     $this->sendTelegramMessage(
                         $fromUserId,
-                        "✅ Video capturado correctamente!\n\n" .
-                            "📹 Titulo: {$caption}\n" .
-                            "💰 Precio: $" . number_format($defaultPrice, 2) . "\n" .
-                            "🆔 ID de video: {$videoRecord->id}"
+                        "✅ *Video capturado correctamente!*\n\n" .
+                            "📹 Título: {$caption}\n" .
+                            "💰 Precio por defecto: $" . number_format($defaultPrice, 2) . "\n" .
+                            "🆔 ID interno: {$videoRecord->id}\n\n" .
+                            "👉 Ve a tu panel para configurar el precio, descripción e imagen:\n" .
+                            $dashboardUrl
                     );
 
                     Log::info("Video auto-captured from uploader: {$fromUserId}", [
@@ -1336,13 +1339,19 @@ class VideoController extends Controller
                     return response()->json(['ok' => true]);
                 }
 
-                // Sync user basic commands
+                // Sync user / creator basic commands
                 if (strtolower($text) === '/start') {
+                    $dashboardUrl = rtrim(config('app.url'), '/') . '/creator/dashboard#productos';
+                    $nombre = $uploaderCreator?->creator_store_name ?: $uploaderCreator?->name ?: 'Creador';
                     $this->sendTelegramMessage(
                         $fromUserId,
-                        "👋 Hola Admin! Estoy listo para capturar videos.\n\n" .
-                            "🎥 Enviame videos y los agregare a tu tienda!\n" .
-                            "💡 Escribe /help para mas informacion."
+                        "👋 Hola *{$nombre}*! Soy tu asistente de tienda.\n\n" .
+                        "🎥 *Para subir un producto:*\n" .
+                        "Envíame el video (o como archivo) con el título como caption.\n\n" .
+                        "⚙️ *Tras capturarlo:*\n" .
+                        "Ve a tu panel y configura el precio, descripción e imagen:\n" .
+                        $dashboardUrl . "\n\n" .
+                        "📢 Para *broadcast*, añade `#broadcast` al inicio del caption."
                     );
                     return response()->json(['ok' => true]);
                 } elseif (strtolower($text) === '/help') {

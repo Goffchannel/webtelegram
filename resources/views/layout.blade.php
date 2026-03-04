@@ -362,7 +362,7 @@
                                 <a class="nav-dropdown-item" href="{{ route('admin.bot-manager.index') }}">
                                     <i class="fas fa-robot"></i> Bot Manager
                                 </a>
-                            @elseif(Auth::user()->is_creator && Auth::user()->subscribed('creator'))
+                            @elseif(Auth::user()->is_creator && Auth::user()->creator_subscription_status === 'active')
                                 <a class="nav-dropdown-item" href="{{ route('creator.dashboard') }}">
                                     <i class="fas fa-store"></i> Panel Creador
                                 </a>
@@ -427,7 +427,7 @@
                     <a class="nav-mobile-item" href="{{ route('admin.bot-manager.index') }}">
                         <i class="fas fa-robot"></i> Bot Manager
                     </a>
-                @elseif(Auth::user()->is_creator && Auth::user()->subscribed('creator'))
+                @elseif(Auth::user()->is_creator && Auth::user()->creator_subscription_status === 'active')
                     <a class="nav-mobile-item" href="{{ route('creator.dashboard') }}">
                         <i class="fas fa-store"></i> Panel Creador
                     </a>

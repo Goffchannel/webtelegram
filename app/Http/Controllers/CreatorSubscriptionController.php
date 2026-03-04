@@ -79,7 +79,7 @@ class CreatorSubscriptionController extends Controller
 
         return view('creator.subscription', [
             'user' => $user,
-            'isActive' => $user?->is_creator && $user?->subscribed('creator'),
+            'isActive' => $user?->is_creator && $user?->creator_subscription_status === 'active',
             'monthlyPriceUsd' => $this->getCreatorMonthlyPriceUsd(),
         ]);
     }
@@ -93,7 +93,7 @@ class CreatorSubscriptionController extends Controller
             return back()->with('error', 'No se ha configurado el precio mensual de creadores en Stripe.');
         }
 
-        if ($user->subscribed('creator')) {
+        if ($user->is_creator && $user->creator_subscription_status === 'active') {
             return redirect()->route('creator.dashboard')->with('success', 'Tu membresia ya esta activa.');
         }
 

@@ -225,6 +225,7 @@ class CreatorController extends Controller
             'blur_intensity' => 'nullable|integer|min:1|max:20',
             'show_blurred' => 'nullable|boolean',
             'allow_preview' => 'nullable|boolean',
+            'telegram_file_id' => 'nullable|string|max:255',
         ];
 
         if ($hasThumbnailUrlColumn) {
@@ -249,6 +250,7 @@ class CreatorController extends Controller
             'blur_intensity' => (int) ($validated['blur_intensity'] ?? $video->blur_intensity ?? 10),
             'show_blurred_thumbnail' => $request->boolean('show_blurred'),
             'allow_preview' => $request->boolean('allow_preview'),
+            'telegram_file_id' => $validated['telegram_file_id'] ?: ($video->telegram_file_id ?: null),
         ];
 
         if (!empty($validated['thumbnail_url'])) {

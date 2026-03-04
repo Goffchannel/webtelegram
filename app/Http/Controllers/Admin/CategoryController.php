@@ -190,6 +190,49 @@ class CategoryController extends Controller
         }
     }
 
+    public function resetCreator(User $creator)
+    {
+        if ($creator->is_admin) {
+            return response()->json(['success' => false, 'message' => 'No se puede resetear una cuenta admin.'], 422);
+        }
+
+        $creator->creatorVideos->each(function ($v) {
+            $v->serviceLines()->delete();
+            $v->delete();
+        });
+
+        $creator->creatorCategories()->delete();
+        $creator->subscriptions()->where('name', 'creator')->delete();
+
+        $creator->update([
+            'is_creator'                   => false,
+            'creator_subscription_status'  => 'inactive',
+            'creator_slug'                 => null,
+            'creator_store_name'           => null,
+            'telegram_user_id'             => null,
+            'creator_subscription_ends_at' => null,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Creador reseteado. La cuenta de usuario se conserva.']);
+    }
+
+    public function deleteCreator(User $creator)
+    {
+        if ($creator->is_admin) {
+            return response()->json(['success' => false, 'message' => 'No se puede eliminar una cuenta admin.'], 422);
+        }
+
+        $creator->creatorVideos->each(function ($v) {
+            $v->serviceLines()->delete();
+            $v->delete();
+        });
+
+        $creator->creatorCategories()->delete();
+        $creator->delete();
+
+        return response()->json(['success' => true, 'message' => 'Creador eliminado completamente.']);
+    }
+
     private function deleteImage(Category $category)
     {
         if ($category->image_blob_url) {

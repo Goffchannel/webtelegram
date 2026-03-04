@@ -310,7 +310,7 @@ main.container { max-width: 100% !important; padding: 0 !important; margin-top: 
             {{-- Title + meta --}}
             <h1 class="pf-title">{{ $video->title }}</h1>
             @if($video->description)
-                <p class="pf-desc">{{ $video->description }}</p>
+                <p class="pf-desc" style="white-space: pre-wrap;">{{ $video->description }}</p>
             @endif
 
             <div class="pf-meta">

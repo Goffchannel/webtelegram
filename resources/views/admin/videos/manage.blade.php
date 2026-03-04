@@ -368,12 +368,12 @@
                                     <div class="btn-group btn-group-sm">
                                                                 <!-- Edit Video Details Button -->
                                                                 <button type="button" class="btn btn-outline-primary" title="Edit Video Details"
-                                                                    onclick="editVideoDetails({{ $video->id }}, '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->blur_intensity }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
+                                                                    onclick="editVideoDetails({{ $video->id }}, {{ json_encode($video->title) }}, {{ json_encode($video->description) }}, {{ $video->price }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->blur_intensity }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
                                                                     <i class="fas fa-edit"></i>
                                                                 </button>
                                                                 <!-- Edit Thumbnail Button -->
                                                                 <button type="button" class="btn btn-outline-info" title="Edit Thumbnail"
-                                                                    onclick="editVideoThumbnail({{ $video->id }}, '{{ $video->getThumbnailUrl() }}', '{{ $video->thumbnail_url }}', '{{ $video->thumbnail_blob_url }}', '{{ addslashes($video->title) }}', '{{ addslashes($video->description) }}', {{ $video->price }}, {{ $video->blur_intensity }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
+                                                                    onclick="editVideoThumbnail({{ $video->id }}, '{{ $video->getThumbnailUrl() }}', '{{ $video->thumbnail_url }}', '{{ $video->thumbnail_blob_url }}', {{ json_encode($video->title) }}, {{ json_encode($video->description) }}, {{ $video->price }}, {{ $video->blur_intensity }}, {{ $video->show_blurred_thumbnail ? 'true' : 'false' }}, {{ $video->allow_preview ? 'true' : 'false' }}, {{ $video->category_id ?? 1 }})">
                                                                     <i class="fas fa-image"></i>
                                                                 </button>
                                                                 @if($video->creator?->creator_slug)

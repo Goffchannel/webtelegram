@@ -1469,6 +1469,35 @@ class VideoController extends Controller
             'chat_id' => $chatId
         ]);
 
+        // Check if this user is a creator whose account isn't linked to this Telegram ID yet
+        // (creator exists with this username but telegram_user_id not set / doesn't match)
+        if ($username) {
+            $unlinkedCreator = \App\Models\User::where('telegram_username', $username)
+                ->where('is_creator', true)
+                ->where('creator_subscription_status', 'active')
+                ->where(function ($q) use ($telegramUserId) {
+                    $q->whereNull('telegram_user_id')
+                      ->orWhere('telegram_user_id', '!=', (string) $telegramUserId);
+                })
+                ->first();
+
+            if ($unlinkedCreator) {
+                $dashboardUrl = rtrim(config('app.url'), '/') . '/creator/dashboard#perfil';
+                $this->sendTelegramMessage(
+                    $chatId,
+                    "👋 *Hola {$firstName}!*\n\n" .
+                    "Detectamos que tienes una cuenta de creador activa, pero aun no esta vinculada a este chat de Telegram.\n\n" .
+                    "*Para activar la captura de videos:*\n" .
+                    "1. Ve a tu panel de creador → Perfil\n" .
+                    "2. En el campo *Telegram User ID* introduce tu ID: `{$telegramUserId}`\n" .
+                    "3. Guarda los cambios\n" .
+                    "4. Vuelve y escribe /start de nuevo\n\n" .
+                    "🔗 {$dashboardUrl}"
+                );
+                return;
+            }
+        }
+
         // Find ALL purchases for this user (by username OR telegram_user_id) that need processing
         $userPurchases = collect();
 

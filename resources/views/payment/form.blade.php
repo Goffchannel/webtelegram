@@ -1,162 +1,461 @@
 @extends('layout')
 
-@section('title', 'Purchase ' . $video->title)
+@section('title', 'Comprar: ' . $video->title)
+
+@section('styles')
+<style>
+:root {
+    --pf-bg:      #0e1117;
+    --pf-surface: #161b25;
+    --pf-border:  #252d3d;
+    --pf-accent:  #4f8ef7;
+    --pf-success: #22c55e;
+    --pf-warning: #f59e0b;
+    --pf-danger:  #ef4444;
+    --pf-text:    #e2e8f0;
+    --pf-muted:   #64748b;
+}
+
+.pf-wrap {
+    min-height: calc(100vh - 80px);
+    background: var(--pf-bg);
+    padding: 32px 16px 60px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.pf-card {
+    width: 100%;
+    max-width: 540px;
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* ── Thumbnail ── */
+.pf-thumb {
+    height: 220px;
+    background: #090c12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+.pf-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top;
+}
+.pf-thumb-placeholder {
+    color: rgba(255,255,255,.15);
+    font-size: 4rem;
+}
+.pf-thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+    cursor: pointer;
+    transition: background .2s;
+}
+.pf-thumb-overlay:hover { background: rgba(0,0,0,.35); }
+.pf-thumb-overlay i { font-size: 2.5rem; color: rgba(255,255,255,.85); }
+.pf-thumb-overlay span { font-size: .78rem; color: rgba(255,255,255,.6); }
+
+/* ── Body ── */
+.pf-body { padding: 24px; }
+
+.pf-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--pf-text);
+    letter-spacing: -.02em;
+    margin: 0 0 4px;
+}
+.pf-desc {
+    font-size: .85rem;
+    color: var(--pf-muted);
+    margin: 0 0 16px;
+    line-height: 1.5;
+}
+
+/* ── Service badge row ── */
+.pf-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.pf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+.pf-badge-blue  { background: rgba(79,142,247,.15); color: var(--pf-accent); border: 1px solid rgba(79,142,247,.25); }
+.pf-badge-green { background: rgba(34,197,94,.12);  color: var(--pf-success); border: 1px solid rgba(34,197,94,.2); }
+.pf-badge-amber { background: rgba(245,158,11,.12); color: var(--pf-warning); border: 1px solid rgba(245,158,11,.2); }
+
+/* ── Price box ── */
+.pf-price-box {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(79,142,247,.07);
+    border: 1px solid rgba(79,142,247,.18);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+.pf-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--pf-accent);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: -.04em;
+}
+.pf-price-label {
+    font-size: .8rem;
+    color: var(--pf-muted);
+}
+
+/* ── Steps ── */
+.pf-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--pf-border);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+.pf-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: .83rem;
+    color: var(--pf-muted);
+}
+.pf-step-num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(79,142,247,.15);
+    color: var(--pf-accent);
+    font-size: .7rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ── Form ── */
+.pf-label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--pf-text);
+    margin-bottom: 6px;
+    display: block;
+}
+.pf-label span { color: var(--pf-danger); }
+.pf-input-group {
+    display: flex;
+    border: 1px solid var(--pf-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0d1117;
+    margin-bottom: 4px;
+    transition: border-color .2s;
+}
+.pf-input-group:focus-within {
+    border-color: var(--pf-accent);
+    box-shadow: 0 0 0 3px rgba(79,142,247,.12);
+}
+.pf-input-prefix {
+    display: flex; align-items: center;
+    padding: 0 12px;
+    color: var(--pf-muted);
+    font-size: .9rem;
+    background: rgba(255,255,255,.04);
+    border-right: 1px solid var(--pf-border);
+    user-select: none;
+}
+.pf-input {
+    flex: 1;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--pf-text);
+    font-size: .9rem;
+}
+.pf-input::placeholder { color: var(--pf-muted); }
+.pf-hint {
+    font-size: .75rem;
+    color: var(--pf-muted);
+    margin-bottom: 20px;
+}
+
+/* ── Bot warning ── */
+.pf-warning {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(245,158,11,.08);
+    border: 1px solid rgba(245,158,11,.2);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: .82rem;
+    color: var(--pf-warning);
+}
+
+/* ── Submit button ── */
+.pf-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: none;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: filter .15s, transform .1s;
+    margin-bottom: 12px;
+}
+.pf-btn:active { transform: scale(.985); }
+.pf-btn-pay {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+}
+.pf-btn-pay:hover { filter: brightness(1.08); }
+.pf-btn-pay:disabled {
+    background: var(--pf-border);
+    color: var(--pf-muted);
+    cursor: not-allowed;
+    filter: none;
+}
+
+.pf-back {
+    display: block;
+    text-align: center;
+    font-size: .8rem;
+    color: var(--pf-muted);
+    text-decoration: none;
+    margin-top: 6px;
+    transition: color .15s;
+}
+.pf-back:hover { color: var(--pf-text); }
+
+/* ── Alert messages ── */
+.pf-alert {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: .83rem;
+}
+.pf-alert-error {
+    background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.25);
+    color: #fca5a5;
+}
+.pf-alert-success {
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.25);
+    color: #86efac;
+}
+</style>
+@endsection
 
 @section('content')
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-shopping-cart"></i> Comprar</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Video Details with Thumbnail -->
-                    <div class="card mb-4">
-                        @if ($video->hasThumbnail())
-                        <div class="position-relative" style="height: 500px;">
-                            <img src="{{ $video->getThumbnailUrl() }}" class="card-img-top" alt="Video thumbnail"
-                                style="height: 500px; object-fit: cover; object-position: top; {{ $video->shouldShowBlurred() ? $video->getBlurredThumbnailStyle() : '' }}{{ $video->allow_preview ? ' cursor: pointer;' : '' }}"
-                                @if ($video->allow_preview) onclick="toggleThumbnailBlur(this, {{ $video->blur_intensity }})"
-                                    title="Click to preview" @endif>
-                            @if ($video->shouldShowBlurred())
-                                <div class="position-absolute top-50 start-50 translate-middle">
-                                    <div class="text-center text-white bg-dark bg-opacity-75 px-4 py-3 rounded">
-                                        <i class="fas fa-lock fa-3x mb-3"></i>
-                                        <div class="h6">Video Preview</div>
-                                        <div class="small">
-                                            @if ($video->allow_preview)
-                                                Click to preview •
-                                            @endif
-                                            Purchase to see full video
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $video->title }}</h5>
-                            <p class="card-text">{{ $video->description }}</p>
-                            @if($video->long_description)
-                                <div class="alert alert-secondary" style="white-space: pre-wrap;">{{ $video->long_description }}</div>
-                            @endif
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <strong>Price:</strong>
-                                    <span class="h5 text-success">${{ number_format($video->price, 2) }}</span>
-                                </div>
-                                <div class="col-sm-6">
-                                    @if($video->isServiceProduct())
-                                        <strong>Servicio:</strong> {{ $video->duration_days ?? 30 }} dias
-                                    @else
-                                        <strong>Duration:</strong> {{ $video->duration ?? 'N/A' }}
-                                    @endif
-                                </div>
-                            </div>
-                            @if($video->isServiceProduct())
-                                <div class="mt-2">
-                                    <span class="badge text-bg-info">Producto de acceso</span>
-                                    <span class="badge text-bg-success">Stock: {{ $video->availableServiceLines()->count() }}</span>
-                                </div>
-                            @endif
-                        </div>
+<div class="pf-wrap">
+    <div class="pf-card">
+
+        {{-- Thumbnail --}}
+        @if($video->hasThumbnail())
+            <div class="pf-thumb">
+                <img id="pf-img" src="{{ $video->getThumbnailUrl() }}" alt="{{ $video->title }}"
+                    style="{{ $video->shouldShowBlurred() ? $video->getBlurredThumbnailStyle() : '' }}{{ $video->allow_preview ? ' cursor:pointer;' : '' }}"
+                    @if($video->allow_preview) onclick="toggleBlur(this, {{ $video->blur_intensity }})" @endif>
+                @if($video->shouldShowBlurred())
+                    <div class="pf-thumb-overlay" @if($video->allow_preview) onclick="toggleBlur(document.getElementById('pf-img'), {{ $video->blur_intensity }})" @endif>
+                        <i class="fas fa-lock"></i>
+                        @if($video->allow_preview)<span>Clic para previsualizar</span>@endif
                     </div>
+                @endif
+            </div>
+        @else
+            <div class="pf-thumb">
+                <i class="fas fa-play-circle pf-thumb-placeholder"></i>
+            </div>
+        @endif
 
-                    <!-- Payment Form -->
-                    <form action="{{ route('payment.process', $video) }}" method="POST">
-                        @csrf
-                        <div class="row justify-content-center">
-                            <div class="col-md-8">
-                                <div class="form-group mb-3">
-                                    <label for="telegram_username" class="form-label">
-                                        <i class="fab fa-telegram"></i> Telegram Username <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">@</span>
-                                        <input type="text"
-                                               class="form-control @error('telegram_username') is-invalid @enderror"
-                                               id="telegram_username"
-                                               name="telegram_username"
-                                               value="{{ old('telegram_username') }}"
-                                               placeholder="your_username"
-                                               required>
-                                    </div>
-                                    @error('telegram_username')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="form-text text-muted">
-                                        Enter your Telegram username (without @). The video will be sent to this account.
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
+        <div class="pf-body">
 
-                        @if($bot['is_configured'])
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                <strong>How it works:</strong>
-                                <ol class="mb-0 mt-2">
-                                    <li>Complete payment using Stripe (secure)</li>
-                                    <li>Start a chat with our bot: <a href="{{ $bot['url'] }}" target="_blank">{{ $bot['username'] }}</a></li>
-                                    <li>Your video will be delivered automatically!</li>
-                                </ol>
-                            </div>
+            {{-- Title + meta --}}
+            <h1 class="pf-title">{{ $video->title }}</h1>
+            @if($video->description)
+                <p class="pf-desc">{{ $video->description }}</p>
+            @endif
+
+            <div class="pf-meta">
+                @if($video->isServiceProduct())
+                    <span class="pf-badge pf-badge-blue">
+                        <i class="fas fa-tv"></i> Acceso {{ $video->duration_days ?? 30 }} días
+                    </span>
+                    @php $stock = $video->availableServiceLines()->count(); @endphp
+                    <span class="pf-badge {{ $stock > 0 ? 'pf-badge-green' : 'pf-badge-amber' }}">
+                        <i class="fas fa-{{ $stock > 0 ? 'check' : 'exclamation-triangle' }}"></i>
+                        {{ $stock > 0 ? "Stock: {$stock}" : 'Sin stock' }}
+                    </span>
+                @else
+                    @if($video->duration)
+                        <span class="pf-badge pf-badge-blue">
+                            <i class="fas fa-clock"></i>
+                            {{ $video->duration >= 3600 ? gmdate('H:i:s', $video->duration) : gmdate('i:s', $video->duration) }}
+                        </span>
+                    @endif
+                @endif
+
+                @if($video->long_description)
+                    <span class="pf-badge pf-badge-blue"><i class="fas fa-info-circle"></i> Info extra</span>
+                @endif
+            </div>
+
+            {{-- Long description --}}
+            @if($video->long_description)
+                <div style="font-size:.82rem; color:var(--pf-muted); background:rgba(255,255,255,.03); border:1px solid var(--pf-border); border-radius:8px; padding:12px 14px; margin-bottom:16px; white-space:pre-wrap; line-height:1.55;">{{ $video->long_description }}</div>
+            @endif
+
+            {{-- Price --}}
+            <div class="pf-price-box">
+                <span class="pf-price">${{ number_format($video->price, 2) }}</span>
+                <span class="pf-price-label">
+                    pago único
+                    @if($video->isServiceProduct()) · {{ $video->duration_days ?? 30 }} días de acceso @endif
+                </span>
+            </div>
+
+            {{-- Steps --}}
+            @if($bot['is_configured'])
+            <div class="pf-steps">
+                <div class="pf-step">
+                    <div class="pf-step-num">1</div>
+                    <div>Introduce tu usuario de Telegram y completa el pago con Stripe (seguro)</div>
+                </div>
+                <div class="pf-step">
+                    <div class="pf-step-num">2</div>
+                    <div>
+                        Abre el bot:
+                        <a href="{{ $bot['url'] }}" target="_blank" style="color:var(--pf-accent);">{{ $bot['username'] }}</a>
+                        y escribe <code style="color:var(--pf-accent); font-size:.8rem;">/start</code>
+                    </div>
+                </div>
+                <div class="pf-step">
+                    <div class="pf-step-num">3</div>
+                    <div>
+                        @if($video->isServiceProduct())
+                            Recibirás tus credenciales de acceso al instante
                         @else
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <strong>Setup Required:</strong>
-                                <p class="mb-2 mt-2">The Telegram bot is not configured yet. Please contact the administrator to complete the setup before making purchases.</p>
-                                <a href="{{ route('login') }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-cog"></i> Admin Setup
-                                </a>
-                            </div>
+                            Recibirás el video directamente en Telegram
                         @endif
-
-                        <div class="d-grid gap-2">
-                            @if($bot['is_configured'])
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    <i class="fas fa-credit-card"></i>
-                                    Pay ${{ number_format($video->price, 2) }} with Stripe
-                                </button>
-                            @else
-                                <button type="button" class="btn btn-secondary btn-lg" disabled>
-                                    <i class="fas fa-cog"></i> Payment Disabled - Bot Setup Required
-                                </button>
-                            @endif
-                        </div>
-                    </form>
-
-                    <div class="text-center mt-3">
-                        <a href="{{ route('videos.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Videos
-                        </a>
                     </div>
                 </div>
             </div>
+            @endif
+
+            {{-- Alert container --}}
+            <div id="pf-alerts"></div>
+
+            {{-- Bot not configured warning --}}
+            @if(!$bot['is_configured'])
+            <div class="pf-warning">
+                <i class="fas fa-exclamation-triangle" style="margin-top:2px; flex-shrink:0;"></i>
+                <div>
+                    <strong>Bot no configurado.</strong><br>
+                    El sistema de entrega aún no está listo. Contacta con el administrador.
+                </div>
+            </div>
+            @endif
+
+            {{-- Form --}}
+            <form id="paymentForm" action="{{ route('payment.process', $video) }}" method="POST">
+                @csrf
+
+                <label class="pf-label" for="telegram_username">
+                    <i class="fab fa-telegram me-1"></i> Usuario de Telegram <span>*</span>
+                </label>
+                <div class="pf-input-group">
+                    <span class="pf-input-prefix">@</span>
+                    <input class="pf-input" type="text" id="telegram_username" name="telegram_username"
+                        value="{{ old('telegram_username') }}" placeholder="tu_usuario" required autocomplete="off">
+                </div>
+                @error('telegram_username')
+                    <div style="font-size:.75rem; color:var(--pf-danger); margin-bottom:8px;">{{ $message }}</div>
+                @enderror
+                <p class="pf-hint">Sin @. El acceso/video se enviará a esta cuenta de Telegram.</p>
+
+                @if($video->isServiceProduct() && $video->availableServiceLines()->count() === 0)
+                    <button type="button" class="pf-btn" disabled>
+                        <i class="fas fa-exclamation-triangle"></i> Sin stock disponible
+                    </button>
+                @elseif($bot['is_configured'])
+                    <button type="submit" class="pf-btn pf-btn-pay" id="paymentButton">
+                        <i class="fas fa-lock"></i>
+                        Pagar ${{ number_format($video->price, 2) }} con Stripe
+                    </button>
+                @else
+                    <button type="button" class="pf-btn" disabled>
+                        <i class="fas fa-cog"></i> Pagos desactivados
+                    </button>
+                @endif
+            </form>
+
+            <a href="{{ url()->previous() }}" class="pf-back">
+                <i class="fas fa-arrow-left me-1"></i>Volver
+            </a>
         </div>
     </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
-    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+function toggleBlur(img, intensity) {
+    const blurred = img.style.filter && img.style.filter.includes('blur');
+    img.style.filter = blurred ? 'none' : `blur(${intensity}px)`;
+    img.style.transition = 'filter .3s';
+}
+
+(function() {
+    const form = document.getElementById('paymentForm');
+    const btn  = document.getElementById('paymentButton');
+    if (!form || !btn) return;
+
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const button = document.getElementById('paymentButton');
-        const originalText = button.innerHTML;
         const username = document.getElementById('telegram_username').value.trim();
-
         if (!username) {
-            showAlert('error', 'Please enter your Telegram username');
+            showAlert('error', 'Introduce tu usuario de Telegram.');
             return;
         }
 
-        // Show loading state
-        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-        button.disabled = true;
-
-        // Clear any existing error messages
-        clearExistingAlerts();
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+        btn.disabled = true;
+        document.getElementById('pf-alerts').innerHTML = '';
 
         fetch('/api/create-payment-intent', {
             method: 'POST',
@@ -169,78 +468,40 @@
                 telegram_username: username
             })
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if (data.error) {
-                // Handle duplicate purchase or other errors
+            if (data.session_url) {
+                window.location.href = data.session_url;
+            } else if (data.error) {
                 if (data.existing_purchase) {
-                    showDuplicatePurchaseError(data.error, data.existing_purchase);
+                    let extra = data.existing_purchase.purchase_uuid
+                        ? `<a href="/purchase/${data.existing_purchase.purchase_uuid}" style="color:var(--pf-accent);">Ver compra</a>`
+                        : '';
+                    showAlert('error', data.error + (extra ? ' ' + extra : ''));
                 } else {
                     showAlert('error', data.error);
                 }
-
-                button.innerHTML = originalText;
-                button.disabled = false;
-            } else if (data.session_url) {
-                // Redirect to Stripe checkout
-                window.location.href = data.session_url;
+                btn.innerHTML = orig;
+                btn.disabled = false;
             } else {
-                showAlert('error', 'Unexpected response from server');
-                button.innerHTML = originalText;
-                button.disabled = false;
+                showAlert('error', 'Respuesta inesperada del servidor.');
+                btn.innerHTML = orig;
+                btn.disabled = false;
             }
         })
-        .catch(error => {
-            console.error('Payment error:', error);
-            showAlert('error', 'Payment setup failed. Please try again.');
-            button.innerHTML = originalText;
-            button.disabled = false;
+        .catch(() => {
+            showAlert('error', 'Error de conexión. Inténtalo de nuevo.');
+            btn.innerHTML = orig;
+            btn.disabled = false;
         });
     });
 
-    function showAlert(type, message) {
-        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-        const alertHtml = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        // Insert after the form
-        const form = document.getElementById('paymentForm');
-        form.insertAdjacentHTML('afterend', alertHtml);
+    function showAlert(type, msg) {
+        const cls = type === 'error' ? 'pf-alert-error' : 'pf-alert-success';
+        const ico = type === 'error' ? 'exclamation-circle' : 'check-circle';
+        document.getElementById('pf-alerts').innerHTML =
+            `<div class="pf-alert ${cls}"><i class="fas fa-${ico}"></i><span>${msg}</span></div>`;
     }
-
-    function showDuplicatePurchaseError(message, purchaseInfo) {
-        const alertHtml = `
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <h6><i class="fas fa-exclamation-triangle me-2"></i>Duplicate Purchase Detected</h6>
-                <p class="mb-2">${message}</p>
-                <hr>
-                <small class="text-muted">
-                    <strong>Purchase Date:</strong> ${purchaseInfo.purchase_date}<br>
-                    <strong>Status:</strong> ${purchaseInfo.verification_status} / ${purchaseInfo.delivery_status}
-                </small>
-                ${purchaseInfo.purchase_uuid ? `
-                    <div class="mt-2">
-                        <a href="/purchase/${purchaseInfo.purchase_uuid}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-eye me-1"></i>View Purchase Details
-                        </a>
-                    </div>
-                ` : ''}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        // Insert after the form
-        const form = document.getElementById('paymentForm');
-        form.insertAdjacentHTML('afterend', alertHtml);
-    }
-
-    function clearExistingAlerts() {
-        document.querySelectorAll('.alert').forEach(alert => alert.remove());
-    }
+})();
 </script>
 @endsection

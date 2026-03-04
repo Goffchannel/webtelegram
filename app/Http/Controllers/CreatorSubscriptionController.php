@@ -150,6 +150,32 @@ class CreatorSubscriptionController extends Controller
                 ->with('error', 'No se pudo validar el pago de membresia.');
         }
 
+        // Pre-sync the Cashier subscription row so the middleware doesn't
+        // find an empty subscriptions table and immediately revert the status.
+        // (Stripe webhooks arrive asynchronously — the row may not exist yet.)
+        if ($session->subscription) {
+            try {
+                $stripeSub = \Stripe\Subscription::retrieve($session->subscription);
+                $user->subscriptions()->updateOrCreate(
+                    ['stripe_id' => $session->subscription],
+                    [
+                        'name'         => 'creator',
+                        'stripe_status'=> $stripeSub->status,
+                        'stripe_price' => $stripeSub->items->data[0]->price->id ?? null,
+                        'quantity'     => 1,
+                        'trial_ends_at'=> null,
+                        'ends_at'      => null,
+                    ]
+                );
+            } catch (\Throwable $e) {
+                Log::warning('CreatorSubscription: could not pre-sync Cashier row', [
+                    'user_id'         => $user->id,
+                    'subscription_id' => $session->subscription,
+                    'error'           => $e->getMessage(),
+                ]);
+            }
+        }
+
         $updates = [
             'is_creator' => true,
             'creator_subscription_status' => 'active',

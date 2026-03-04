@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Purchase Management')
+@section('title', 'Gestión de Compras')
 
 @section('content')
     <div class="container-fluid">
@@ -20,7 +20,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h6 class="card-title">Total Purchases</h6>
+                                        <h6 class="card-title">Total Compras</h6>
                                         <h3 class="mb-0">{{ $stats['total'] }}</h3>
                                     </div>
                                     <div class="align-self-center">
@@ -35,7 +35,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h6 class="card-title">Total Revenue</h6>
+                                        <h6 class="card-title">Ingresos Totales</h6>
                                         <h3 class="mb-0">${{ number_format($stats['total_revenue'], 2) }}</h3>
                                     </div>
                                     <div class="align-self-center">
@@ -50,7 +50,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h6 class="card-title">Pending Verification</h6>
+                                        <h6 class="card-title">Verificación Pendiente</h6>
                                         <h3 class="mb-0">{{ $stats['pending_verification'] }}</h3>
                                     </div>
                                     <div class="align-self-center">
@@ -65,7 +65,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h6 class="card-title">Failed Deliveries</h6>
+                                        <h6 class="card-title">Entregas Fallidas</h6>
                                         <h3 class="mb-0">{{ $stats['failed_delivery'] }}</h3>
                                     </div>
                                     <div class="align-self-center">
@@ -80,7 +80,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h6 class="card-title">Open Creator Reports</h6>
+                                        <h6 class="card-title">Reportes Abiertos</h6>
                                         <h3 class="mb-0">{{ $stats['open_creator_reports'] ?? 0 }}</h3>
                                     </div>
                                     <div class="align-self-center">
@@ -97,61 +97,61 @@
                     <div class="card-body">
                         <form method="GET" action="{{ route('admin.purchases.index') }}" class="row g-3">
                             <div class="col-md-3">
-                                <label for="search" class="form-label">Search</label>
+                                <label for="search" class="form-label">Buscar</label>
                                 <input type="text" class="form-control" id="search" name="search"
-                                    value="{{ request('search') }}" placeholder="Username, email, ID, UUID, or video ID">
+                                    value="{{ request('search') }}" placeholder="Usuario, email, ID, UUID o producto">
                             </div>
                             <div class="col-md-2">
-                                <label for="purchase_status" class="form-label">Purchase Status</label>
+                                <label for="purchase_status" class="form-label">Estado Compra</label>
                                 <select class="form-select" id="purchase_status" name="purchase_status">
-                                    <option value="">All</option>
+                                    <option value="">Todos</option>
                                     <option value="completed"
-                                        {{ request('purchase_status') === 'completed' ? 'selected' : '' }}>Completed
+                                        {{ request('purchase_status') === 'completed' ? 'selected' : '' }}>Completado
                                     </option>
                                     <option value="refunded"
-                                        {{ request('purchase_status') === 'refunded' ? 'selected' : '' }}>Refunded</option>
+                                        {{ request('purchase_status') === 'refunded' ? 'selected' : '' }}>Reembolsado</option>
                                     <option value="disputed"
-                                        {{ request('purchase_status') === 'disputed' ? 'selected' : '' }}>Disputed</option>
+                                        {{ request('purchase_status') === 'disputed' ? 'selected' : '' }}>En disputa</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label for="verification_status" class="form-label">Verification</label>
+                                <label for="verification_status" class="form-label">Verificación</label>
                                 <select class="form-select" id="verification_status" name="verification_status">
-                                    <option value="">All</option>
+                                    <option value="">Todos</option>
                                     <option value="pending"
-                                        {{ request('verification_status') === 'pending' ? 'selected' : '' }}>Pending
+                                        {{ request('verification_status') === 'pending' ? 'selected' : '' }}>Pendiente
                                     </option>
                                     <option value="verified"
-                                        {{ request('verification_status') === 'verified' ? 'selected' : '' }}>Verified
+                                        {{ request('verification_status') === 'verified' ? 'selected' : '' }}>Verificado
                                     </option>
                                     <option value="invalid"
-                                        {{ request('verification_status') === 'invalid' ? 'selected' : '' }}>Invalid
+                                        {{ request('verification_status') === 'invalid' ? 'selected' : '' }}>Inválido
                                     </option>
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label for="delivery_status" class="form-label">Delivery Status</label>
+                                <label for="delivery_status" class="form-label">Estado Entrega</label>
                                 <select class="form-select" id="delivery_status" name="delivery_status">
-                                    <option value="">All</option>
+                                    <option value="">Todos</option>
                                     <option value="pending"
-                                        {{ request('delivery_status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                                        {{ request('delivery_status') === 'pending' ? 'selected' : '' }}>Pendiente</option>
                                     <option value="delivered"
-                                        {{ request('delivery_status') === 'delivered' ? 'selected' : '' }}>Delivered
+                                        {{ request('delivery_status') === 'delivered' ? 'selected' : '' }}>Entregado
                                     </option>
                                     <option value="failed" {{ request('delivery_status') === 'failed' ? 'selected' : '' }}>
-                                        Failed</option>
+                                        Fallido</option>
                                     <option value="retrying"
-                                        {{ request('delivery_status') === 'retrying' ? 'selected' : '' }}>Retrying</option>
+                                        {{ request('delivery_status') === 'retrying' ? 'selected' : '' }}>Reintentando</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">&nbsp;</label>
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i>Filter
+                                        <i class="fas fa-search me-1"></i>Filtrar
                                     </button>
                                     <a href="{{ route('admin.purchases.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-undo me-1"></i>Clear
+                                        <i class="fas fa-undo me-1"></i>Limpiar
                                     </a>
                                 </div>
                             </div>
@@ -186,11 +186,11 @@
                                             <td>{{ $report->id }}</td>
                                             <td>
                                                 @if ($report->status === 'open')
-                                                    <span class="badge text-bg-danger">Open</span>
+                                                    <span class="badge text-bg-danger">Abierto</span>
                                                 @elseif($report->status === 'reviewing')
-                                                    <span class="badge text-bg-warning">Reviewing</span>
+                                                    <span class="badge text-bg-warning">Revisando</span>
                                                 @else
-                                                    <span class="badge text-bg-success">Resolved</span>
+                                                    <span class="badge text-bg-success">Resuelto</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -220,11 +220,11 @@
                                             </td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
-                                                    <button class="btn btn-outline-secondary" onclick="updateReportStatus({{ $report->id }}, 'reviewing')">Review</button>
-                                                    <button class="btn btn-outline-success" onclick="updateReportStatus({{ $report->id }}, 'resolved')">Resolve</button>
+                                                    <button class="btn btn-outline-secondary" onclick="updateReportStatus({{ $report->id }}, 'reviewing')">Revisar</button>
+                                                    <button class="btn btn-outline-success" onclick="updateReportStatus({{ $report->id }}, 'resolved')">Resolver</button>
                                                     @if($report->creator)
-                                                        <button class="btn btn-outline-warning" onclick="banCreator({{ $report->id }})">Ban</button>
-                                                        <button class="btn btn-outline-danger" onclick="deleteCreator({{ $report->id }})">Delete</button>
+                                                        <button class="btn btn-outline-warning" onclick="banCreator({{ $report->id }})">Banear</button>
+                                                        <button class="btn btn-outline-danger" onclick="deleteCreator({{ $report->id }})">Eliminar</button>
                                                     @endif
                                                 </div>
                                             </td>
@@ -247,14 +247,14 @@
                             <table class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Purchase Info</th>
-                                        <th>Customer</th>
-                                        <th>Video</th>
-                                        <th>Amount</th>
-                                        <th>Verification</th>
-                                        <th>Delivery</th>
-                                        <th>Date</th>
-                                        <th>Actions</th>
+                                        <th>Compra</th>
+                                        <th>Cliente</th>
+                                        <th>Producto</th>
+                                        <th>Importe</th>
+                                        <th>Verificación</th>
+                                        <th>Entrega</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -266,9 +266,9 @@
                                                     <code style="font-size: 10px;">{{ $purchase->purchase_uuid }}</code>
                                                 </div>
                                                 <div class="mt-1">
-                                                    <span
-                                                        class="badge {{ $purchase->purchase_status === 'completed' ? 'text-bg-success' : 'text-bg-warning' }}">
-                                                        {{ ucfirst($purchase->purchase_status) }}
+                                                    @php $statusLabels = ['completed' => 'Completado', 'refunded' => 'Reembolsado', 'disputed' => 'En disputa', 'pending' => 'Pendiente']; @endphp
+                                                    <span class="badge {{ $purchase->purchase_status === 'completed' ? 'text-bg-success' : 'text-bg-warning' }}">
+                                                        {{ $statusLabels[$purchase->purchase_status] ?? ucfirst($purchase->purchase_status) }}
                                                     </span>
                                                 </div>
                                             </td>
@@ -295,34 +295,34 @@
                                             </td>
                                             <td>
                                                 @if ($purchase->verification_status === 'pending')
-                                                    <span class="badge text-bg-warning">Pending</span>
+                                                    <span class="badge text-bg-warning">Pendiente</span>
                                                 @elseif($purchase->verification_status === 'verified')
-                                                    <span class="badge text-bg-success">Verified</span>
+                                                    <span class="badge text-bg-success">Verificado</span>
                                                 @else
-                                                    <span class="badge text-bg-danger">Invalid</span>
+                                                    <span class="badge text-bg-danger">Inválido</span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($purchase->delivery_status === 'pending')
-                                                    <span class="badge text-bg-info">Pending</span>
+                                                    <span class="badge text-bg-info">Pendiente</span>
                                                 @elseif($purchase->delivery_status === 'delivered')
-                                                    <span class="badge text-bg-success">Delivered</span>
+                                                    <span class="badge text-bg-success">Entregado</span>
                                                     @if ($purchase->delivered_at)
                                                         <br><small
-                                                            class="text-muted">{{ $purchase->delivered_at->format('M d, H:i') }}</small>
+                                                            class="text-muted">{{ $purchase->delivered_at->format('d/m H:i') }}</small>
                                                     @endif
                                                 @elseif($purchase->delivery_status === 'failed')
-                                                    <span class="badge text-bg-danger">Failed</span>
+                                                    <span class="badge text-bg-danger">Fallido</span>
                                                     @if ($purchase->delivery_attempts > 0)
                                                         <br><small class="text-muted">{{ $purchase->delivery_attempts }}
-                                                            attempts</small>
+                                                            intentos</small>
                                                     @endif
                                                 @else
-                                                    <span class="badge text-bg-warning">Retrying</span>
+                                                    <span class="badge text-bg-warning">Reintentando</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                <small>{{ $purchase->created_at->format('M d, Y') }}<br>{{ $purchase->created_at->format('H:i:s') }}</small>
+                                                <small>{{ $purchase->created_at->format('d/m/Y') }}<br>{{ $purchase->created_at->format('H:i:s') }}</small>
                                             </td>
                                             <td>
                                                 <div class="btn-group" role="group">
@@ -335,7 +335,8 @@
                                                     <!-- Manual Actions -->
                                                     @if ($purchase->verification_status === 'pending')
                                                         <button type="button" class="btn btn-sm btn-outline-success"
-                                                            onclick="verifyPurchase('{{ $purchase->id }}')">
+                                                            title="{{ $purchase->video->isServiceProduct() ? 'Aprovisionar acceso IPTV' : 'Verificar con Telegram ID' }}"
+                                                            onclick="verifyPurchase('{{ $purchase->id }}', {{ $purchase->video->isServiceProduct() ? 'true' : 'false' }})">
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                     @endif
@@ -360,7 +361,7 @@
                                         <tr>
                                             <td colspan="8" class="text-center text-muted py-4">
                                                 <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                <br>No purchases found
+                                                <br>No se encontraron compras
                                             </td>
                                         </tr>
                                     @endforelse
@@ -385,7 +386,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Purchase Details</h5>
+                    <h5 class="modal-title">Detalles de Compra</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="purchaseDetailsContent">
@@ -395,26 +396,26 @@
         </div>
     </div>
 
-    <!-- Verify Purchase Modal -->
+    <!-- Verify Purchase Modal (only for regular video purchases, not IPTV) -->
     <div class="modal fade" id="verifyPurchaseModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Verify Purchase</h5>
+                    <h5 class="modal-title">Verificar Compra</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="verifyPurchaseForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="telegram_user_id" class="form-label">Telegram User ID</label>
+                            <label for="telegram_user_id" class="form-label">ID de usuario Telegram</label>
                             <input type="text" class="form-control" id="telegram_user_id" name="telegram_user_id"
-                                required>
-                            <div class="form-text">Enter the customer's Telegram user ID to link this purchase.</div>
+                                required placeholder="Ej: 123456789">
+                            <div class="form-text">El cliente debe enviarte su ID de Telegram (p.ej. usando @userinfobot).</div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Verify Purchase</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Verificar Compra</button>
                     </div>
                 </form>
             </div>
@@ -426,20 +427,20 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Mark as Delivered</h5>
+                    <h5 class="modal-title">Marcar como Entregado</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="markDeliveredForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="delivery_notes" class="form-label">Delivery Notes (Optional)</label>
+                            <label for="delivery_notes" class="form-label">Notas de entrega (opcional)</label>
                             <textarea class="form-control" id="delivery_notes" name="delivery_notes" rows="3"></textarea>
-                            <div class="form-text">Add any notes about the manual delivery.</div>
+                            <div class="form-text">Añade notas sobre la entrega manual.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Mark as Delivered</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Marcar como Entregado</button>
                     </div>
                 </form>
             </div>
@@ -473,14 +474,39 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'Failed to load purchase details: ' + error.message);
+                    showAlert('error', 'Error al cargar detalles: ' + error.message);
                 });
         }
 
         // Verify purchase
-        function verifyPurchase(purchaseId) {
+        function verifyPurchase(purchaseId, isServiceProduct) {
             currentPurchaseId = purchaseId;
-            new bootstrap.Modal(document.getElementById('verifyPurchaseModal')).show();
+
+            if (isServiceProduct) {
+                // IPTV/service product: provision directly, no Telegram ID needed
+                if (!confirm('¿Aprovisionar y verificar este acceso IPTV automáticamente?')) return;
+                fetch(`/admin/purchases/${purchaseId}/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}),
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', data.message);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showAlert('error', data.message);
+                    }
+                })
+                .catch(() => showAlert('error', 'Ha ocurrido un error'));
+            } else {
+                // Regular video purchase: ask for Telegram ID
+                new bootstrap.Modal(document.getElementById('verifyPurchaseModal')).show();
+            }
         }
 
         // Mark as delivered
@@ -491,7 +517,7 @@
 
         // Retry delivery
         function retryDelivery(purchaseId) {
-            if (confirm('Are you sure you want to retry delivery for this purchase?')) {
+            if (confirm('¿Confirma reintentar la entrega de esta compra?')) {
                 fetch(`/admin/purchases/${purchaseId}/retry-delivery`, {
                         method: 'POST',
                         headers: {
@@ -510,7 +536,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        showAlert('error', 'An error occurred');
+                        showAlert('error', 'Ha ocurrido un error');
                     });
             }
         }
@@ -540,7 +566,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'An error occurred');
+                    showAlert('error', 'Ha ocurrido un error');
                 });
         });
 
@@ -569,20 +595,20 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'An error occurred');
+                    showAlert('error', 'Ha ocurrido un error');
                 });
         });
 
         // Edit telegram username functionality for admin
         function editAdminTelegramUsername(purchaseId, currentUsername) {
-            const newUsername = prompt('Enter new Telegram username:', currentUsername);
+            const newUsername = prompt('Nuevo nombre de usuario de Telegram:', currentUsername);
 
             if (newUsername === null || newUsername === currentUsername) {
                 return; // User cancelled or no change
             }
 
             if (!newUsername.trim()) {
-                showAlert('error', 'Username cannot be empty');
+                showAlert('error', 'El nombre de usuario no puede estar vacío');
                 return;
             }
 
@@ -613,12 +639,12 @@
 
                     showAlert('success', data.message);
                 } else {
-                    showAlert('error', data.message || 'Failed to update username');
+                    showAlert('error', data.message || 'Error al actualizar el nombre de usuario');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('error', 'An error occurred while updating the username');
+                showAlert('error', 'Ha ocurrido un error al actualizar el nombre de usuario');
             });
         }
 

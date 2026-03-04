@@ -8,6 +8,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseMessage;
 use App\Models\PurchaseServiceAccess;
 use App\Models\Setting;
+use App\Services\ServiceAccessManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -89,37 +90,60 @@ class PurchaseController extends Controller
     }
 
     /**
-     * Manually verify a purchase and link to telegram user.
+     * Manually verify a purchase. For service products (IPTV), provisions access automatically.
+     * For regular video purchases, links the purchase to a Telegram user ID.
      */
     public function verify(Request $request, Purchase $purchase)
     {
+        $isService = $purchase->video?->isServiceProduct();
+
         $request->validate([
-            'telegram_user_id' => 'required|string',
+            'telegram_user_id' => $isService ? 'nullable|string' : 'required|string',
         ]);
 
         try {
+            if ($isService) {
+                // For IPTV/service products: provision the service access and auto-verify
+                app(ServiceAccessManager::class)->provisionForPurchase($purchase);
+                $purchase->refresh();
+                if ($purchase->verification_status === 'pending') {
+                    $purchase->update(['verification_status' => 'verified']);
+                }
+
+                Log::info('IPTV purchase manually provisioned by admin', [
+                    'purchase_id' => $purchase->id,
+                    'admin_user'  => Auth::user()->id ?? 'unknown',
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Acceso IPTV aprovisionado y verificado correctamente.',
+                ]);
+            }
+
+            // Regular video purchase: link to Telegram user
             $purchase->verifyTelegramUser($request->telegram_user_id);
 
             Log::info('Purchase manually verified by admin', [
-                'purchase_id' => $purchase->id,
-                'purchase_uuid' => $purchase->purchase_uuid,
+                'purchase_id'      => $purchase->id,
+                'purchase_uuid'    => $purchase->purchase_uuid,
                 'telegram_user_id' => $request->telegram_user_id,
-                'admin_user' => Auth::user()->id ?? 'unknown',
+                'admin_user'       => Auth::user()->id ?? 'unknown',
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Purchase verified successfully!',
+                'message' => 'Compra verificada correctamente.',
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to verify purchase', [
                 'purchase_id' => $purchase->id,
-                'error' => $e->getMessage(),
+                'error'       => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to verify purchase: ' . $e->getMessage(),
+                'message' => 'Error al verificar la compra: ' . $e->getMessage(),
             ]);
         }
     }

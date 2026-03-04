@@ -1,40 +1,41 @@
 <div class="row">
     <div class="col-md-6">
-        <h6><i class="fas fa-receipt me-2"></i>Purchase Information</h6>
+        <h6><i class="fas fa-receipt me-2"></i>Información de la compra</h6>
         <table class="table table-sm">
             <tr>
                 <td><strong>UUID:</strong></td>
                 <td><code style="font-size: 11px;">{{ $purchase->purchase_uuid }}</code></td>
             </tr>
             <tr>
-                <td><strong>Date:</strong></td>
-                <td>{{ $purchase->created_at->format('M d, Y H:i:s') }}</td>
+                <td><strong>Fecha:</strong></td>
+                <td>{{ $purchase->created_at->format('d/m/Y H:i:s') }}</td>
             </tr>
             <tr>
-                <td><strong>Amount:</strong></td>
+                <td><strong>Importe:</strong></td>
                 <td><span class="h6 text-success">{{ $purchase->formatted_amount }}</span></td>
             </tr>
             <tr>
-                <td><strong>Currency:</strong></td>
+                <td><strong>Divisa:</strong></td>
                 <td>{{ strtoupper($purchase->currency) }}</td>
             </tr>
             <tr>
-                <td><strong>Purchase Status:</strong></td>
+                <td><strong>Estado Compra:</strong></td>
                 <td>
+                    @php $statusLabels = ['completed' => 'Completado', 'refunded' => 'Reembolsado', 'disputed' => 'En disputa', 'pending' => 'Pendiente']; @endphp
                     <span class="badge {{ $purchase->purchase_status === 'completed' ? 'text-bg-success' : 'text-bg-warning' }}">
-                        {{ ucfirst($purchase->purchase_status) }}
+                        {{ $statusLabels[$purchase->purchase_status] ?? ucfirst($purchase->purchase_status) }}
                     </span>
                 </td>
             </tr>
             <tr>
-                <td><strong>Verification:</strong></td>
+                <td><strong>Verificación:</strong></td>
                 <td>
                     @if ($purchase->verification_status === 'pending')
-                        <span class="badge text-bg-warning">Pending</span>
+                        <span class="badge text-bg-warning">Pendiente</span>
                     @elseif($purchase->verification_status === 'verified')
-                        <span class="badge text-bg-success">Verified</span>
+                        <span class="badge text-bg-success">Verificado</span>
                     @else
-                        <span class="badge text-bg-danger">Invalid</span>
+                        <span class="badge text-bg-danger">Inválido</span>
                     @endif
                 </td>
             </tr>
@@ -42,7 +43,7 @@
     </div>
 
     <div class="col-md-6">
-        <h6><i class="fas fa-user me-2"></i>Customer Information</h6>
+        <h6><i class="fas fa-user me-2"></i>Información del cliente</h6>
         <table class="table table-sm">
             <tr>
                 <td><strong>Telegram Username:</strong></td>
@@ -67,7 +68,7 @@
             @endif
             @if ($purchase->user)
                 <tr>
-                    <td><strong>Account Name:</strong></td>
+                    <td><strong>Nombre en cuenta:</strong></td>
                     <td>{{ $purchase->user->name }}</td>
                 </tr>
             @endif
@@ -77,7 +78,7 @@
 
 <div class="row mt-3">
     <div class="col-md-6">
-        <h6><i class="fas fa-video me-2"></i>Video Information</h6>
+        <h6><i class="fas fa-{{ $purchase->video->isServiceProduct() ? 'tv' : 'video' }} me-2"></i>{{ $purchase->video->isServiceProduct() ? 'Información del servicio' : 'Información del video' }}</h6>
         <div class="card">
             <div class="card-body">
                 <h6 class="card-title">{{ $purchase->video->title }}</h6>
@@ -85,45 +86,45 @@
                     <p class="card-text">{{ Str::limit($purchase->video->description, 100) }}</p>
                 @endif
                 <p class="card-text">
-                    <small class="text-muted">Video ID: {{ $purchase->video->id }}</small><br>
-                    <small class="text-muted">Price: ${{ number_format($purchase->video->price, 2) }}</small>
+                    <small class="text-muted">ID: {{ $purchase->video->id }}</small><br>
+                    <small class="text-muted">Precio: ${{ number_format($purchase->video->price, 2) }}</small>
                 </p>
             </div>
         </div>
     </div>
 
     <div class="col-md-6">
-        <h6><i class="fas fa-truck me-2"></i>Delivery Status</h6>
+        <h6><i class="fas fa-truck me-2"></i>Estado de entrega</h6>
         <div class="card">
             <div class="card-body">
                 <div class="mb-2">
                     @if ($purchase->delivery_status === 'pending')
-                        <span class="badge text-bg-info">Pending</span>
+                        <span class="badge text-bg-info">Pendiente</span>
                     @elseif($purchase->delivery_status === 'delivered')
-                        <span class="badge text-bg-success">Delivered</span>
+                        <span class="badge text-bg-success">Entregado</span>
                     @elseif($purchase->delivery_status === 'failed')
-                        <span class="badge text-bg-danger">Failed</span>
+                        <span class="badge text-bg-danger">Fallido</span>
                     @else
-                        <span class="badge text-bg-warning">Retrying</span>
+                        <span class="badge text-bg-warning">Reintentando</span>
                     @endif
                 </div>
 
                 @if ($purchase->delivered_at)
                     <p class="small text-success">
                         <i class="fas fa-check-circle me-1"></i>
-                        Delivered: {{ $purchase->delivered_at->format('M d, Y H:i:s') }}
+                        Entregado: {{ $purchase->delivered_at->format('d/m/Y H:i:s') }}
                     </p>
                 @endif
 
                 @if ($purchase->delivery_attempts > 0)
                     <p class="small text-muted">
-                        Delivery attempts: {{ $purchase->delivery_attempts }}
+                        Intentos de entrega: {{ $purchase->delivery_attempts }}
                     </p>
                 @endif
 
                 @if ($purchase->delivery_notes)
                     <p class="small">
-                        <strong>Notes:</strong> {{ $purchase->delivery_notes }}
+                        <strong>Notas:</strong> {{ $purchase->delivery_notes }}
                     </p>
                 @endif
             </div>
@@ -134,7 +135,7 @@
 @if ($purchase->stripe_metadata)
     <div class="row mt-3">
         <div class="col-12">
-            <h6><i class="fab fa-stripe me-2"></i>Stripe Information</h6>
+            <h6><i class="fab fa-stripe me-2"></i>Información de Stripe</h6>
             <div class="card">
                 <div class="card-body">
                     <div class="row">
@@ -161,27 +162,27 @@
     </div>
 @endif
 
-<!-- Debug Information -->
+<!-- Información técnica -->
 <div class="row mt-3">
     <div class="col-12">
-        <h6><i class="fas fa-bug me-2"></i>Debug Information</h6>
+        <h6><i class="fas fa-bug me-2"></i>Información técnica</h6>
         <div class="card border-info">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <small class="text-muted"><strong>Created:</strong></small><br>
-                        <small>{{ $purchase->created_at->format('M d, Y H:i:s') }} ({{ $purchase->created_at->diffForHumans() }})</small>
+                        <small class="text-muted"><strong>Creado:</strong></small><br>
+                        <small>{{ $purchase->created_at->format('d/m/Y H:i:s') }} ({{ $purchase->created_at->diffForHumans() }})</small>
                     </div>
                     <div class="col-md-6">
-                        <small class="text-muted"><strong>Last Updated:</strong></small><br>
-                        <small>{{ $purchase->updated_at->format('M d, Y H:i:s') }} ({{ $purchase->updated_at->diffForHumans() }})</small>
+                        <small class="text-muted"><strong>Actualizado:</strong></small><br>
+                        <small>{{ $purchase->updated_at->format('d/m/Y H:i:s') }} ({{ $purchase->updated_at->diffForHumans() }})</small>
                     </div>
                 </div>
 
                 @if($purchase->delivery_notes)
                     <div class="row mt-2">
                         <div class="col-12">
-                            <small class="text-muted"><strong>Delivery Notes:</strong></small><br>
+                            <small class="text-muted"><strong>Notas de entrega:</strong></small><br>
                             <small class="font-monospace">{{ $purchase->delivery_notes }}</small>
                         </div>
                     </div>
@@ -190,18 +191,18 @@
                 @if($purchase->delivery_metadata)
                     <div class="row mt-2">
                         <div class="col-12">
-                            <small class="text-muted"><strong>Delivery Metadata:</strong></small><br>
+                            <small class="text-muted"><strong>Metadata de entrega:</strong></small><br>
                             <pre class="small p-2 rounded">{{ json_encode($purchase->delivery_metadata, JSON_PRETTY_PRINT) }}</pre>
                         </div>
                     </div>
                 @endif
 
+                @if(!$purchase->video->isServiceProduct())
                 <div class="row mt-3">
                     <div class="col-12">
                         <small class="text-info">
                             <i class="fas fa-info-circle me-1"></i>
-                            <strong>Troubleshooting:</strong> If verified but not delivered, the user needs to type <code>/start</code> in the bot again.
-                            If they're the admin/sync user, create a different Telegram account for testing.
+                            Si está verificado pero no entregado, el usuario debe escribir <code>/start</code> al bot de nuevo.
                         </small>
 
                         @php
@@ -211,14 +212,15 @@
                         @if($syncUserTelegramId && $purchase->telegram_user_id == $syncUserTelegramId)
                             <div class="alert alert-warning mt-2 mb-0">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                <strong>⚠️ SYNC USER CONFLICT DETECTED!</strong><br>
-                                <small>This purchase is from the configured sync user (ID: {{ $syncUserTelegramId }}).
-                                The bot may not deliver videos properly to the sync user.
-                                Use a different Telegram account for testing.</small>
+                                <strong>⚠️ CONFLICTO: USUARIO DE SYNC</strong><br>
+                                <small>Esta compra pertenece al usuario de sincronización (ID: {{ $syncUserTelegramId }}).
+                                El bot puede no entregar videos correctamente a este usuario.
+                                Usa una cuenta de Telegram diferente para las pruebas.</small>
                             </div>
                         @endif
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -386,31 +388,33 @@
     </div>
 </div>
 
-<!-- Action Buttons -->
+<!-- Acciones -->
 <div class="row mt-4">
     <div class="col-12">
         <div class="d-flex gap-2">
             @if ($purchase->verification_status === 'pending')
-                <button type="button" class="btn btn-success btn-sm" onclick="verifyPurchase('{{ $purchase->id }}')">
-                    <i class="fas fa-check me-1"></i>Verify Purchase
+                <button type="button" class="btn btn-success btn-sm"
+                    title="{{ $purchase->video->isServiceProduct() ? 'Aprovisionar acceso IPTV' : 'Verificar con Telegram ID' }}"
+                    onclick="verifyPurchase('{{ $purchase->id }}', {{ $purchase->video->isServiceProduct() ? 'true' : 'false' }})">
+                    <i class="fas fa-check me-1"></i>{{ $purchase->video->isServiceProduct() ? 'Aprovisionar IPTV' : 'Verificar Compra' }}
                 </button>
             @endif
 
             @if ($purchase->delivery_status === 'failed' && $purchase->canRetryDelivery())
                 <button type="button" class="btn btn-warning btn-sm" onclick="retryDelivery('{{ $purchase->id }}')">
-                    <i class="fas fa-redo me-1"></i>Retry Delivery
+                    <i class="fas fa-redo me-1"></i>Reintentar Entrega
                 </button>
             @endif
 
             @if ($purchase->delivery_status !== 'delivered')
                 <button type="button" class="btn btn-primary btn-sm" onclick="markDelivered('{{ $purchase->id }}')">
-                    <i class="fas fa-truck me-1"></i>Mark as Delivered
+                    <i class="fas fa-truck me-1"></i>Marcar como Entregado
                 </button>
             @endif
 
             <a href="{{ route('purchase.view', $purchase->purchase_uuid) }}" target="_blank"
                 class="btn btn-outline-info btn-sm">
-                <i class="fas fa-external-link-alt me-1"></i>Customer View
+                <i class="fas fa-external-link-alt me-1"></i>Ver como cliente
             </a>
         </div>
     </div>

@@ -6,6 +6,7 @@ use App\Models\DiscountCode;
 use App\Models\Purchase;
 use App\Models\User;
 use App\Models\Video;
+use App\Services\PayPalService;
 use Illuminate\Http\Request;
 
 class CreatorCheckoutController extends Controller
@@ -26,7 +27,11 @@ class CreatorCheckoutController extends Controller
 
         $methods = $creator->creator_payment_methods ?? [];
 
-        return view('creator.checkout', compact('creator', 'video', 'methods'));
+        $paypal = new PayPalService();
+        $paypalConfigured = $paypal->isConfigured() && !empty($creator->paypal_email);
+        $paypalClientId   = $paypalConfigured ? $paypal->getClientId() : null;
+
+        return view('creator.checkout', compact('creator', 'video', 'methods', 'paypalConfigured', 'paypalClientId'));
     }
 
     public function submit(Request $request, User $creator, Video $video)

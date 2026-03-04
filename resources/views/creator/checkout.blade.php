@@ -287,6 +287,29 @@
     </div>
     @endif
 
+    {{-- PayPal direct payment --}}
+    @if(!empty($paypalConfigured))
+    <div class="ch-card">
+        <div class="ch-card-header">
+            <i class="fab fa-paypal"></i> Pagar con PayPal
+        </div>
+        <div class="ch-card-body">
+            <div class="mb-3">
+                <label class="ch-label">Tu usuario de Telegram <span style="color:var(--ch-danger)">*</span></label>
+                <div class="ch-input-prefix">
+                    <span class="ch-prefix">@</span>
+                    <input class="ch-input" id="paypalTelegramInput" placeholder="usuario" maxlength="100">
+                </div>
+                <div id="paypalTelegramError" style="font-size:.78rem;color:var(--ch-danger);margin-top:4px;display:none;">
+                    Introduce tu usuario de Telegram antes de pagar.
+                </div>
+            </div>
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+    <div style="text-align:center;color:var(--ch-muted);font-size:.82rem;margin:-8px 0 8px;letter-spacing:.04em;">— o paga manualmente —</div>
+    @endif
+
     {{-- Discount code --}}
     <div class="ch-card">
         <div class="ch-card-header">
@@ -422,4 +445,57 @@ document.getElementById('discountCodeInput').addEventListener('keydown', functio
     if (e.key === 'Enter') { e.preventDefault(); applyDiscount(); }
 });
 </script>
+
+@if(!empty($paypalConfigured))
+<script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency=USD" data-namespace="paypal_sdk"></script>
+<script>
+paypal_sdk.Buttons({
+    createOrder: function() {
+        const tg = document.getElementById('paypalTelegramInput').value.trim().replace(/^@/, '');
+        if (!tg) {
+            document.getElementById('paypalTelegramError').style.display = '';
+            return Promise.reject(new Error('Falta usuario de Telegram'));
+        }
+        document.getElementById('paypalTelegramError').style.display = 'none';
+        return fetch('{{ route('api.paypal.create-order') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({
+                video_id: {{ $video->id }},
+                telegram_username: tg,
+            }),
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.error) throw new Error(d.error);
+            return d.order_id;
+        });
+    },
+    onApprove: function(data) {
+        return fetch('{{ route('api.paypal.capture-order') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ order_id: data.orderID }),
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success && d.redirect_url) {
+                window.location.href = d.redirect_url;
+            } else {
+                alert(d.error || 'Error al procesar el pago.');
+            }
+        });
+    },
+    onError: function(err) {
+        alert('Error en PayPal: ' + err);
+    }
+}).render('#paypal-button-container');
+</script>
+@endif
 @endsection

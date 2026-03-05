@@ -1317,6 +1317,10 @@ class VideoController extends Controller
                         'price' => $defaultPrice,
                         'creator_id' => $uploaderCreator?->id,
                         'category_id' => $this->resolveDefaultCategoryId($uploaderCreator),
+                        'duration' => $video['duration'] ?? null,
+                        'file_size' => $video['file_size'] ?? null,
+                        'width' => $video['width'] ?? null,
+                        'height' => $video['height'] ?? null,
                     ]);
 
                     $dashboardUrl = rtrim(config('app.url'), '/') . '/creator/dashboard#productos';

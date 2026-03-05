@@ -600,6 +600,12 @@
                                 <strong>{{ $video->title }}</strong>
                                 <div style="font-size:.75rem;color:var(--cr-muted);font-family:'DM Mono',monospace;margin-top:2px;">
                                     {{ $video->created_at->format('d/m/y') }}
+                                    @if($video->duration)
+                                        · <i class="fas fa-clock" style="font-size:.65rem;"></i> {{ $video->duration >= 3600 ? gmdate('H:i:s', $video->duration) : gmdate('i:s', $video->duration) }}
+                                    @endif
+                                    @if($video->file_size)
+                                        · {{ round($video->file_size / 1048576, 1) }} MB
+                                    @endif
                                 </div>
                             </td>
                             <td><span class="cr-badge cr-badge-success">${{ number_format($video->price, 2) }}</span></td>

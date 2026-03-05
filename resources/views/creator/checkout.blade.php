@@ -21,7 +21,7 @@
 .ch-shell { font-family: var(--ch-font); }
 .ch-shell *:not(i):not([class*="fa"]):not([class*="fab"]) { font-family: var(--ch-font); }
 
-/* ── Product preview card ── */
+/* ── Product card ── */
 .ch-product-card {
     background: var(--bs-body-bg, #fff);
     border: 1px solid var(--bs-border-color, #dee2e6);
@@ -30,16 +30,10 @@
 }
 .ch-product-thumb {
     height: 200px; background: #0e1117;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
-.ch-product-thumb img {
-    width: 100%; height: 100%;
-    object-fit: contain;
-}
-.ch-product-thumb-placeholder {
-    color: rgba(255,255,255,.2); font-size: 3rem;
-}
+.ch-product-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.ch-product-thumb-placeholder { color: rgba(255,255,255,.2); font-size: 3rem; }
 .ch-product-info { padding: 16px 20px; }
 .ch-product-store {
     font-size: .78rem; color: var(--ch-muted);
@@ -50,10 +44,7 @@
     color: var(--bs-body-color, #212529);
     letter-spacing: -.02em; margin: 0 0 6px;
 }
-.ch-product-desc {
-    font-size: .82rem; color: var(--ch-muted);
-    margin: 0 0 12px; line-height: 1.45;
-}
+.ch-product-desc { font-size: .82rem; color: var(--ch-muted); margin: 0 0 12px; line-height: 1.45; }
 
 /* ── Price box ── */
 .ch-price-box {
@@ -62,7 +53,6 @@
     background: rgba(79,142,247,.07);
     border: 1px solid rgba(79,142,247,.18);
     border-radius: 10px;
-    margin-bottom: 0;
 }
 .ch-price-current {
     font-size: 1.6rem; font-weight: 700;
@@ -71,28 +61,20 @@
 }
 .ch-price-current.discounted { color: var(--ch-success); }
 .ch-price-original {
-    font-size: .95rem;
-    font-family: 'DM Mono', monospace;
-    color: var(--ch-muted);
-    text-decoration: line-through;
+    font-size: .95rem; font-family: 'DM Mono', monospace;
+    color: var(--ch-muted); text-decoration: line-through;
 }
 .ch-discount-applied {
-    display: none;
-    font-size: .78rem; color: var(--ch-success);
-    background: rgba(34,197,94,.1);
-    border: 1px solid rgba(34,197,94,.2);
-    border-radius: 20px; padding: 2px 10px;
-    font-weight: 600;
+    display: none; font-size: .78rem; color: var(--ch-success);
+    background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2);
+    border-radius: 20px; padding: 2px 10px; font-weight: 600;
 }
 
 /* ── Service info ── */
 .ch-service-info {
-    background: rgba(79,142,247,.07);
-    border: 1px solid rgba(79,142,247,.18);
-    border-radius: 10px; padding: 12px 16px;
-    font-size: .84rem; margin-top: 12px;
-    color: var(--bs-body-color, #212529);
-    display: flex; gap: 16px; flex-wrap: wrap;
+    background: rgba(79,142,247,.07); border: 1px solid rgba(79,142,247,.18);
+    border-radius: 10px; padding: 12px 16px; font-size: .84rem; margin-top: 12px;
+    color: var(--bs-body-color, #212529); display: flex; gap: 16px; flex-wrap: wrap;
 }
 .ch-service-info span { display: flex; align-items: center; gap: 5px; }
 .ch-service-info i { color: var(--ch-accent); }
@@ -101,8 +83,7 @@
 .ch-card {
     background: var(--bs-body-bg, #fff);
     border: 1px solid var(--bs-border-color, #dee2e6);
-    border-radius: 14px; overflow: hidden;
-    margin-bottom: 16px;
+    border-radius: 14px; overflow: hidden; margin-bottom: 16px;
 }
 .ch-card-header {
     padding: 14px 20px;
@@ -114,48 +95,59 @@
 .ch-card-header i { color: var(--ch-accent); }
 .ch-card-body { padding: 20px; }
 
-/* ── Payment methods ── */
-.ch-payment-info {
-    background: rgba(79,142,247,.06);
-    border: 1px solid rgba(79,142,247,.18);
-    border-radius: 10px; padding: 14px 16px;
-    margin-bottom: 12px; font-size: .84rem;
-    color: var(--bs-body-color, #212529);
+/* ── PayPal.me button ── */
+.ch-paypalme-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 13px 20px;
+    background: #0070ba; color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    text-decoration: none; transition: background .2s;
+    font-family: var(--ch-font);
 }
-.ch-payment-info strong { color: var(--ch-accent); }
-.ch-payment-info a { color: var(--ch-accent); word-break: break-all; }
+.ch-paypalme-btn:hover { background: #005ea6; color: #fff; }
+
+/* ── Method section divider ── */
+.ch-method-divider {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .75rem; color: var(--ch-muted);
+    text-transform: uppercase; letter-spacing: .06em;
+    margin: 16px 0;
+}
+.ch-method-divider::before,
+.ch-method-divider::after {
+    content: ''; flex: 1;
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+/* ── Payment notes ── */
 .ch-payment-notes {
     background: var(--bs-secondary-bg, #f8f9fa);
     border: 1px solid var(--bs-border-color, #dee2e6);
     border-radius: 10px; padding: 14px 16px;
-    margin-bottom: 12px; font-size: .84rem;
-    white-space: pre-wrap;
+    font-size: .84rem; white-space: pre-wrap;
     color: var(--bs-body-color, #212529);
 }
 
 /* ── Discount ── */
 .ch-discount-row { display: flex; gap: 8px; }
 .ch-discount-input {
-    flex: 1;
-    background: var(--bs-secondary-bg, #f8f9fa) !important;
+    flex: 1; background: var(--bs-secondary-bg, #f8f9fa) !important;
     border: 1px solid var(--bs-border-color, #dee2e6) !important;
     border-radius: 8px !important; padding: 9px 12px !important;
-    font-family: 'DM Mono', monospace !important;
-    font-size: .88rem !important; text-transform: uppercase;
-    color: var(--bs-body-color, #212529) !important;
+    font-family: 'DM Mono', monospace !important; font-size: .88rem !important;
+    text-transform: uppercase; color: var(--bs-body-color, #212529) !important;
     transition: border-color .2s !important;
 }
 .ch-discount-input:focus {
-    outline: none !important;
-    border-color: var(--ch-success) !important;
+    outline: none !important; border-color: var(--ch-success) !important;
     box-shadow: 0 0 0 3px rgba(34,197,94,.12) !important;
 }
 .ch-discount-btn {
     padding: 9px 16px; border-radius: 8px;
     background: rgba(34,197,94,.12); color: var(--ch-success);
     border: 1px solid rgba(34,197,94,.25); font-weight: 600;
-    font-size: .85rem; cursor: pointer; transition: all .2s;
-    white-space: nowrap;
+    font-size: .85rem; cursor: pointer; transition: all .2s; white-space: nowrap;
 }
 .ch-discount-btn:hover { background: var(--ch-success); color: #fff; }
 .ch-discount-msg { font-size: .8rem; margin-top: 6px; min-height: 1.2em; }
@@ -175,8 +167,7 @@
     transition: border-color .2s !important;
 }
 .ch-input:focus {
-    outline: none !important;
-    border-color: var(--ch-accent) !important;
+    outline: none !important; border-color: var(--ch-accent) !important;
     box-shadow: 0 0 0 3px rgba(79,142,247,.12) !important;
 }
 .ch-input-prefix { display: flex; align-items: center; }
@@ -202,25 +193,28 @@
 
 /* ── Back link ── */
 .ch-back {
-    background: transparent;
-    border: 1px solid var(--bs-border-color, #dee2e6);
-    color: var(--ch-muted); border-radius: 8px;
-    padding: 7px 14px; font-size: .82rem; font-weight: 500;
-    text-decoration: none; display: inline-flex;
-    align-items: center; gap: 6px; transition: all .2s;
-    margin-bottom: 20px;
+    background: transparent; border: 1px solid var(--bs-border-color, #dee2e6);
+    color: var(--ch-muted); border-radius: 8px; padding: 7px 14px;
+    font-size: .82rem; font-weight: 500; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px; transition: all .2s; margin-bottom: 20px;
 }
 .ch-back:hover { color: var(--bs-body-color, #212529); border-color: var(--ch-accent); }
 
 .ch-notice {
-    font-size: .78rem; color: var(--ch-muted);
-    margin-top: 14px; text-align: center;
-    display: flex; align-items: flex-start; gap: 6px; justify-content: center;
+    font-size: .78rem; color: var(--ch-muted); margin-top: 14px;
+    text-align: center; display: flex; align-items: flex-start;
+    gap: 6px; justify-content: center;
 }
 </style>
 @endsection
 
 @section('content')
+@php
+    $hasPaypalMe     = !empty($methods['paypal_url']);
+    $hasButtonHtml   = !empty($methods['payment_button_html']);
+    $hasOtherNotes   = !empty($methods['other_payment_notes']);
+    $hasManualMethod = $hasPaypalMe || $hasButtonHtml || $hasOtherNotes;
+@endphp
 <div class="ch-shell">
 <div class="row justify-content-center">
 <div class="col-lg-6">
@@ -244,14 +238,11 @@
             @if($video->description)
                 <p class="ch-product-desc">{{ $video->description }}</p>
             @endif
-
-            {{-- Price display --}}
             <div class="ch-price-box">
                 <span class="ch-price-original" id="priceOriginal" style="display:none;">${{ number_format($video->price, 2) }}</span>
                 <span class="ch-price-current" id="priceCurrent">${{ number_format($video->price, 2) }}</span>
                 <span class="ch-discount-applied" id="discountAppliedBadge"></span>
             </div>
-
             @if($video->isServiceProduct())
                 <div class="ch-service-info">
                     <span><i class="fas fa-calendar-alt"></i> {{ $video->duration_days ?? 30 }} días de acceso</span>
@@ -261,37 +252,14 @@
         </div>
     </div>
 
-    {{-- Payment methods --}}
-    @if(!empty($methods['paypal_url']) || !empty($methods['payment_button_html']) || !empty($methods['other_payment_notes']))
-    <div class="ch-card">
-        <div class="ch-card-header">
-            <i class="fas fa-wallet"></i> Métodos de pago del creador
-        </div>
-        <div class="ch-card-body">
-            @if(!empty($methods['paypal_url']))
-                <div class="ch-payment-info">
-                    <strong><i class="fab fa-paypal me-1"></i>PayPal:</strong>
-                    <a href="{{ $methods['paypal_url'] }}" target="_blank">{{ $methods['paypal_url'] }}</a>
-                </div>
-            @endif
-            @if(!empty($methods['payment_button_html']))
-                <div class="ch-payment-info">
-                    <strong><i class="fas fa-hand-pointer me-1"></i>Botón de pago:</strong>
-                    <div class="mt-2">{!! $methods['payment_button_html'] !!}</div>
-                </div>
-            @endif
-            @if(!empty($methods['other_payment_notes']))
-                <div class="ch-payment-notes">{{ $methods['other_payment_notes'] }}</div>
-            @endif
-        </div>
-    </div>
-    @endif
-
-    {{-- PayPal direct payment --}}
+    {{-- ── PayPal automático (API) ── --}}
     @if(!empty($paypalConfigured))
     <div class="ch-card">
         <div class="ch-card-header">
             <i class="fab fa-paypal"></i> Pagar con PayPal
+            <span style="margin-left:auto;font-size:.72rem;font-weight:400;color:var(--ch-success);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:20px;padding:2px 10px;">
+                <i class="fas fa-bolt" style="font-size:.65rem;"></i> Entrega automática
+            </span>
         </div>
         <div class="ch-card-body">
             <div class="mb-3">
@@ -307,10 +275,12 @@
             <div id="paypal-button-container"></div>
         </div>
     </div>
-    <div style="text-align:center;color:var(--ch-muted);font-size:.82rem;margin:-8px 0 8px;letter-spacing:.04em;">— o paga manualmente —</div>
+    @if($hasManualMethod)
+        <div style="text-align:center;color:var(--ch-muted);font-size:.82rem;margin:-6px 0 10px;letter-spacing:.04em;">— o usa otro método —</div>
+    @endif
     @endif
 
-    {{-- Discount code --}}
+    {{-- ── Descuento ── --}}
     <div class="ch-card">
         <div class="ch-card-header">
             <i class="fas fa-tag"></i> Código de descuento
@@ -328,53 +298,90 @@
         </div>
     </div>
 
-    {{-- Checkout form --}}
+    {{-- ── Métodos manuales ── --}}
+    @if($hasManualMethod)
     <div class="ch-card">
         <div class="ch-card-header">
-            <i class="fas fa-credit-card"></i> Confirmar pago
+            <i class="fas fa-wallet"></i> Otros métodos de pago
         </div>
         <div class="ch-card-body">
+
+            {{-- PayPal.me --}}
+            @if($hasPaypalMe)
+                <p style="font-size:.83rem;color:var(--ch-muted);margin-bottom:10px;">
+                    Haz clic en el botón, paga en PayPal y vuelve aquí para notificarnos.
+                </p>
+                <a href="{{ $methods['paypal_url'] }}" target="_blank" class="ch-paypalme-btn">
+                    <i class="fab fa-paypal"></i> Pagar con PayPal.me
+                    <i class="fas fa-external-link-alt" style="font-size:.75rem;opacity:.7;"></i>
+                </a>
+            @endif
+
+            {{-- Botón HTML personalizado --}}
+            @if($hasButtonHtml)
+                @if($hasPaypalMe)
+                    <div class="ch-method-divider">otro método</div>
+                @endif
+                <div>{!! $methods['payment_button_html'] !!}</div>
+            @endif
+
+            {{-- Otros (Binance, transferencia, etc.) --}}
+            @if($hasOtherNotes)
+                @if($hasPaypalMe || $hasButtonHtml)
+                    <div class="ch-method-divider">instrucciones</div>
+                @endif
+                <div class="ch-payment-notes">{{ $methods['other_payment_notes'] }}</div>
+            @endif
+
+        </div>
+    </div>
+
+    {{-- ── Notificar al creador ── --}}
+    <div class="ch-card">
+        <div class="ch-card-header">
+            <i class="fas fa-paper-plane"></i> Notificar al creador
+        </div>
+        <div class="ch-card-body">
+            <p style="font-size:.83rem;color:var(--ch-muted);margin-bottom:16px;">
+                Una vez hayas pagado por el método de arriba, deja tu usuario de Telegram para que el creador pueda enviarte el acceso.
+            </p>
             <form method="POST" action="{{ route('creator.checkout.submit', ['creator' => $creator->creator_slug, 'video' => $video->id]) }}">
                 @csrf
                 <input type="hidden" name="discount_code" id="discountCodeHidden">
+                <input type="hidden" name="payment_method" value="{{ $hasPaypalMe ? 'paypal' : ($hasButtonHtml ? 'boton_personalizado' : 'otro') }}">
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="ch-label">Tu usuario de Telegram</label>
-                        <div class="ch-input-prefix">
-                            <span class="ch-prefix">@</span>
-                            <input class="ch-input" name="telegram_username" required placeholder="usuario">
-                        </div>
+                <div class="mb-3">
+                    <label class="ch-label">Tu usuario de Telegram <span style="color:var(--ch-danger)">*</span></label>
+                    <div class="ch-input-prefix">
+                        <span class="ch-prefix">@</span>
+                        <input class="ch-input" name="telegram_username" required placeholder="usuario" maxlength="100">
                     </div>
-                    <div class="col-md-6">
-                        <label class="ch-label">Método de pago usado</label>
-                        <select class="ch-input" name="payment_method" required>
-                            <option value="paypal">PayPal</option>
-                            <option value="boton_personalizado">Botón personalizado</option>
-                            <option value="otro">Otro método</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="ch-label">Referencia <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
-                        <input class="ch-input" name="payment_reference" placeholder="ID de operación">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="ch-label">Comprobante URL <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
-                        <input class="ch-input" name="proof_url" placeholder="https://...">
-                    </div>
+                </div>
+                <div>
+                    <label class="ch-label">Nota <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+                    <textarea class="ch-input" name="payment_reference" rows="2" style="resize:vertical;"
+                              placeholder="Ej: ya pagué, ID de transacción, etc."></textarea>
                 </div>
 
                 <button class="ch-submit" type="submit">
-                    <i class="fas fa-paper-plane"></i> Ya pagué — enviar para revisión
+                    <i class="fas fa-paper-plane"></i> Ya pagué — notificar al creador
                 </button>
             </form>
 
             <p class="ch-notice">
                 <i class="fas fa-info-circle" style="flex-shrink:0;margin-top:2px;"></i>
-                El creador verificará tu pago y activará el acceso manualmente.
+                El creador revisará tu pago y activará el acceso manualmente.
             </p>
         </div>
     </div>
+    @endif
+
+    @if(!$hasManualMethod && !$paypalConfigured)
+    <div style="text-align:center;padding:40px 0;color:var(--ch-muted);">
+        <i class="fas fa-exclamation-circle" style="font-size:2rem;margin-bottom:10px;display:block;"></i>
+        Este creador aún no ha configurado métodos de pago.
+    </div>
+    @endif
 
 </div>
 </div>
@@ -388,13 +395,11 @@ const basePrice = {{ (float) $video->price }};
 function applyDiscount() {
     const code = document.getElementById('discountCodeInput').value.trim();
     const msg  = document.getElementById('discountMsg');
-
     if (!code) {
         msg.style.color = 'var(--ch-warning)';
         msg.textContent = 'Introduce un código.';
         return;
     }
-
     fetch('{{ route('discount-codes.validate') }}', {
         method: 'POST',
         headers: {
@@ -407,17 +412,14 @@ function applyDiscount() {
     .then(data => {
         if (data.valid) {
             document.getElementById('discountCodeHidden').value = code;
-
             const currentEl  = document.getElementById('priceCurrent');
             const originalEl = document.getElementById('priceOriginal');
             const badgeEl    = document.getElementById('discountAppliedBadge');
-
             currentEl.textContent = `$${data.final_amount.toFixed(2)}`;
             currentEl.classList.add('discounted');
             originalEl.style.display = '';
             badgeEl.textContent = `−${data.formatted}`;
             badgeEl.style.display = 'inline-flex';
-
             msg.style.color = 'var(--ch-success)';
             msg.textContent = '✓ Código aplicado.';
         } else {

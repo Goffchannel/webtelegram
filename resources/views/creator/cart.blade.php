@@ -284,73 +284,89 @@
             </div>
         </div>
 
-        {{-- Payment info + form --}}
+        @php
+            $hasPaypalMe   = !empty($methods['paypal_url']);
+            $hasButtonHtml = !empty($methods['payment_button_html']);
+            $hasOtherNotes = !empty($methods['other_payment_notes']);
+        @endphp
+
+        {{-- Métodos de pago --}}
+        @if($hasPaypalMe || $hasButtonHtml || $hasOtherNotes)
         <div class="ch-card">
             <div class="ch-card-header">
-                <i class="fas fa-credit-card"></i> Datos de pago
+                <i class="fas fa-wallet"></i> Métodos de pago
             </div>
             <div class="ch-card-body">
-
-                @if(!empty($methods['paypal_url']))
-                    <div class="ch-payment-info">
-                        <strong><i class="fab fa-paypal me-1"></i>PayPal:</strong>
-                        <a href="{{ $methods['paypal_url'] }}" target="_blank" style="word-break:break-all;">{{ $methods['paypal_url'] }}</a>
-                    </div>
+                @if($hasPaypalMe)
+                    <p style="font-size:.83rem;color:var(--ch-muted);margin-bottom:10px;">
+                        Haz clic en el botón, paga en PayPal y vuelve aquí para notificarnos.
+                    </p>
+                    <a href="{{ $methods['paypal_url'] }}" target="_blank"
+                       style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 20px;background:#0070ba;color:#fff;border-radius:10px;font-size:1rem;font-weight:700;text-decoration:none;transition:background .2s;font-family:var(--ch-font);">
+                        <i class="fab fa-paypal"></i> Pagar con PayPal.me
+                        <i class="fas fa-external-link-alt" style="font-size:.75rem;opacity:.7;"></i>
+                    </a>
                 @endif
-
-                @if(!empty($methods['payment_button_html']))
-                    <div class="ch-payment-info">
-                        <strong><i class="fas fa-hand-pointer me-1"></i>Botón de pago:</strong>
-                        <div class="mt-2">{!! $methods['payment_button_html'] !!}</div>
-                    </div>
+                @if($hasButtonHtml)
+                    @if($hasPaypalMe)<div style="display:flex;align-items:center;gap:10px;font-size:.75rem;color:var(--ch-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0;"><div style="flex:1;border-top:1px solid var(--bs-border-color,#dee2e6);"></div>otro método<div style="flex:1;border-top:1px solid var(--bs-border-color,#dee2e6);"></div></div>@endif
+                    <div>{!! $methods['payment_button_html'] !!}</div>
                 @endif
-
-                @if(!empty($methods['other_payment_notes']))
+                @if($hasOtherNotes)
+                    @if($hasPaypalMe || $hasButtonHtml)<div style="display:flex;align-items:center;gap:10px;font-size:.75rem;color:var(--ch-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0;"><div style="flex:1;border-top:1px solid var(--bs-border-color,#dee2e6);"></div>instrucciones<div style="flex:1;border-top:1px solid var(--bs-border-color,#dee2e6);"></div></div>@endif
                     <div class="ch-payment-notes">{{ $methods['other_payment_notes'] }}</div>
                 @endif
+            </div>
+        </div>
+        @endif
 
+        {{-- Notificar al creador --}}
+        @if($hasPaypalMe || $hasButtonHtml || $hasOtherNotes)
+        <div class="ch-card">
+            <div class="ch-card-header">
+                <i class="fas fa-paper-plane"></i> Notificar al creador
+            </div>
+            <div class="ch-card-body">
+                <p style="font-size:.83rem;color:var(--ch-muted);margin-bottom:16px;">
+                    Una vez hayas pagado, deja tu usuario de Telegram para que el creador pueda activar tu acceso.
+                </p>
                 <form method="POST" action="{{ route('creator.cart.checkout', $creator->creator_slug) }}" id="cartForm">
                     @csrf
                     <div id="videoIdInputs"></div>
                     <input type="hidden" name="discount_code" id="discountCodeHidden">
+                    <input type="hidden" name="payment_method" value="{{ $hasPaypalMe ? 'paypal' : ($hasButtonHtml ? 'boton_personalizado' : 'otro') }}">
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="ch-label">Usuario de Telegram</label>
-                            <div class="ch-input-prefix">
-                                <span class="ch-prefix">@</span>
-                                <input class="ch-input" name="telegram_username" required placeholder="usuario">
-                            </div>
+                    <div class="mb-3">
+                        <label class="ch-label">Tu usuario de Telegram <span style="color:var(--ch-danger)">*</span></label>
+                        <div class="ch-input-prefix">
+                            <span class="ch-prefix">@</span>
+                            <input class="ch-input" name="telegram_username" required placeholder="usuario" maxlength="100">
                         </div>
-                        <div class="col-md-6">
-                            <label class="ch-label">Método de pago</label>
-                            <select class="ch-input" name="payment_method" required>
-                                <option value="paypal">PayPal</option>
-                                <option value="boton_personalizado">Botón personalizado</option>
-                                <option value="otro">Otro método</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="ch-label">Referencia de pago <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
-                            <input class="ch-input" name="payment_reference" placeholder="ID de operación">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="ch-label">URL del comprobante <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
-                            <input class="ch-input" name="proof_url" placeholder="https://...">
-                        </div>
+                    </div>
+                    <div>
+                        <label class="ch-label">Nota <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+                        <textarea class="ch-input" name="payment_reference" rows="2" style="resize:vertical;"
+                                  placeholder="Ej: ya pagué, ID de transacción, etc."></textarea>
                     </div>
 
                     <button class="ch-submit" type="submit">
-                        <i class="fas fa-paper-plane"></i> Ya pagué — enviar para revisión
+                        <i class="fas fa-paper-plane"></i> Ya pagué — notificar al creador
                     </button>
                 </form>
 
                 <p class="ch-notice">
                     <i class="fas fa-info-circle" style="flex-shrink:0;margin-top:2px;"></i>
-                    El creador verificará tu pago y activará cada producto individualmente.
+                    El creador revisará tu pago y activará cada producto individualmente.
                 </p>
             </div>
         </div>
+        @endif
+
+        @if(!$hasPaypalMe && !$hasButtonHtml && !$hasOtherNotes)
+        <div style="text-align:center;padding:30px 0;color:var(--ch-muted);">
+            <i class="fas fa-exclamation-circle" style="font-size:2rem;margin-bottom:10px;display:block;"></i>
+            Este creador aún no ha configurado métodos de pago manuales.
+        </div>
+        @endif
 
     </div>{{-- /cartContent --}}
 </div>

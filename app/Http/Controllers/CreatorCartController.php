@@ -35,9 +35,8 @@ class CreatorCartController extends Controller
             'video_ids'         => 'required|array|min:1|max:20',
             'video_ids.*'       => 'required|integer|exists:videos,id',
             'telegram_username' => 'required|string|max:255',
-            'payment_method'    => 'required|string|max:80',
-            'payment_reference' => 'nullable|string|max:255',
-            'proof_url'         => 'nullable|url|max:500',
+            'payment_method'    => 'nullable|string|max:80',
+            'payment_reference' => 'nullable|string|max:500',
             'discount_code'     => 'nullable|string|max:50',
         ]);
 
@@ -70,7 +69,7 @@ class CreatorCartController extends Controller
             }
         }
 
-        $instructions = $this->resolveInstructions($creator, $validated['payment_method']);
+        $instructions = $this->resolveInstructions($creator, $validated['payment_method'] ?? 'otro');
         $purchases    = [];
 
         foreach ($videos as $video) {
@@ -96,9 +95,8 @@ class CreatorCartController extends Controller
                 'verification_status'  => 'pending',
                 'delivery_status'      => 'pending',
                 'delivery_attempts'    => 0,
-                'payment_method'       => $validated['payment_method'],
+                'payment_method'       => $validated['payment_method'] ?? 'manual',
                 'payment_reference'    => $validated['payment_reference'] ?? null,
-                'proof_url'            => $validated['proof_url'] ?? null,
                 'payment_instructions' => $instructions,
                 'customer_email'       => null,
                 'stripe_session_id'    => 'cart_' . now()->timestamp . '_' . bin2hex(random_bytes(4)),

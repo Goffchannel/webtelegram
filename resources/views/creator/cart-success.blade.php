@@ -36,7 +36,13 @@
                         </a>
                     </div>
                     <div class="mt-1">
-                        <span class="badge text-bg-warning">Pendiente de verificación</span>
+                        @if($p->verification_status === 'verified' && $p->delivery_status === 'delivered')
+                            <span class="badge text-bg-success">Entregado</span>
+                        @elseif($p->verification_status === 'verified')
+                            <span class="badge text-bg-info">Aprobado — entrega pendiente</span>
+                        @else
+                            <span class="badge text-bg-warning">Pendiente de verificación</span>
+                        @endif
                     </div>
                 </div>
                 @endforeach

@@ -153,22 +153,46 @@ code { background: var(--pu-surface2); color: #93c5fd; padding: 2px 7px; border-
 <div class="pu-wrap">
 
     {{-- Header --}}
+    @php
+        $isVerified = $purchase->verification_status === 'verified';
+        $isDelivered = $purchase->delivery_status === 'delivered';
+    @endphp
     <div class="pu-header">
-        <div class="pu-header-icon"><i class="fas fa-check"></i></div>
+        <div class="pu-header-icon" style="{{ !$isVerified ? 'background:rgba(245,158,11,.15);' : '' }}">
+            <i class="fas {{ $isVerified ? 'fa-check' : 'fa-clock' }}" style="{{ !$isVerified ? 'color:var(--pu-warning);' : '' }}"></i>
+        </div>
         <div>
-            <p class="pu-header-title">Compra completada</p>
-            <p class="pu-header-sub">Tu pago se procesó correctamente</p>
+            @if($isVerified && $isDelivered)
+                <p class="pu-header-title">Compra completada</p>
+                <p class="pu-header-sub">Tu pago fue verificado y el contenido entregado</p>
+            @elseif($isVerified)
+                <p class="pu-header-title">Pago aprobado</p>
+                <p class="pu-header-sub">Tu pago fue verificado — entrega en proceso</p>
+            @else
+                <p class="pu-header-title">Solicitud recibida</p>
+                <p class="pu-header-sub">Esperando verificación del creador</p>
+            @endif
         </div>
     </div>
 
-    {{-- Pago confirmado banner --}}
+    {{-- Banner de estado de pago --}}
+    @if($isVerified)
     <div class="pu-banner success">
-        <span class="pu-banner-icon"><i class="fas fa-shopping-cart"></i></span>
+        <span class="pu-banner-icon"><i class="fas fa-shield-alt"></i></span>
         <div>
-            <div class="pu-banner-title">Pago confirmado</div>
-            Tu pago se proceso correctamente. Debajo tienes los detalles de tu compra.
+            <div class="pu-banner-title">Pago verificado</div>
+            El creador ha confirmado tu pago. Debajo tienes los detalles de tu compra.
         </div>
     </div>
+    @else
+    <div class="pu-banner" style="background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);">
+        <span class="pu-banner-icon" style="color:var(--pu-warning);"><i class="fas fa-hourglass-half"></i></span>
+        <div>
+            <div class="pu-banner-title" style="color:var(--pu-warning);">Pendiente de verificación</div>
+            <span style="color:rgba(245,158,11,.8);">El creador revisará tu pago y activará el acceso en breve.</span>
+        </div>
+    </div>
+    @endif
 
     {{-- Meta grid --}}
     <div class="pu-meta">
@@ -184,10 +208,13 @@ code { background: var(--pu-surface2); color: #93c5fd; padding: 2px 7px; border-
             <div class="pu-meta-label"><i class="fas fa-receipt me-1"></i>Compra</div>
             <div class="pu-meta-uuid mb-2">{{ $purchase->purchase_uuid }}</div>
             <div class="pu-meta-value" style="font-size:.82rem;margin-bottom:6px;"><i class="fas fa-calendar-alt me-1" style="color:var(--pu-muted);"></i>{{ $purchase->created_at->format('d/m/Y H:i:s') }}</div>
-            <span class="pu-badge-done">
-                @php $statusLabels = ['completed'=>'Completado','pending'=>'Pendiente','failed'=>'Fallido','refunded'=>'Reembolsado']; @endphp
-                {{ $statusLabels[$purchase->purchase_status] ?? ucfirst($purchase->purchase_status) }}
-            </span>
+            @if($purchase->verification_status === 'verified' && $purchase->delivery_status === 'delivered')
+                <span class="pu-badge-done">Entregado</span>
+            @elseif($purchase->verification_status === 'verified')
+                <span class="pu-badge-done" style="background:rgba(79,142,247,.15);color:var(--pu-accent);">Aprobado</span>
+            @else
+                <span class="pu-badge-done" style="background:rgba(245,158,11,.15);color:var(--pu-warning);">En revisión</span>
+            @endif
         </div>
     </div>
 

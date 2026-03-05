@@ -385,89 +385,156 @@
      TAB: PERFIL
 ════════════════════════════════════════════════════ --}}
 <div class="cr-panel" id="tab-perfil">
-    <div class="cr-card">
-        <div class="cr-card-header"><i class="fas fa-id-card"></i> Configuración de tienda</div>
+<form method="POST" action="{{ route('creator.profile.update') }}" enctype="multipart/form-data">
+@csrf
+
+    {{-- ── Sección: Identidad de tienda ── --}}
+    <div class="cr-card" style="margin-bottom:16px;">
+        <div class="cr-card-header">
+            <i class="fas fa-store"></i> Identidad de tienda
+        </div>
         <div class="cr-card-body">
-            <form method="POST" action="{{ route('creator.profile.update') }}" enctype="multipart/form-data">
-                @csrf
 
-                {{-- Avatar --}}
-                <div style="margin-bottom:20px;">
-                    <label class="cr-label">Foto de perfil</label>
-                    <div class="cr-avatar-edit">
-                        @if($avatarSrc)
-                            <img src="{{ $avatarSrc }}" id="avatarPreview" alt="Avatar"
-                                 style="width:72px;height:72px;border-radius:50%;object-fit:contain;background:#0a0e16;border:2px solid var(--cr-accent);">
-                        @else
-                            <div id="avatarPreviewPlaceholder" style="width:72px;height:72px;border-radius:50%;background:var(--cr-bg);border:2px dashed var(--cr-border);display:flex;align-items:center;justify-content:center;color:var(--cr-muted);font-size:24px;flex-shrink:0;">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <img src="" id="avatarPreview" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:contain;background:#0a0e16;border:2px solid var(--cr-accent);display:none;">
-                        @endif
-                        <div style="flex:1;">
-                            <input type="file" class="cr-input" name="creator_avatar" accept="image/*" id="avatarFile"
-                                   style="margin-bottom:8px;">
-                            <input type="url" class="cr-input" name="creator_avatar_url"
-                                   placeholder="O pega una URL de imagen directa"
-                                   value="{{ old('creator_avatar_url') }}">
+            {{-- Avatar row --}}
+            <div style="display:flex;align-items:center;gap:20px;margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--cr-border);">
+                {{-- Avatar preview --}}
+                <div style="position:relative;flex-shrink:0;">
+                    @if($avatarSrc)
+                        <img src="{{ $avatarSrc }}" id="avatarPreview" alt="Avatar"
+                             style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#0a0e16;border:2px solid var(--cr-accent);">
+                    @else
+                        <div id="avatarPreviewPlaceholder" style="width:80px;height:80px;border-radius:50%;background:var(--cr-bg);border:2px dashed var(--cr-border);display:flex;align-items:center;justify-content:center;color:var(--cr-muted);font-size:28px;">
+                            <i class="fas fa-user"></i>
                         </div>
-                    </div>
+                        <img src="" id="avatarPreview" alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#0a0e16;border:2px solid var(--cr-accent);display:none;">
+                    @endif
                 </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:.8rem;font-weight:600;color:var(--cr-text);margin-bottom:8px;">Foto de perfil</div>
+                    <input type="file" class="cr-input" name="creator_avatar" accept="image/*" id="avatarFile"
+                           style="margin-bottom:8px;font-size:.82rem;">
+                    <input type="url" class="cr-input" name="creator_avatar_url"
+                           placeholder="O pega una URL de imagen directa"
+                           value="{{ old('creator_avatar_url') }}"
+                           style="font-size:.82rem;">
+                </div>
+            </div>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="cr-label">Nombre de tienda</label>
-                        <input class="cr-input" name="creator_store_name"
-                               value="{{ old('creator_store_name', $creator->creator_store_name ?? $creator->name) }}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="cr-label">Slug público</label>
-                        <input class="cr-input" name="creator_slug"
-                               value="{{ old('creator_slug', $creator->creator_slug) }}" required>
-                    </div>
-                    <div class="col-md-12">
-                        <label class="cr-label">Bio</label>
-                        <textarea class="cr-input" name="creator_bio" rows="3">{{ old('creator_bio', $creator->creator_bio) }}</textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="cr-label">Telegram User ID</label>
-                        <input class="cr-input" name="telegram_user_id"
-                               value="{{ old('telegram_user_id', $creator->telegram_user_id) }}"
-                               placeholder="123456789">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="cr-label">PayPal URL</label>
-                        <input class="cr-input" name="paypal_url"
-                               value="{{ old('paypal_url', data_get($creator->creator_payment_methods, 'paypal_url')) }}"
-                               placeholder="https://paypal.me/...">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="cr-label">Email PayPal (para recibir pagos directos)</label>
-                        <input class="cr-input" type="email" name="paypal_email"
-                               value="{{ old('paypal_email', $creator->paypal_email) }}"
-                               placeholder="tu@email.com">
-                        <small style="color:var(--cr-muted);font-size:.75rem;">Email asociado a tu cuenta PayPal para recibir pagos directos vía API.</small>
-                    </div>
-                    <div class="col-md-12">
-                        <label class="cr-label">Botón de pago personalizado (HTML)</label>
-                        <textarea class="cr-input" name="payment_button_html" rows="3"
-                                  placeholder="Pega aquí el botón HTML de pago">{{ old('payment_button_html', data_get($creator->creator_payment_methods, 'payment_button_html')) }}</textarea>
-                    </div>
-                    <div class="col-md-12">
-                        <label class="cr-label">Otros métodos / instrucciones</label>
-                        <textarea class="cr-input" name="other_payment_notes" rows="2"
-                                  placeholder="Binance, transferencia, etc.">{{ old('other_payment_notes', data_get($creator->creator_payment_methods, 'other_payment_notes')) }}</textarea>
-                    </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="cr-label">Nombre de tienda</label>
+                    <input class="cr-input" name="creator_store_name"
+                           value="{{ old('creator_store_name', $creator->creator_store_name ?? $creator->name) }}" required>
                 </div>
-
-                <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--cr-border);">
-                    <button class="cr-btn" type="submit">
-                        <i class="fas fa-save"></i> Guardar cambios
-                    </button>
+                <div class="col-md-6">
+                    <label class="cr-label">
+                        Slug público
+                        <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:.7rem;color:var(--cr-muted);margin-left:4px;">/store/<strong>{{ $creator->creator_slug }}</strong></span>
+                    </label>
+                    <input class="cr-input" name="creator_slug"
+                           value="{{ old('creator_slug', $creator->creator_slug) }}" required>
                 </div>
-            </form>
+                <div class="col-12">
+                    <label class="cr-label">Bio</label>
+                    <textarea class="cr-input" name="creator_bio" rows="3"
+                              placeholder="Describe tu tienda o contenido...">{{ old('creator_bio', $creator->creator_bio) }}</textarea>
+                </div>
+            </div>
         </div>
     </div>
+
+    {{-- ── Sección: Telegram ── --}}
+    <div class="cr-card" style="margin-bottom:16px;">
+        <div class="cr-card-header">
+            <i class="fab fa-telegram" style="color:#229ED9;"></i> Configuración Telegram
+        </div>
+        <div class="cr-card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="cr-label">Tu Telegram User ID</label>
+                    <input class="cr-input" name="telegram_user_id"
+                           value="{{ old('telegram_user_id', $creator->telegram_user_id) }}"
+                           placeholder="Ej: 123456789">
+                    @if($creator->telegram_user_id)
+                        <div style="margin-top:6px;font-size:.78rem;color:var(--cr-success);">
+                            <i class="fas fa-check-circle me-1"></i> ID vinculado — el bot te reconocerá al subir videos.
+                        </div>
+                    @else
+                        <div style="margin-top:6px;font-size:.78rem;color:var(--cr-warning);">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Sin vincular. Envía <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;">/start</code> al bot para obtener tu ID.
+                        </div>
+                    @endif
+                </div>
+                <div class="col-md-6" style="display:flex;align-items:flex-start;">
+                    <div style="background:rgba(34,157,217,.08);border:1px solid rgba(34,157,217,.2);border-radius:10px;padding:12px 14px;font-size:.8rem;color:var(--cr-muted);line-height:1.5;width:100%;margin-top:22px;">
+                        <i class="fab fa-telegram" style="color:#229ED9;margin-right:6px;"></i>
+                        Necesitas tu <strong style="color:var(--cr-text);">Telegram User ID</strong> para que el bot pueda enviarte los videos que subes y entregártelos a los compradores.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Sección: Métodos de pago ── --}}
+    <div class="cr-card" style="margin-bottom:16px;">
+        <div class="cr-card-header">
+            <i class="fas fa-wallet"></i> Métodos de pago
+        </div>
+        <div class="cr-card-body">
+
+            {{-- PayPal API --}}
+            <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr-muted);margin-bottom:10px;">
+                <i class="fab fa-paypal" style="color:#0070ba;margin-right:4px;"></i> PayPal API — cobro automático
+            </div>
+            <div class="row g-3" style="margin-bottom:20px;">
+                <div class="col-12">
+                    <label class="cr-label">Email PayPal</label>
+                    <input class="cr-input" type="email" name="paypal_email"
+                           value="{{ old('paypal_email', $creator->paypal_email) }}"
+                           placeholder="tu@email.com">
+                    <small style="color:var(--cr-muted);font-size:.75rem;margin-top:4px;display:block;">
+                        El comprador paga automáticamente y recibe el video al instante. Requiere cuenta PayPal Business o verificada.
+                    </small>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid var(--cr-border);margin-bottom:20px;"></div>
+
+            {{-- Métodos manuales --}}
+            <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr-muted);margin-bottom:10px;">
+                Métodos manuales
+            </div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="cr-label">PayPal.me URL</label>
+                    <input class="cr-input" name="paypal_url"
+                           value="{{ old('paypal_url', data_get($creator->creator_payment_methods, 'paypal_url')) }}"
+                           placeholder="https://paypal.me/tunombre">
+                    <small style="color:var(--cr-muted);font-size:.75rem;margin-top:4px;display:block;">El comprador abre el link, paga y te notifica. Tú apruebas manualmente.</small>
+                </div>
+                <div class="col-12">
+                    <label class="cr-label">Botón de pago personalizado (HTML)</label>
+                    <textarea class="cr-input" name="payment_button_html" rows="3"
+                              placeholder="Pega aquí el HTML de tu botón de pago (Ko-fi, Stripe, etc.)">{{ old('payment_button_html', data_get($creator->creator_payment_methods, 'payment_button_html')) }}</textarea>
+                </div>
+                <div class="col-12">
+                    <label class="cr-label">Otros métodos / instrucciones</label>
+                    <textarea class="cr-input" name="other_payment_notes" rows="2"
+                              placeholder="Ej: Binance ID: xxxx, transferencia IBAN: xxxx, etc.">{{ old('other_payment_notes', data_get($creator->creator_payment_methods, 'other_payment_notes')) }}</textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- Save --}}
+    <div style="display:flex;justify-content:flex-end;">
+        <button class="cr-btn" type="submit" style="padding:11px 28px;">
+            <i class="fas fa-save"></i> Guardar cambios
+        </button>
+    </div>
+
+</form>
 </div>
 
 {{-- ══════════════════════════════════════════════════

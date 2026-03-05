@@ -113,6 +113,7 @@ class PaypalController extends Controller
 
             $purchase->update([
                 'purchase_status'          => 'completed',
+                'verification_status'      => 'verified',
                 'stripe_payment_intent_id' => 'paypal_capture_' . $orderId,
             ]);
 
@@ -121,9 +122,11 @@ class PaypalController extends Controller
                 app(ServiceAccessManager::class)->provisionForPurchase($purchase);
                 $purchase->refresh();
                 if ($purchase->delivery_status !== 'delivered') {
-                    $purchase->update(['verification_status' => 'verified']);
                     $purchase->markAsDelivered();
                 }
+            } else {
+                // Regular video — deliver automatically via bot
+                $purchase->markAsDelivered();
             }
 
             return response()->json([

@@ -634,24 +634,42 @@
                             </td>
                         </tr>
                         <tr id="vid-{{ $video->id }}" style="display:none;">
-                            <td colspan="6" style="padding:0 !important;">
-                                <div class="cr-expand-inner">
+                            <td colspan="6" style="padding:0 !important;background:var(--cr-bg);">
+                                <div style="padding:20px 24px;">
                                     <form method="POST" action="{{ route('creator.videos.update', $video) }}">
                                         @csrf @method('PUT')
-                                        <div class="row g-2">
-                                            <div class="col-md-4">
+
+                                        {{-- Estado Telegram --}}
+                                        @if($video->telegram_file_id)
+                                            <div style="display:flex;align-items:center;gap:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:10px 16px;margin-bottom:18px;font-size:.84rem;color:var(--cr-success);">
+                                                <i class="fab fa-telegram" style="font-size:1.1rem;"></i>
+                                                <span><strong>Video vinculado</strong> — entrega automática activa.</span>
+                                            </div>
+                                        @else
+                                            <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:10px 16px;margin-bottom:18px;font-size:.84rem;color:var(--cr-warning);">
+                                                <i class="fab fa-telegram" style="font-size:1.1rem;margin-top:1px;"></i>
+                                                <span><strong>Sin vincular.</strong> Envía el video al bot{{ $bot['is_configured'] ? ' <strong>@'.$bot['username'].'</strong>' : '' }} con el título como caption. Asegúrate de tener tu <strong>Telegram User ID</strong> en el tab Perfil.</span>
+                                            </div>
+                                        @endif
+
+                                        {{-- Sección: Información básica --}}
+                                        <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr-muted);margin-bottom:10px;">
+                                            Información básica
+                                        </div>
+                                        <div class="row g-3" style="margin-bottom:18px;">
+                                            <div class="col-12">
                                                 <label class="cr-label">Título</label>
                                                 <input name="title" class="cr-input" value="{{ $video->title }}" required>
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="cr-label">Precio</label>
+                                            <div class="col-md-3">
+                                                <label class="cr-label">Precio (USD)</label>
                                                 <input name="price" type="number" min="0" step="0.01" class="cr-input" value="{{ $video->price }}" required>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="cr-label">Tipo</label>
                                                 <select name="product_type" class="cr-input" required>
                                                     <option value="video" @selected(!$video->isServiceProduct())>Video</option>
-                                                    <option value="service_access" @selected($video->isServiceProduct())>Servicio</option>
+                                                    <option value="service_access" @selected($video->isServiceProduct())>Servicio / Membresía</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
@@ -666,80 +684,89 @@
                                                     <input class="cr-input" value="Crea una categoría primero" disabled>
                                                 @endif
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="cr-label">Blur</label>
-                                                <input name="blur_intensity" type="number" min="1" max="20" class="cr-input" value="{{ $video->blur_intensity ?? 10 }}">
+                                            <div class="col-md-3">
+                                                <label class="cr-label">Días de acceso</label>
+                                                <input name="duration_days" type="number" min="1" max="365" class="cr-input"
+                                                       value="{{ $video->duration_days ?? 30 }}"
+                                                       placeholder="30">
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="cr-label">Días</label>
-                                                <input name="duration_days" type="number" min="1" max="365" class="cr-input" value="{{ $video->duration_days ?? 30 }}">
+                                            <div class="col-12">
+                                                <label class="cr-label">Descripción breve</label>
+                                                <textarea name="description" class="cr-input" rows="2" placeholder="Descripción visible en la tienda...">{{ $video->description }}</textarea>
                                             </div>
+                                        </div>
+
+                                        {{-- Divider --}}
+                                        <div style="border-top:1px solid var(--cr-border);margin-bottom:18px;"></div>
+
+                                        {{-- Sección: Imagen y detalles --}}
+                                        <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr-muted);margin-bottom:10px;">
+                                            Imagen y detalles
+                                        </div>
+                                        <div class="row g-3" style="margin-bottom:18px;">
                                             <div class="col-md-8">
-                                                <label class="cr-label">Descripción</label>
-                                                <textarea name="description" class="cr-input" rows="2">{{ $video->description }}</textarea>
-                                            </div>
-                                            <div class="col-md-12">
                                                 <label class="cr-label">Thumbnail URL</label>
                                                 <input name="thumbnail_url" class="cr-input"
                                                        value="{{ $video->thumbnail_url ?: (filter_var($video->thumbnail_path, FILTER_VALIDATE_URL) ? $video->thumbnail_path : '') }}"
                                                        placeholder="https://...">
                                             </div>
-                                            <div class="col-md-12">
-                                                <label class="cr-label">
-                                                    <i class="fab fa-telegram" style="color:var(--cr-accent);"></i>
-                                                    Telegram File ID
-                                                    @if($video->telegram_file_id)
-                                                        <span style="color:var(--cr-success);font-size:.75rem;margin-left:6px;">✓ Vinculado</span>
-                                                    @else
-                                                        <span style="color:var(--cr-warning);font-size:.75rem;margin-left:6px;">Sin vincular</span>
-                                                    @endif
-                                                </label>
-                                                <input name="telegram_file_id" class="cr-input"
-                                                       value="{{ $video->telegram_file_id }}"
-                                                       placeholder="Se asigna automáticamente al enviar el video al bot">
-                                                @if(!$video->telegram_file_id)
-                                                    <small style="color:var(--cr-muted);font-size:.74rem;">
-                                                        Envía el video al bot {{ $bot['is_configured'] ? '@'.$bot['username'] : '' }} con el título como caption y se vinculará automáticamente.
-                                                        Asegúrate de tener tu <strong>Telegram User ID</strong> configurado en el tab Perfil.
-                                                    </small>
-                                                @endif
+                                            <div class="col-md-4">
+                                                <label class="cr-label">Intensidad blur</label>
+                                                <input name="blur_intensity" type="number" min="1" max="20" class="cr-input"
+                                                       value="{{ $video->blur_intensity ?? 10 }}"
+                                                       placeholder="10">
                                             </div>
-                                            <div class="col-md-12">
+                                            <div class="col-12">
                                                 <label class="cr-label">Descripción larga</label>
-                                                <textarea name="long_description" class="cr-input" rows="2">{{ $video->long_description }}</textarea>
+                                                <textarea name="long_description" class="cr-input" rows="3" placeholder="Descripción detallada del producto...">{{ $video->long_description }}</textarea>
                                             </div>
+                                        </div>
+
+                                        {{-- Divider --}}
+                                        <div style="border-top:1px solid var(--cr-border);margin-bottom:18px;"></div>
+
+                                        {{-- Sección: Post-compra --}}
+                                        <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr-muted);margin-bottom:10px;">
+                                            Mensajes post-compra
+                                        </div>
+                                        <div class="row g-3" style="margin-bottom:18px;">
                                             <div class="col-md-6">
-                                                <label class="cr-label">Mensaje post-compra</label>
-                                                <textarea name="fan_message" class="cr-input" rows="2">{{ $video->fan_message }}</textarea>
+                                                <label class="cr-label">Mensaje al comprador</label>
+                                                <textarea name="fan_message" class="cr-input" rows="2" placeholder="Gracias por tu compra...">{{ $video->fan_message }}</textarea>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="cr-label">Instrucciones de acceso</label>
-                                                <textarea name="access_instructions" class="cr-input" rows="2">{{ $video->access_instructions }}</textarea>
+                                                <textarea name="access_instructions" class="cr-input" rows="2" placeholder="Cómo acceder al contenido...">{{ $video->access_instructions }}</textarea>
                                             </div>
-                                            <div class="col-md-12" style="display:flex;gap:20px;align-items:center;margin-top:4px;">
-                                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--cr-text);font-size:.85rem;">
+                                        </div>
+
+                                        {{-- Opciones de visualización + Guardar --}}
+                                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                                            <div style="display:flex;gap:24px;align-items:center;">
+                                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--cr-text);font-size:.85rem;margin:0;">
                                                     <input type="checkbox" name="show_blurred" value="1" @checked($video->show_blurred_thumbnail)
-                                                           style="accent-color:var(--cr-accent);width:16px;height:16px;">
+                                                           style="accent-color:var(--cr-accent);width:15px;height:15px;">
                                                     Mostrar blurred
                                                 </label>
-                                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--cr-text);font-size:.85rem;">
+                                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--cr-text);font-size:.85rem;margin:0;">
                                                     <input type="checkbox" name="allow_preview" value="1" @checked($video->allow_preview)
-                                                           style="accent-color:var(--cr-accent);width:16px;height:16px;">
+                                                           style="accent-color:var(--cr-accent);width:15px;height:15px;">
                                                     Permitir preview
                                                 </label>
                                             </div>
-                                            <div class="col-12" style="margin-top:8px;">
-                                                <button class="cr-btn cr-btn-sm" type="submit" @disabled($categories->count() === 0)>
-                                                    <i class="fas fa-save"></i> Guardar cambios
-                                                </button>
+                                            <div style="display:flex;gap:8px;align-items:center;">
                                                 @if($video->isServiceProduct() && auth()->user()->is_admin)
                                                     <a href="{{ route('admin.videos.service-lines.show', $video) }}"
-                                                       class="cr-btn cr-btn-sm cr-btn-outline" style="margin-left:8px;">
+                                                       class="cr-btn cr-btn-sm cr-btn-outline">
                                                         <i class="fas fa-key"></i> Líneas IPTV
                                                     </a>
                                                 @endif
+                                                <button class="cr-btn cr-btn-sm" type="submit" @disabled($categories->count() === 0)>
+                                                    <i class="fas fa-save"></i> Guardar cambios
+                                                </button>
                                             </div>
                                         </div>
+
                                     </form>
                                 </div>
                             </td>

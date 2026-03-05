@@ -224,7 +224,20 @@
                         <td style="font-family:'DM Mono',monospace;font-size:.82rem;">
                             {{ $purchase->telegram_username ? '@'.$purchase->telegram_username : '—' }}
                         </td>
-                        <td style="color:var(--cr-muted);font-size:.82rem;">{{ $purchase->payment_method ?? '—' }}</td>
+                        <td style="color:var(--cr-muted);font-size:.82rem;">
+                            @php
+                                $isPaypal = str_starts_with($purchase->stripe_session_id ?? '', 'paypal_')
+                                         || str_starts_with($purchase->stripe_payment_intent_id ?? '', 'paypal_capture_');
+                                $method = $isPaypal ? 'paypal' : ($purchase->payment_method ?? '—');
+                            @endphp
+                            @if($method === 'paypal')
+                                <span style="color:#0070ba;font-weight:600;font-size:.8rem;"><i class="fab fa-paypal me-1"></i>PayPal</span>
+                            @elseif($method === 'stripe')
+                                <span style="color:#635bff;font-weight:600;font-size:.8rem;"><i class="fab fa-stripe-s me-1"></i>Stripe</span>
+                            @else
+                                {{ $method }}
+                            @endif
+                        </td>
                         <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--cr-muted);">
                             {{ $purchase->payment_reference ?? '—' }}
                         </td>

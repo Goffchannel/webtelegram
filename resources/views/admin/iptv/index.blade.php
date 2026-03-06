@@ -62,7 +62,18 @@
 
             {{-- --- CDN Slots card --- --}}
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-server me-2"></i>Tokens CDN por slot</div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-server me-2"></i>Tokens CDN por slot</span>
+                    <button id="btn-generate-tokens" class="btn btn-sm btn-success">
+                        <i class="fas fa-bolt me-1"></i>Generar tokens (slots 2+)
+                    </button>
+                </div>
+
+                {{-- Resultado de generación --}}
+                <div id="generate-result" class="d-none border-bottom">
+                    <div id="generate-output" class="p-3" style="font-family:monospace;font-size:.85rem;white-space:pre-wrap;"></div>
+                </div>
+
                 <div class="card-body p-0">
 
                     {{-- Slot 1 (siempre existe) --}}
@@ -415,6 +426,44 @@ btnSave.addEventListener('click', () => {
     saveM3uInput.value = m3uInput.value;
     saveForm.classList.remove('d-none');
     saveForm.submit();
+});
+
+// --- Generar tokens (slots 2+) ---
+const btnGenerate    = document.getElementById('btn-generate-tokens');
+const generateResult = document.getElementById('generate-result');
+const generateOutput = document.getElementById('generate-output');
+
+btnGenerate.addEventListener('click', async () => {
+    btnGenerate.disabled = true;
+    btnGenerate.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generando…';
+    generateResult.classList.remove('d-none');
+    generateOutput.textContent = 'Contactando servidor…';
+    generateOutput.className = 'p-3 text-muted';
+
+    try {
+        const resp = await fetch('{{ route('admin.iptv.generate-tokens') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+        });
+        const data = await resp.json();
+
+        generateOutput.textContent = data.output || '(sin respuesta)';
+
+        if (data.ok) {
+            generateOutput.className = 'p-3 text-success';
+        } else {
+            generateOutput.className = 'p-3 text-danger';
+        }
+    } catch (e) {
+        generateOutput.textContent = 'Error de red: ' + e.message;
+        generateOutput.className = 'p-3 text-danger';
+    } finally {
+        btnGenerate.disabled = false;
+        btnGenerate.innerHTML = '<i class="fas fa-bolt me-1"></i>Generar tokens (slots 2+)';
+    }
 });
 </script>
 @endsection

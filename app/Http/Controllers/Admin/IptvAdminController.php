@@ -155,6 +155,36 @@ class IptvAdminController extends Controller
     // CDN Slots management (slots 2+)
     // =========================================================================
 
+    /**
+     * Call the external token generator (generates tokens for all extra slots).
+     * Returns JSON with the raw output so the frontend can display it.
+     */
+    public function generateTokens()
+    {
+        $url = 'http://212.227.178.212/movistar.php';
+
+        try {
+            $response = Http::timeout(30)->get($url);
+            $body     = trim($response->body());
+
+            $lines   = array_filter(array_map('trim', explode("\n", $body)));
+            $success = collect($lines)->every(fn($l) => str_starts_with($l, 'EXITO:'));
+
+            return response()->json([
+                'ok'     => $success,
+                'output' => $body,
+                'lines'  => array_values($lines),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('IPTV generate tokens failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'ok'     => false,
+                'output' => 'Error al contactar el servidor: ' . $e->getMessage(),
+                'lines'  => [],
+            ], 500);
+        }
+    }
+
     /** Add or update a CDN slot (slot number 2 or higher). */
     public function saveSlot(Request $request)
     {

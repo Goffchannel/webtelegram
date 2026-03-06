@@ -7,6 +7,7 @@ use App\Models\Purchase;
 use App\Models\User;
 use App\Models\Video;
 use App\Services\PayPalService;
+use App\Services\ServiceAccessManager;
 use Illuminate\Http\Request;
 
 class CreatorCheckoutController extends Controller
@@ -23,6 +24,11 @@ class CreatorCheckoutController extends Controller
 
         if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
             return back()->with('error', 'Sin stock: no hay lineas disponibles para este producto.');
+        }
+
+        $hasSharedLine = $video->serviceLines()->where('is_shared', true)->exists();
+        if ($hasSharedLine && !app(ServiceAccessManager::class)->hasAvailableIptvSlot()) {
+            return back()->with('error', 'Sin plazas disponibles: el servicio IPTV está completo. Inténtalo más tarde cuando expire alguna suscripción.');
         }
 
         $methods = $creator->creator_payment_methods ?? [];
@@ -46,6 +52,11 @@ class CreatorCheckoutController extends Controller
 
         if ($video->isServiceProduct() && $video->availableServiceLines()->count() < 1) {
             return back()->with('error', 'Sin stock: no hay lineas disponibles para este producto.');
+        }
+
+        $hasSharedLine = $video->serviceLines()->where('is_shared', true)->exists();
+        if ($hasSharedLine && !app(ServiceAccessManager::class)->hasAvailableIptvSlot()) {
+            return back()->with('error', 'Sin plazas disponibles: el servicio IPTV está completo. Inténtalo más tarde cuando expire alguna suscripción.');
         }
 
         $validated = $request->validate([

@@ -50,7 +50,15 @@ class ServiceAccessManager
             $durationDays = max(1, (int) ($purchase->video->duration_days ?? 30));
 
             // For shared (IPTV) lines, assign the CDN slot with the most available space.
-            $cdnSlot = $sharedLine ? $this->assignCdnSlot() : 1;
+            if ($sharedLine) {
+                $cdnSlot = $this->assignCdnSlot();
+                if ($cdnSlot === null) {
+                    $purchase->markAsDeliveryFailed('Sin plazas disponibles: todos los slots CDN están al máximo de suscriptores activos. Inténtalo más tarde.');
+                    return null;
+                }
+            } else {
+                $cdnSlot = 1;
+            }
 
             $access = PurchaseServiceAccess::create([
                 'purchase_id'             => $purchase->id,
@@ -89,9 +97,9 @@ class ServiceAccessManager
 
     /**
      * Pick the CDN slot with the fewest active subscribers still under its max_users limit.
-     * Falls back to slot 1 if all configured slots are full.
+     * Returns null if ALL slots are at capacity — purchase should be blocked in that case.
      */
-    private function assignCdnSlot(): int
+    private function assignCdnSlot(): ?int
     {
         // Count active subscribers per slot
         $counts = PurchaseServiceAccess::where('status', 'active')
@@ -116,7 +124,7 @@ class ServiceAccessManager
 
         usort($slotList, fn($a, $b) => $a['slot'] <=> $b['slot']);
 
-        $bestSlot  = 1;
+        $bestSlot  = null;
         $bestCount = PHP_INT_MAX;
 
         foreach ($slotList as $s) {
@@ -127,6 +135,15 @@ class ServiceAccessManager
             }
         }
 
-        return $bestSlot;
+        return $bestSlot; // null = todos los slots llenos
+    }
+
+    /**
+     * Check if there is at least one CDN slot with space available.
+     * Use this at checkout time to prevent payment when no slots are free.
+     */
+    public function hasAvailableIptvSlot(): bool
+    {
+        return $this->assignCdnSlot() !== null;
     }
 }

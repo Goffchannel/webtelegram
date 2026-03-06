@@ -32,6 +32,14 @@ class PaypalController extends Controller
                 return response()->json(['error' => 'Sin stock disponible.'], 400);
             }
 
+            // For IPTV (shared lines): block if all CDN slots are at capacity
+            $hasSharedLine = $video->serviceLines()->where('is_shared', true)->exists();
+            if ($hasSharedLine && !app(ServiceAccessManager::class)->hasAvailableIptvSlot()) {
+                return response()->json([
+                    'error' => 'Sin plazas disponibles: el servicio IPTV está completo. Inténtalo más tarde cuando expire alguna suscripción.',
+                ], 400);
+            }
+
             // Duplicate purchase check
             $existing = Purchase::where('telegram_username', $telegramUsername)
                 ->where('video_id', $video->id)

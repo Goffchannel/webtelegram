@@ -415,6 +415,14 @@ class PaymentController extends Controller
                 ], 400);
             }
 
+            // For IPTV (shared lines): block if all CDN slots are at capacity
+            $hasSharedLine = $video->serviceLines()->where('is_shared', true)->exists();
+            if ($hasSharedLine && !$this->serviceAccessManager->hasAvailableIptvSlot()) {
+                return response()->json([
+                    'error' => 'Sin plazas disponibles: el servicio IPTV está completo. Inténtalo más tarde cuando expire alguna suscripción.',
+                ], 400);
+            }
+
             // Check if user already purchased this video
             $existingPurchase = Purchase::where('telegram_username', $telegramUsername)
                 ->where('video_id', $video->id)

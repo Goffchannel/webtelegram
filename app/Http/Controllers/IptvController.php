@@ -18,9 +18,8 @@ class IptvController extends Controller
     /**
      * Return the outer Plooplayer JSON (groups format) for a subscriber.
      *
-     * The Plooplayer app enters this URL. We validate the subscription,
-     * then return a JSON whose `groups[0].ploorl` is the encrypted URL
-     * pointing to our inner channel list endpoint (/iptv/channels).
+     * Validates the subscription, then returns a JSON whose `groups[0].ploorl`
+     * is the encrypted URL pointing to the correct inner channel list slot.
      */
     public function playlist(Request $request, string $token)
     {
@@ -49,12 +48,15 @@ class IptvController extends Controller
 
         $access->update(['last_viewed_at' => now()]);
 
-        $listName   = Setting::get('iptv_list_name', 'Plooplayer VIP');
-        $listPl     = Setting::get('iptv_list_pl',   '7PxQeW7s7VBU+8vW8rN0jG7+spPJZyYEYhzB4VivSv0=');
-        $groupName  = Setting::get('iptv_group_name', $listName);
+        $listName  = Setting::get('iptv_list_name', 'Plooplayer VIP');
+        $listPl    = Setting::get('iptv_list_pl',   '7PxQeW7s7VBU+8vW8rN0jG7+spPJZyYEYhzB4VivSv0=');
+        $groupName = Setting::get('iptv_group_name', $listName);
 
-        // The inner channel list URL (absolute)
-        $channelsUrl = route('iptv.channels');
+        // Build the channels URL for this subscriber's assigned slot
+        $slot = (int) ($access->cdn_slot ?? 1);
+        $channelsUrl = $slot > 1
+            ? route('iptv.channels.slot', ['slot' => $slot])
+            : route('iptv.channels');
 
         $payload = [
             'name'   => $listName,
@@ -73,18 +75,17 @@ class IptvController extends Controller
 
     // =========================================================================
     // PUBLIC: inner channel list (IP-rate-limited)
-    // GET /iptv/channels
+    // GET /iptv/channels          → slot 1
+    // GET /iptv/channels/{slot}   → slot N (N >= 2)
     // =========================================================================
 
     /**
      * Return the inner Plooplayer JSON (stations format) with the full channel list.
      *
-     * This endpoint is what Plooplayer fetches after decrypting the ploorl above.
-     * It is protected by:
-     *   - IP ban list
-     *   - Max 10 unique IPs per day (configurable via iptv_max_ips_per_day setting)
+     * The CDN token (x-tcdn-token) is injected dynamically from the slot config,
+     * so a single base channel list serves all slots with different tokens.
      */
-    public function channels(Request $request)
+    public function channels(Request $request, int $slot = 1)
     {
         $ip = $request->ip();
 
@@ -95,9 +96,9 @@ class IptvController extends Controller
             return response('', 403);
         }
 
-        // --- IP rate limit (unique IPs per day) ---
+        // --- IP rate limit per slot (unique IPs per day) ---
         $maxIps  = (int) Setting::get('iptv_max_ips_per_day', '10');
-        $dayKey  = 'iptv_daily_ips_' . now()->format('Y-m-d');
+        $dayKey  = 'iptv_daily_ips_slot' . $slot . '_' . now()->format('Y-m-d');
         $dailyIps = Cache::get($dayKey, []);
 
         if (!in_array($ip, $dailyIps, true)) {
@@ -111,11 +112,18 @@ class IptvController extends Controller
         // --- Log access ---
         $this->logAccess($ip, $request->userAgent());
 
-        // --- Build and return inner JSON ---
-        $listName  = Setting::get('iptv_list_name', 'Plooplayer VIP');
-        $listPl    = Setting::get('iptv_list_pl',   '7PxQeW7s7VBU+8vW8rN0jG7+spPJZyYEYhzB4VivSv0=');
+        // --- Build and return inner JSON with slot's token injected ---
+        $listName = Setting::get('iptv_list_name', 'Plooplayer VIP');
+        $listPl   = Setting::get('iptv_list_pl',   '7PxQeW7s7VBU+8vW8rN0jG7+spPJZyYEYhzB4VivSv0=');
         $rawCh    = Setting::get('iptv_channels_json', null);
         $stations = is_array($rawCh) ? $rawCh : (json_decode((string) $rawCh, true) ?: []);
+
+        // Inject the correct CDN token for this slot
+        $token = $this->getSlotToken($slot);
+        foreach ($stations as &$station) {
+            $station['headers']['x-tcdn-token'] = $token;
+        }
+        unset($station);
 
         return response()->json([
             'name'     => $listName,
@@ -127,6 +135,29 @@ class IptvController extends Controller
     // =========================================================================
     // Internal helpers
     // =========================================================================
+
+    /**
+     * Get the current CDN token for a given slot number.
+     * Slot 1 reads from iptv_current_token (backwards compat).
+     * Slots 2+ read from iptv_cdn_slots JSON array.
+     */
+    private function getSlotToken(int $slot): string
+    {
+        if ($slot <= 1) {
+            return (string) Setting::get('iptv_current_token', '');
+        }
+
+        $raw   = Setting::get('iptv_cdn_slots', null);
+        $slots = is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []);
+
+        foreach ($slots as $s) {
+            if ((int) ($s['slot'] ?? 0) === $slot) {
+                return (string) ($s['current_token'] ?? '');
+            }
+        }
+
+        return '';
+    }
 
     private function logAccess(string $ip, ?string $ua): void
     {

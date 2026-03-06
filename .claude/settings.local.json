@@ -21,7 +21,8 @@
       "Bash(/c/laragon/bin/php/php8.3.3/php.exe artisan migrate --path=database/migrations/2026_03_04_000001_add_paypal_email_to_users_table.php)",
       "Bash(/c/xampp/php/php.exe artisan migrate --path=database/migrations/2026_03_04_000001_add_paypal_email_to_users_table.php)",
       "Bash(xargs grep -l \"profile\\\\|admin.*settings\\\\|admin.*perfil\")",
-      "Bash(xargs grep -l \"profile.edit\\\\|profile/edit\\\\|profile\\\\.update\")"
+      "Bash(xargs grep -l \"profile.edit\\\\|profile/edit\\\\|profile\\\\.update\")",
+      "Bash(php artisan make:migration add_cdn_slot_to_purchase_service_accesses)"
     ]
   }
 }

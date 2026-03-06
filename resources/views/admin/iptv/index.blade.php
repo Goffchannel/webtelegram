@@ -9,7 +9,7 @@
         <h2><i class="fas fa-tv me-2"></i>Gestión IPTV</h2>
         <div class="d-flex gap-2">
             <a href="{{ route('iptv.channels') }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-external-link-alt"></i> Ver JSON canales
+                <i class="fas fa-external-link-alt"></i> Ver JSON canales (slot 1)
             </a>
             <a href="{{ route('admin.purchases.index') }}" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-shopping-cart"></i> Compras
@@ -60,22 +60,103 @@
                 </div>
             </div>
 
-            {{-- --- Token card --- --}}
+            {{-- --- CDN Slots card --- --}}
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-key me-2"></i>Token CDN (x-tcdn-token)</div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Token actual</label>
-                        <input type="text" class="form-control font-monospace" readonly
-                            value="{{ $settings['current_token'] ?: '(sin token)' }}">
+                <div class="card-header"><i class="fas fa-server me-2"></i>Tokens CDN por slot</div>
+                <div class="card-body p-0">
+
+                    {{-- Slot 1 (siempre existe) --}}
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>Slot 1</strong>
+                                <span class="badge bg-secondary ms-2">{{ $slotCounts[1] ?? 0 }} activos</span>
+                                <a href="{{ route('iptv.channels') }}" target="_blank" class="ms-2 small text-muted">
+                                    <i class="fas fa-external-link-alt"></i> /iptv/channels
+                                </a>
+                            </div>
+                            <form method="POST" action="{{ route('admin.iptv.refresh-token') }}">
+                                @csrf
+                                <button class="btn btn-sm btn-warning" type="submit">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                            </form>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Token actual</label>
+                            <input type="text" class="form-control form-control-sm font-monospace" readonly
+                                value="{{ $settings['current_token'] ?: '(sin token)' }}">
+                        </div>
+                        <p class="text-muted small mb-0">El token se obtiene automáticamente del servidor externo configurado.</p>
                     </div>
-                    <form method="POST" action="{{ route('admin.iptv.refresh-token') }}">
-                        @csrf
-                        <button class="btn btn-warning" type="submit">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh Token
-                        </button>
-                        <span class="text-muted ms-2 small">Obtiene el token actual del servidor externo e inyecta en todos los canales.</span>
-                    </form>
+
+                    {{-- Slots adicionales --}}
+                    @foreach($cdnSlots as $slot)
+                    @php $slotNum = (int)($slot['slot'] ?? 0); @endphp
+                    @if($slotNum >= 2)
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>Slot {{ $slotNum }}</strong>
+                                <span class="badge bg-secondary ms-2">{{ $slotCounts[$slotNum] ?? 0 }}/{{ $slot['max_users'] ?? 10 }} activos</span>
+                                <a href="{{ route('iptv.channels.slot', ['slot' => $slotNum]) }}" target="_blank" class="ms-2 small text-muted">
+                                    <i class="fas fa-external-link-alt"></i> /iptv/channels/{{ $slotNum }}
+                                </a>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <form method="POST" action="{{ route('admin.iptv.slot-refresh-token') }}">
+                                    @csrf
+                                    <input type="hidden" name="slot" value="{{ $slotNum }}">
+                                    <button class="btn btn-sm btn-warning" type="submit">
+                                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.iptv.slot-remove') }}" onsubmit="return confirm('¿Eliminar slot {{ $slotNum }}?')">
+                                    @csrf
+                                    <input type="hidden" name="slot" value="{{ $slotNum }}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label small mb-1">Token actual</label>
+                            <input type="text" class="form-control form-control-sm font-monospace" readonly
+                                value="{{ $slot['current_token'] ?: '(sin token — haz Refresh)' }}">
+                        </div>
+                        <small class="text-muted">URL: <code>{{ $slot['token_url'] ?? '—' }}</code></small>
+                    </div>
+                    @endif
+                    @endforeach
+
+                    {{-- Añadir nuevo slot --}}
+                    <div class="p-3">
+                        <p class="fw-semibold small mb-2"><i class="fas fa-plus me-1"></i>Añadir / editar slot</p>
+                        <form method="POST" action="{{ route('admin.iptv.slot-save') }}">
+                            @csrf
+                            <div class="row g-2">
+                                <div class="col-md-2">
+                                    <label class="form-label small">N.º slot</label>
+                                    <input type="number" name="slot" class="form-control form-control-sm" min="2" max="20" placeholder="2" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small">URL del token externo</label>
+                                    <input type="url" name="token_url" class="form-control form-control-sm" placeholder="https://example.com/token.json" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small">Máx usuarios</label>
+                                    <input type="number" name="max_users" class="form-control form-control-sm" min="1" max="1000" value="10" required>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button class="btn btn-primary btn-sm w-100" type="submit">
+                                        <i class="fas fa-save me-1"></i>Guardar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
 
@@ -123,7 +204,7 @@
                     <p class="text-muted small">
                         Pega aquí el M3U completo. Solo se importarán canales con URLs <code>.mpd</code>.
                         Los campos URL, keys, referer, origin y user-agent se cifrarán con AES+ChaCha20.
-                        El token CDN se inyectará en claro en <code>headers.x-tcdn-token</code>.
+                        El token CDN se inyecta dinámicamente en cada slot — no se guarda en el JSON base.
                     </p>
 
                     <textarea id="m3u-input" class="form-control font-monospace mb-3"
@@ -181,7 +262,7 @@
                                     <th>#</th>
                                     <th>Nombre</th>
                                     <th>Keys</th>
-                                    <th>CDN Token</th>
+                                    <th class="text-muted small">Token (inyectado en runtime)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -197,9 +278,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <code class="small text-truncate d-inline-block" style="max-width:140px;">
-                                            {{ $station['headers']['x-tcdn-token'] ?? '—' }}
-                                        </code>
+                                        <span class="text-muted small"><i class="fas fa-exchange-alt me-1"></i>por slot</span>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -282,14 +361,6 @@ if (savedM3u) m3uInput.value = savedM3u;
 m3uInput.addEventListener('input', () => {
     localStorage.setItem(M3U_STORAGE_KEY, m3uInput.value);
 });
-
-// Save to localStorage before Refresh Token form submits (to survive page reload)
-const refreshTokenForm = document.querySelector('form[action="{{ route('admin.iptv.refresh-token') }}"]');
-if (refreshTokenForm) {
-    refreshTokenForm.addEventListener('submit', () => {
-        localStorage.setItem(M3U_STORAGE_KEY, m3uInput.value);
-    });
-}
 
 btnParse.addEventListener('click', async () => {
     const m3u = m3uInput.value.trim();

@@ -34,8 +34,9 @@ Route::post('/purchase/{uuid}/report', [PaymentController::class, 'reportCreator
 Route::get('/access/{token}', [ServiceAccessController::class, 'show'])->name('service.access.show');
 
 // IPTV subscriber endpoints (no auth — accessed by Plooplayer app)
-// Note: /iptv/channels must be declared BEFORE /iptv/{token} to avoid route conflict.
+// Note: /iptv/channels* must be declared BEFORE /iptv/{token} to avoid route conflict.
 Route::get('/iptv/channels', [IptvController::class, 'channels'])->name('iptv.channels');
+Route::get('/iptv/channels/{slot}', [IptvController::class, 'channels'])->name('iptv.channels.slot')->where('slot', '[2-9]|[1-9][0-9]+');
 Route::get('/iptv/{token}', [IptvController::class, 'playlist'])->name('iptv.playlist');
 
 // Authentication routes (profile management)
@@ -151,6 +152,9 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/iptv/parse', [\App\Http\Controllers\Admin\IptvAdminController::class, 'parseM3u'])->name('admin.iptv.parse');
     Route::post('/admin/iptv/save-channels', [\App\Http\Controllers\Admin\IptvAdminController::class, 'saveChannels'])->name('admin.iptv.save-channels');
     Route::post('/admin/iptv/refresh-token', [\App\Http\Controllers\Admin\IptvAdminController::class, 'refreshToken'])->name('admin.iptv.refresh-token');
+    Route::post('/admin/iptv/slots', [\App\Http\Controllers\Admin\IptvAdminController::class, 'saveSlot'])->name('admin.iptv.slot-save');
+    Route::post('/admin/iptv/slots/remove', [\App\Http\Controllers\Admin\IptvAdminController::class, 'removeSlot'])->name('admin.iptv.slot-remove');
+    Route::post('/admin/iptv/slots/refresh-token', [\App\Http\Controllers\Admin\IptvAdminController::class, 'refreshSlotToken'])->name('admin.iptv.slot-refresh-token');
     Route::post('/admin/iptv/ban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'banIp'])->name('admin.iptv.ban-ip');
     Route::post('/admin/iptv/unban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'unbanIp'])->name('admin.iptv.unban-ip');
     Route::post('/admin/iptv/clear-log', [\App\Http\Controllers\Admin\IptvAdminController::class, 'clearLog'])->name('admin.iptv.clear-log');

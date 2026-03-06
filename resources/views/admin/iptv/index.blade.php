@@ -81,7 +81,7 @@
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <strong>Slot 1</strong>
-                                <span class="badge bg-secondary ms-2">{{ $slotCounts[1] ?? 0 }} activos</span>
+                                <span class="badge bg-secondary ms-2" data-slot-count="1">{{ $slotCounts[1] ?? 0 }} activos</span>
                                 <a href="{{ route('iptv.channels') }}" target="_blank" class="ms-2 small text-muted">
                                     <i class="fas fa-external-link-alt"></i> /iptv/channels
                                 </a>
@@ -109,7 +109,7 @@
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <strong>Slot {{ $slotNum }}</strong>
-                                <span class="badge bg-secondary ms-2">{{ $slotCounts[$slotNum] ?? 0 }}/{{ $slot['max_users'] ?? 10 }} activos</span>
+                                <span class="badge bg-secondary ms-2" data-slot-count="{{ $slotNum }}" data-slot-max="{{ $slot['max_users'] ?? 10 }}">{{ $slotCounts[$slotNum] ?? 0 }}/{{ $slot['max_users'] ?? 10 }} activos</span>
                                 <a href="{{ route('iptv.channels.slot', ['slot' => $slotNum]) }}" target="_blank" class="ms-2 small text-muted">
                                     <i class="fas fa-external-link-alt"></i> /iptv/channels/{{ $slotNum }}
                                 </a>
@@ -445,6 +445,22 @@ btnSave.addEventListener('click', () => {
     saveForm.submit();
 });
 
+// --- Helper: actualiza el badge de conteo de un slot ---
+function updateSlotBadge(slotNum, delta) {
+    const badge = document.querySelector(`[data-slot-count="${slotNum}"]`);
+    if (!badge) return;
+
+    const current = parseInt(badge.textContent) || 0;
+    const newCount = Math.max(0, current + delta);
+
+    if (slotNum === 1) {
+        badge.textContent = `${newCount} activos`;
+    } else {
+        const max = badge.dataset.slotMax || '10';
+        badge.textContent = `${newCount}/${max} activos`;
+    }
+}
+
 // --- Diagnóstico: buscar suscriptor ---
 const btnLookup    = document.getElementById('btn-lookup');
 const lookupInput  = document.getElementById('lookup-input');
@@ -507,6 +523,8 @@ async function doLookup() {
                 const newSlot  = parseInt(document.getElementById('move-slot-select').value);
                 const uuid     = btn.dataset.uuid;
                 const msgEl    = document.getElementById('move-slot-msg');
+                // Read the current slot from the badge before moving
+                const oldSlot  = parseInt(document.getElementById('current-slot-badge').textContent.replace('Slot ', ''));
 
                 btn.disabled = true;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
@@ -528,6 +546,11 @@ async function doLookup() {
                         document.getElementById('current-slot-badge').textContent = `Slot ${newSlot}`;
                         msgEl.className = 'small text-success';
                         msgEl.textContent = '✓ ' + d.message;
+                        // Update slot count badges live
+                        if (oldSlot !== newSlot) {
+                            updateSlotBadge(oldSlot, -1);
+                            updateSlotBadge(newSlot, +1);
+                        }
                     } else {
                         msgEl.className = 'small text-danger';
                         msgEl.textContent = d.error ?? 'Error desconocido';

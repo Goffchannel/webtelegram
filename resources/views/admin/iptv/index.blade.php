@@ -77,11 +77,16 @@
                 <div class="card-body p-0">
 
                     {{-- Slot 1 (siempre existe) --}}
+                    @php
+                        $slot1Cfg = collect($cdnSlots)->firstWhere('slot', 1);
+                        $slot1Max = $slot1Cfg ? (int)($slot1Cfg['max_users'] ?? 10) : 10;
+                        $slot1Url = $slot1Cfg['token_url'] ?? null;
+                    @endphp
                     <div class="p-3 border-bottom">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <strong>Slot 1</strong>
-                                <span class="badge bg-secondary ms-2" data-slot-count="1">{{ $slotCounts[1] ?? 0 }} activos</span>
+                                <span class="badge bg-secondary ms-2" data-slot-count="1" data-slot-max="{{ $slot1Max }}">{{ $slotCounts[1] ?? 0 }}/{{ $slot1Max }} activos</span>
                                 <a href="{{ route('iptv.channels') }}" target="_blank" class="ms-2 small text-muted">
                                     <i class="fas fa-external-link-alt"></i> /iptv/channels
                                 </a>
@@ -98,7 +103,16 @@
                             <input type="text" class="form-control form-control-sm font-monospace" readonly
                                 value="{{ $settings['current_token'] ?: '(sin token)' }}">
                         </div>
-                        <p class="text-muted small mb-0">El token se obtiene automáticamente del servidor externo configurado.</p>
+                        <div class="mb-0">
+                            <label class="form-label small mb-1">URL del token externo
+                                @if($slot1Url)
+                                    <code class="ms-1">{{ $slot1Url }}</code>
+                                @else
+                                    <span class="text-danger ms-1">⚠ No configurada — el Refresh fallará</span>
+                                @endif
+                            </label>
+                            <p class="text-muted small mb-0">Usa el formulario «Añadir / editar slot» con N.º slot = <strong>1</strong> para configurar esta URL.</p>
+                        </div>
                     </div>
 
                     {{-- Slots adicionales --}}
@@ -149,7 +163,7 @@
                             <div class="row g-2">
                                 <div class="col-md-2">
                                     <label class="form-label small">N.º slot</label>
-                                    <input type="number" name="slot" class="form-control form-control-sm" min="2" max="20" placeholder="2" required>
+                                    <input type="number" name="slot" class="form-control form-control-sm" min="1" max="20" placeholder="2" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small">URL del token externo</label>

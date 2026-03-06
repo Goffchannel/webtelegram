@@ -112,9 +112,11 @@ class ServiceAccessManager
         $raw        = Setting::get('iptv_cdn_slots', null);
         $extraSlots = is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []);
 
-        // Build slot list starting with slot 1
-        $defaultMax = 10;
-        $slotList   = [['slot' => 1, 'max_users' => $defaultMax]];
+        // Build slot list starting with slot 1 (max_users from config if set)
+        $defaultMax   = 10;
+        $slot1Cfg     = collect($extraSlots)->firstWhere('slot', 1);
+        $slot1Max     = $slot1Cfg ? (int) ($slot1Cfg['max_users'] ?? $defaultMax) : $defaultMax;
+        $slotList     = [['slot' => 1, 'max_users' => $slot1Max]];
 
         foreach ($extraSlots as $s) {
             $num = (int) ($s['slot'] ?? 0);

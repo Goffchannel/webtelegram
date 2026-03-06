@@ -270,7 +270,7 @@ class IptvAdminController extends Controller
     public function saveSlot(Request $request)
     {
         $data = $request->validate([
-            'slot'      => 'required|integer|min:2|max:20',
+            'slot'      => 'required|integer|min:1|max:20',
             'token_url' => 'required|url|max:500',
             'max_users' => 'required|integer|min:1|max:1000',
         ]);

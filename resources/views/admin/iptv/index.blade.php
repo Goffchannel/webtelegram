@@ -78,25 +78,39 @@
 
                     {{-- Slot 1 (siempre existe) --}}
                     @php
-                        $slot1Cfg = collect($cdnSlots)->firstWhere('slot', 1);
-                        $slot1Max = $slot1Cfg ? (int)($slot1Cfg['max_users'] ?? 10) : 10;
-                        $slot1Url = $slot1Cfg['token_url'] ?? null;
+                        $slot1Cfg      = collect($cdnSlots)->firstWhere('slot', 1);
+                        $slot1Max      = $slot1Cfg ? (int)($slot1Cfg['max_users'] ?? 10) : 10;
+                        $slot1Url      = $slot1Cfg['token_url'] ?? null;
+                        $slot1Blocked  = !empty($slot1Cfg['blocked']);
                     @endphp
-                    <div class="p-3 border-bottom">
+                    <div class="p-3 border-bottom {{ $slot1Blocked ? 'bg-danger bg-opacity-10' : '' }}">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <strong>Slot 1</strong>
+                                @if($slot1Blocked)
+                                    <span class="badge bg-danger ms-1">BLOQUEADO</span>
+                                @endif
                                 <span class="badge bg-secondary ms-2" data-slot-count="1" data-slot-max="{{ $slot1Max }}">{{ $slotCounts[1] ?? 0 }}/{{ $slot1Max }} activos</span>
                                 <a href="{{ route('iptv.channels') }}" target="_blank" class="ms-2 small text-muted">
                                     <i class="fas fa-external-link-alt"></i> /iptv/channels
                                 </a>
                             </div>
-                            <form method="POST" action="{{ route('admin.iptv.refresh-token') }}">
-                                @csrf
-                                <button class="btn btn-sm btn-warning" type="submit">
-                                    <i class="fas fa-sync-alt me-1"></i>Refresh
-                                </button>
-                            </form>
+                            <div class="d-flex gap-1">
+                                <form method="POST" action="{{ route('admin.iptv.refresh-token') }}">
+                                    @csrf
+                                    <button class="btn btn-sm btn-warning" type="submit">
+                                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.iptv.slot-toggle-block') }}"
+                                      onsubmit="return confirm('{{ $slot1Blocked ? '¿Desbloquear slot 1?' : '¿Bloquear slot 1? Los suscriptores de este slot no podrán acceder.' }}')">
+                                    @csrf
+                                    <input type="hidden" name="slot" value="1">
+                                    <button class="btn btn-sm {{ $slot1Blocked ? 'btn-success' : 'btn-danger' }}" type="submit">
+                                        <i class="fas fa-{{ $slot1Blocked ? 'lock-open' : 'lock' }} me-1"></i>{{ $slot1Blocked ? 'Desbloquear' : 'Bloquear' }}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                         <div class="mb-2">
                             <label class="form-label small mb-1">Token actual</label>
@@ -117,12 +131,18 @@
 
                     {{-- Slots adicionales --}}
                     @foreach($cdnSlots as $slot)
-                    @php $slotNum = (int)($slot['slot'] ?? 0); @endphp
+                    @php
+                        $slotNum     = (int)($slot['slot'] ?? 0);
+                        $slotBlocked = !empty($slot['blocked']);
+                    @endphp
                     @if($slotNum >= 2)
-                    <div class="p-3 border-bottom" data-slot-num="{{ $slotNum }}">
+                    <div class="p-3 border-bottom {{ $slotBlocked ? 'bg-danger bg-opacity-10' : '' }}" data-slot-num="{{ $slotNum }}">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <strong>Slot {{ $slotNum }}</strong>
+                                @if($slotBlocked)
+                                    <span class="badge bg-danger ms-1">BLOQUEADO</span>
+                                @endif
                                 <span class="badge bg-secondary ms-2" data-slot-count="{{ $slotNum }}" data-slot-max="{{ $slot['max_users'] ?? 10 }}">{{ $slotCounts[$slotNum] ?? 0 }}/{{ $slot['max_users'] ?? 10 }} activos</span>
                                 <a href="{{ route('iptv.channels.slot', ['slot' => $slotNum]) }}" target="_blank" class="ms-2 small text-muted">
                                     <i class="fas fa-external-link-alt"></i> /iptv/channels/{{ $slotNum }}
@@ -134,6 +154,14 @@
                                     <input type="hidden" name="slot" value="{{ $slotNum }}">
                                     <button class="btn btn-sm btn-warning" type="submit">
                                         <i class="fas fa-sync-alt me-1"></i>Refresh
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.iptv.slot-toggle-block') }}"
+                                      onsubmit="return confirm('{{ $slotBlocked ? '¿Desbloquear slot '.$slotNum.'?' : '¿Bloquear slot '.$slotNum.'? Los suscriptores de este slot no podrán acceder.' }}')">
+                                    @csrf
+                                    <input type="hidden" name="slot" value="{{ $slotNum }}">
+                                    <button class="btn btn-sm {{ $slotBlocked ? 'btn-outline-success' : 'btn-outline-danger' }}" type="submit">
+                                        <i class="fas fa-{{ $slotBlocked ? 'lock-open' : 'lock' }}"></i>
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.iptv.slot-remove') }}" onsubmit="return confirm('¿Eliminar slot {{ $slotNum }}?')">

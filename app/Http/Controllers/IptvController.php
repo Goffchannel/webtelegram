@@ -46,6 +46,12 @@ class IptvController extends Controller
             return response()->json(['error' => 'Access restricted: too many devices. Contact support.'], 403);
         }
 
+        // Slot block check
+        $slot = (int) ($access->cdn_slot ?? 1);
+        if ($this->isSlotBlocked($slot)) {
+            return response()->json(['error' => 'Service temporarily unavailable. Contact support.'], 503);
+        }
+
         $access->update(['last_viewed_at' => now()]);
 
         $listName  = Setting::get('iptv_list_name', 'Plooplayer VIP');
@@ -53,7 +59,7 @@ class IptvController extends Controller
         $groupName = Setting::get('iptv_group_name', $listName);
 
         // Build the channels URL for this subscriber's assigned slot
-        $slot = (int) ($access->cdn_slot ?? 1);
+        // $slot already set above
         $channelsUrl = $slot > 1
             ? route('iptv.channels.slot', ['slot' => $slot])
             : route('iptv.channels');
@@ -88,6 +94,11 @@ class IptvController extends Controller
     public function channels(Request $request, int $slot = 1)
     {
         $ip = $request->ip();
+
+        // --- Slot block check ---
+        if ($this->isSlotBlocked($slot)) {
+            return response('', 503);
+        }
 
         // --- IP ban check ---
         $raw       = Setting::get('iptv_banned_ips', null);
@@ -135,6 +146,18 @@ class IptvController extends Controller
     // =========================================================================
     // Internal helpers
     // =========================================================================
+
+    private function isSlotBlocked(int $slot): bool
+    {
+        $raw   = Setting::get('iptv_cdn_slots', null);
+        $slots = is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []);
+        foreach ($slots as $s) {
+            if ((int) ($s['slot'] ?? 0) === $slot) {
+                return (bool) ($s['blocked'] ?? false);
+            }
+        }
+        return false;
+    }
 
     /**
      * Get the current CDN token for a given slot number.

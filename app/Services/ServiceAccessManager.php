@@ -126,10 +126,18 @@ class ServiceAccessManager
 
         usort($slotList, fn($a, $b) => $a['slot'] <=> $b['slot']);
 
+        // Build blocked slot set from config
+        $blockedSlots = collect($extraSlots)
+            ->filter(fn($s) => !empty($s['blocked']))
+            ->pluck('slot')
+            ->map(fn($n) => (int) $n)
+            ->toArray();
+
         $bestSlot  = null;
         $bestCount = PHP_INT_MAX;
 
         foreach ($slotList as $s) {
+            if (in_array($s['slot'], $blockedSlots, true)) continue;
             $used = (int) ($counts[$s['slot']] ?? 0);
             if ($used < $s['max_users'] && $used < $bestCount) {
                 $bestCount = $used;
@@ -137,7 +145,7 @@ class ServiceAccessManager
             }
         }
 
-        return $bestSlot; // null = todos los slots llenos
+        return $bestSlot; // null = todos los slots llenos (o todos bloqueados)
     }
 
     /**

@@ -158,6 +158,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/iptv/slots', [\App\Http\Controllers\Admin\IptvAdminController::class, 'saveSlot'])->name('admin.iptv.slot-save');
     Route::post('/admin/iptv/slots/remove', [\App\Http\Controllers\Admin\IptvAdminController::class, 'removeSlot'])->name('admin.iptv.slot-remove');
     Route::post('/admin/iptv/slots/refresh-token', [\App\Http\Controllers\Admin\IptvAdminController::class, 'refreshSlotToken'])->name('admin.iptv.slot-refresh-token');
+    Route::post('/admin/iptv/slots/toggle-block', [\App\Http\Controllers\Admin\IptvAdminController::class, 'toggleSlotBlock'])->name('admin.iptv.slot-toggle-block');
     Route::post('/admin/iptv/ban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'banIp'])->name('admin.iptv.ban-ip');
     Route::post('/admin/iptv/unban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'unbanIp'])->name('admin.iptv.unban-ip');
     Route::post('/admin/iptv/clear-log', [\App\Http\Controllers\Admin\IptvAdminController::class, 'clearLog'])->name('admin.iptv.clear-log');

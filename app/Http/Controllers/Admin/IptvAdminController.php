@@ -306,6 +306,46 @@ class IptvAdminController extends Controller
         return back()->with('success', 'Slot ' . $data['slot'] . ' guardado.');
     }
 
+    /** Block or unblock a CDN slot. Blocked slots reject new purchases and active access. */
+    public function toggleSlotBlock(Request $request)
+    {
+        $data = $request->validate(['slot' => 'required|integer|min:1|max:20']);
+        $slot = (int) $data['slot'];
+
+        $slots = $this->jsonSetting('iptv_cdn_slots');
+
+        $found      = false;
+        $nowBlocked = false;
+
+        foreach ($slots as &$s) {
+            if ((int) ($s['slot'] ?? 0) === $slot) {
+                $s['blocked'] = !($s['blocked'] ?? false);
+                $nowBlocked   = $s['blocked'];
+                $found        = true;
+                break;
+            }
+        }
+        unset($s);
+
+        if (!$found) {
+            // Slot not yet in config — create minimal entry just to store the blocked flag
+            $nowBlocked = true;
+            $slots[]    = [
+                'slot'          => $slot,
+                'token_url'     => '',
+                'current_token' => '',
+                'max_users'     => 10,
+                'blocked'       => true,
+            ];
+        }
+
+        usort($slots, fn($a, $b) => ($a['slot'] ?? 0) <=> ($b['slot'] ?? 0));
+        Setting::set('iptv_cdn_slots', json_encode($slots), 'string');
+
+        $label = $nowBlocked ? 'bloqueado' : 'desbloqueado';
+        return back()->with('success', "Slot $slot $label.");
+    }
+
     /** Remove a CDN slot (only slots 2+). */
     public function removeSlot(Request $request)
     {

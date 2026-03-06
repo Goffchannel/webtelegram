@@ -17,6 +17,7 @@ class PurchaseServiceAccess extends Model
         'status',
         'bound_ips',
         'max_ips',
+        'cdn_slot',
     ];
 
     protected $casts = [

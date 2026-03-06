@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Purchase;
 use App\Models\PurchaseServiceAccess;
 use App\Models\Setting;
 use App\Services\M3uParser;
@@ -154,6 +155,46 @@ class IptvAdminController extends Controller
     // =========================================================================
     // CDN Slots management (slots 2+)
     // =========================================================================
+
+    /**
+     * Look up a subscriber's CDN slot by Telegram username or purchase UUID.
+     * Returns JSON so the frontend can display it without a page reload.
+     */
+    public function lookupSubscriber(Request $request)
+    {
+        $query = trim($request->input('query', ''));
+
+        if (empty($query)) {
+            return response()->json(['error' => 'Introduce un @username o UUID.'], 422);
+        }
+
+        // Search by UUID first, then by telegram_username
+        $purchase = Purchase::where('purchase_uuid', $query)->first()
+            ?? Purchase::where('telegram_username', ltrim($query, '@'))
+                ->whereHas('serviceAccess')
+                ->latest()
+                ->first();
+
+        if (!$purchase) {
+            return response()->json(['error' => 'No se encontró ninguna compra IPTV para ese usuario/UUID.'], 404);
+        }
+
+        $access = $purchase->serviceAccess;
+
+        if (!$access) {
+            return response()->json(['error' => 'Esta compra no tiene acceso de servicio asociado.'], 404);
+        }
+
+        return response()->json([
+            'purchase_uuid'    => $purchase->purchase_uuid,
+            'telegram_username'=> '@' . ltrim($purchase->telegram_username, '@'),
+            'cdn_slot'         => $access->cdn_slot ?? 1,
+            'status'           => $access->status,
+            'expires_at'       => $access->expires_at?->format('d/m/Y H:i'),
+            'access_token'     => substr($access->access_token, 0, 12) . '…',
+            'last_viewed_at'   => $access->last_viewed_at?->format('d/m/Y H:i') ?? 'nunca',
+        ]);
+    }
 
     /**
      * Call the external token generator (generates tokens for all extra slots).

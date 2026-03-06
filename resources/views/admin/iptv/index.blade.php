@@ -171,6 +171,23 @@
                 </div>
             </div>
 
+            {{-- --- Buscar suscriptor por slot --- --}}
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-search me-2"></i>Diagnóstico: buscar suscriptor</div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">Introduce el <strong>@username</strong> de Telegram o el <strong>UUID</strong> de la compra para ver en qué slot está asignado.</p>
+                    <div class="input-group mb-3">
+                        <input type="text" id="lookup-input" class="form-control" placeholder="@username o UUID de compra">
+                        <button id="btn-lookup" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-1"></i>Buscar
+                        </button>
+                    </div>
+                    <div id="lookup-result" class="d-none">
+                        {{-- filled by JS --}}
+                    </div>
+                </div>
+            </div>
+
             {{-- --- IP ban management --- --}}
             <div class="card mb-4">
                 <div class="card-header"><i class="fas fa-ban me-2"></i>IPs baneadas</div>
@@ -427,6 +444,58 @@ btnSave.addEventListener('click', () => {
     saveForm.classList.remove('d-none');
     saveForm.submit();
 });
+
+// --- Diagnóstico: buscar suscriptor ---
+const btnLookup    = document.getElementById('btn-lookup');
+const lookupInput  = document.getElementById('lookup-input');
+const lookupResult = document.getElementById('lookup-result');
+
+async function doLookup() {
+    const q = lookupInput.value.trim();
+    if (!q) return;
+
+    btnLookup.disabled = true;
+    btnLookup.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    lookupResult.classList.remove('d-none');
+    lookupResult.innerHTML = '<span class="text-muted small">Buscando…</span>';
+
+    try {
+        const url = new URL('{{ route('admin.iptv.lookup') }}');
+        url.searchParams.set('query', q);
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        if (!resp.ok) {
+            lookupResult.innerHTML = `<div class="alert alert-warning py-2 mb-0"><i class="fas fa-exclamation-triangle me-1"></i>${data.error}</div>`;
+        } else {
+            const slotBadge = `<span class="badge bg-primary fs-6">Slot ${data.cdn_slot}</span>`;
+            const statusBadge = data.status === 'active'
+                ? `<span class="badge bg-success">${data.status}</span>`
+                : `<span class="badge bg-secondary">${data.status}</span>`;
+            lookupResult.innerHTML = `
+                <div class="alert alert-info py-2 mb-0">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        ${slotBadge}
+                        ${statusBadge}
+                        <span><strong>${data.telegram_username}</strong></span>
+                        <span class="text-muted small">UUID: ${data.purchase_uuid}</span>
+                    </div>
+                    <div class="mt-2 small">
+                        <span class="me-3">⏳ Expira: <strong>${data.expires_at}</strong></span>
+                        <span>👁 Último acceso: <strong>${data.last_viewed_at}</strong></span>
+                    </div>
+                </div>`;
+        }
+    } catch (e) {
+        lookupResult.innerHTML = `<div class="alert alert-danger py-2 mb-0">Error: ${e.message}</div>`;
+    } finally {
+        btnLookup.disabled = false;
+        btnLookup.innerHTML = '<i class="fas fa-search me-1"></i>Buscar';
+    }
+}
+
+btnLookup.addEventListener('click', doLookup);
+lookupInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLookup(); });
 
 // --- Generar tokens (slots 2+) ---
 const btnGenerate    = document.getElementById('btn-generate-tokens');

@@ -152,6 +152,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/iptv/parse', [\App\Http\Controllers\Admin\IptvAdminController::class, 'parseM3u'])->name('admin.iptv.parse');
     Route::post('/admin/iptv/save-channels', [\App\Http\Controllers\Admin\IptvAdminController::class, 'saveChannels'])->name('admin.iptv.save-channels');
     Route::post('/admin/iptv/refresh-token', [\App\Http\Controllers\Admin\IptvAdminController::class, 'refreshToken'])->name('admin.iptv.refresh-token');
+    Route::get('/admin/iptv/lookup', [\App\Http\Controllers\Admin\IptvAdminController::class, 'lookupSubscriber'])->name('admin.iptv.lookup');
     Route::post('/admin/iptv/generate-tokens', [\App\Http\Controllers\Admin\IptvAdminController::class, 'generateTokens'])->name('admin.iptv.generate-tokens');
     Route::post('/admin/iptv/slots', [\App\Http\Controllers\Admin\IptvAdminController::class, 'saveSlot'])->name('admin.iptv.slot-save');
     Route::post('/admin/iptv/slots/remove', [\App\Http\Controllers\Admin\IptvAdminController::class, 'removeSlot'])->name('admin.iptv.slot-remove');

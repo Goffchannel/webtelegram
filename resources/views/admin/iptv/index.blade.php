@@ -105,7 +105,7 @@
                     @foreach($cdnSlots as $slot)
                     @php $slotNum = (int)($slot['slot'] ?? 0); @endphp
                     @if($slotNum >= 2)
-                    <div class="p-3 border-bottom">
+                    <div class="p-3 border-bottom" data-slot-num="{{ $slotNum }}">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <strong>Slot {{ $slotNum }}</strong>
@@ -468,23 +468,78 @@ async function doLookup() {
         if (!resp.ok) {
             lookupResult.innerHTML = `<div class="alert alert-warning py-2 mb-0"><i class="fas fa-exclamation-triangle me-1"></i>${data.error}</div>`;
         } else {
-            const slotBadge = `<span class="badge bg-primary fs-6">Slot ${data.cdn_slot}</span>`;
             const statusBadge = data.status === 'active'
                 ? `<span class="badge bg-success">${data.status}</span>`
                 : `<span class="badge bg-secondary">${data.status}</span>`;
+
+            // Build slot options from the slots visible on the page
+            const slotNumbers = [1, ...Array.from(document.querySelectorAll('[data-slot-num]')).map(el => parseInt(el.dataset.slotNum))];
+            const slotOptions = slotNumbers.map(n =>
+                `<option value="${n}" ${n === data.cdn_slot ? 'selected' : ''}>Slot ${n}</option>`
+            ).join('');
+
             lookupResult.innerHTML = `
-                <div class="alert alert-info py-2 mb-0">
-                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                        ${slotBadge}
+                <div class="alert alert-info py-2 mb-0" id="lookup-info-box">
+                    <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+                        <span class="badge bg-primary fs-6" id="current-slot-badge">Slot ${data.cdn_slot}</span>
                         ${statusBadge}
-                        <span><strong>${data.telegram_username}</strong></span>
+                        <strong>${data.telegram_username}</strong>
                         <span class="text-muted small">UUID: ${data.purchase_uuid}</span>
                     </div>
-                    <div class="mt-2 small">
+                    <div class="small mb-2">
                         <span class="me-3">⏳ Expira: <strong>${data.expires_at}</strong></span>
                         <span>👁 Último acceso: <strong>${data.last_viewed_at}</strong></span>
                     </div>
+                    <div class="d-flex align-items-center gap-2 mt-2">
+                        <label class="small mb-0">Mover a:</label>
+                        <select id="move-slot-select" class="form-select form-select-sm" style="width:auto;">
+                            ${slotOptions}
+                        </select>
+                        <button id="btn-move-slot" class="btn btn-sm btn-warning" data-uuid="${data.purchase_uuid}">
+                            <i class="fas fa-exchange-alt me-1"></i>Mover
+                        </button>
+                        <span id="move-slot-msg" class="small"></span>
+                    </div>
                 </div>`;
+
+            document.getElementById('btn-move-slot').addEventListener('click', async () => {
+                const btn      = document.getElementById('btn-move-slot');
+                const newSlot  = parseInt(document.getElementById('move-slot-select').value);
+                const uuid     = btn.dataset.uuid;
+                const msgEl    = document.getElementById('move-slot-msg');
+
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                msgEl.textContent = '';
+
+                try {
+                    const r = await fetch('{{ route('admin.iptv.move-subscriber') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ purchase_uuid: uuid, cdn_slot: newSlot }),
+                    });
+                    const d = await r.json();
+
+                    if (d.ok) {
+                        document.getElementById('current-slot-badge').textContent = `Slot ${newSlot}`;
+                        msgEl.className = 'small text-success';
+                        msgEl.textContent = '✓ ' + d.message;
+                    } else {
+                        msgEl.className = 'small text-danger';
+                        msgEl.textContent = d.error ?? 'Error desconocido';
+                    }
+                } catch (e) {
+                    msgEl.className = 'small text-danger';
+                    msgEl.textContent = 'Error: ' + e.message;
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-exchange-alt me-1"></i>Mover';
+                }
+            });
         }
     } catch (e) {
         lookupResult.innerHTML = `<div class="alert alert-danger py-2 mb-0">Error: ${e.message}</div>`;

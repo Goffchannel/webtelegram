@@ -197,6 +197,46 @@ class IptvAdminController extends Controller
     }
 
     /**
+     * Move a subscriber to a different CDN slot.
+     */
+    public function moveSubscriber(Request $request)
+    {
+        $data = $request->validate([
+            'purchase_uuid' => 'required|string',
+            'cdn_slot'      => 'required|integer|min:1|max:20',
+        ]);
+
+        $purchase = Purchase::where('purchase_uuid', $data['purchase_uuid'])->first();
+
+        if (!$purchase) {
+            return response()->json(['error' => 'Compra no encontrada.'], 404);
+        }
+
+        $access = $purchase->serviceAccess;
+
+        if (!$access) {
+            return response()->json(['error' => 'Esta compra no tiene acceso de servicio asociado.'], 404);
+        }
+
+        $oldSlot = $access->cdn_slot ?? 1;
+        $newSlot = (int) $data['cdn_slot'];
+
+        $access->update(['cdn_slot' => $newSlot]);
+
+        Log::info('IPTV subscriber moved', [
+            'purchase_uuid' => $data['purchase_uuid'],
+            'from_slot'     => $oldSlot,
+            'to_slot'       => $newSlot,
+        ]);
+
+        return response()->json([
+            'ok'      => true,
+            'message' => "Suscriptor movido del slot $oldSlot al slot $newSlot.",
+            'cdn_slot' => $newSlot,
+        ]);
+    }
+
+    /**
      * Call the external token generator (generates tokens for all extra slots).
      * Returns JSON with the raw output so the frontend can display it.
      */

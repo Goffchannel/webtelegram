@@ -130,9 +130,13 @@ class IptvController extends Controller
         $stations = is_array($rawCh) ? $rawCh : (json_decode((string) $rawCh, true) ?: []);
 
         // Inject the correct CDN token for this slot
+        // Only for channels that need it (needs_cdn_token defaults to true for backwards compat)
         $token = $this->getSlotToken($slot);
         foreach ($stations as &$station) {
-            $station['headers']['x-tcdn-token'] = $token;
+            if ($station['needs_cdn_token'] ?? true) {
+                $station['headers']['x-tcdn-token'] = $token;
+            }
+            unset($station['needs_cdn_token']); // don't expose this internal flag to the client
         }
         unset($station);
 

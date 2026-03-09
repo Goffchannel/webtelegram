@@ -109,9 +109,10 @@ class IptvAdminController extends Controller
 
         // Store channels WITHOUT baking in the CDN token.
         // The token is injected dynamically per-slot when the endpoint is served.
-        $newStations = [];
+        $needsCdnToken = $request->boolean('cdn_token', true);
+        $newStations   = [];
         foreach ($parsed as $channel) {
-            $newStations[] = M3uParser::toStation($channel, '');
+            $newStations[] = M3uParser::toStation($channel, '', $needsCdnToken);
         }
 
         if ($request->boolean('merge')) {

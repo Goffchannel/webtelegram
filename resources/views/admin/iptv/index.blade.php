@@ -293,6 +293,12 @@
                                 Añadir a los existentes <span class="text-muted">(no reemplazar)</span>
                             </label>
                         </div>
+                        <div class="form-check ms-2 mb-0">
+                            <input class="form-check-input" type="checkbox" id="chk-cdn-token" value="1" checked>
+                            <label class="form-check-label small" for="chk-cdn-token">
+                                Requiere token CDN <span class="text-muted">(desmarcar para clearkey/Orange)</span>
+                            </label>
+                        </div>
                     </div>
 
                     {{-- Preview result --}}
@@ -318,6 +324,7 @@
                         @csrf
                         <input type="hidden" name="m3u" id="save-m3u">
                         <input type="hidden" name="merge" id="save-merge" value="0">
+                        <input type="hidden" name="cdn_token" id="save-cdn-token" value="1">
                     </form>
                 </div>
             </div>
@@ -488,13 +495,15 @@ btnParse.addEventListener('click', async () => {
 });
 
 btnSave.addEventListener('click', () => {
-    const merging = document.getElementById('chk-merge').checked;
+    const merging    = document.getElementById('chk-merge').checked;
+    const cdnToken   = document.getElementById('chk-cdn-token').checked;
     const msg = merging
         ? '¿Añadir los canales del M3U a la lista actual? (No se borrarán los existentes)'
         : '¿Cifrar y guardar la lista? Esto REEMPLAZARÁ la lista actual.';
     if (!confirm(msg)) return;
     saveM3uInput.value = m3uInput.value;
-    document.getElementById('save-merge').value = merging ? '1' : '0';
+    document.getElementById('save-merge').value     = merging  ? '1' : '0';
+    document.getElementById('save-cdn-token').value = cdnToken ? '1' : '0';
     saveForm.classList.remove('d-none');
     saveForm.submit();
 });

@@ -150,12 +150,13 @@ class M3uParser
      * @param array  $channel        Output from parse()
      * @param string $cdnToken       Current x-tcdn-token (unencrypted, injected as-is)
      */
-    public static function toStation(array $channel, string $cdnToken): array
+    public static function toStation(array $channel, string $cdnToken, bool $needsCdnToken = true): array
     {
         $station = [
-            'name'   => $channel['name'],
-            'image'  => $channel['image'],
-            'ploorl' => PlooplayerEncryption::encrypt($channel['url']),
+            'name'            => $channel['name'],
+            'image'           => $channel['image'],
+            'ploorl'          => PlooplayerEncryption::encrypt($channel['url']),
+            'needs_cdn_token' => $needsCdnToken,
         ];
 
         // License keys — each pair encrypted separately

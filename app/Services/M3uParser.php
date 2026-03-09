@@ -178,8 +178,10 @@ class M3uParser
             $station['ploori'] = PlooplayerEncryption::encrypt($channel['origin']);
         }
 
-        // CDN token — plain text in headers
-        $station['headers'] = ['x-tcdn-token' => $cdnToken];
+        // CDN token — plain text in headers (only for channels that need it)
+        if ($needsCdnToken) {
+            $station['headers'] = ['x-tcdn-token' => $cdnToken];
+        }
 
         // Per-channel user-agent — encrypted
         if (!empty($channel['user_agent'])) {

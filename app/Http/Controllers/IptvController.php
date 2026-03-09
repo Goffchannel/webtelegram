@@ -135,8 +135,10 @@ class IptvController extends Controller
         foreach ($stations as &$station) {
             if ($station['needs_cdn_token'] ?? true) {
                 $station['headers']['x-tcdn-token'] = $token;
+            } else {
+                unset($station['headers']); // remove empty header for clearkey channels
             }
-            unset($station['needs_cdn_token']); // don't expose this internal flag to the client
+            unset($station['needs_cdn_token']);
         }
         unset($station);
 

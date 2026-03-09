@@ -333,9 +333,18 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-list me-2"></i>Lista actual — {{ count($channels) }} canales</span>
-                    @if(count($channels) > 0)
-                        <small class="text-muted">Última actualización: {{ \App\Models\Setting::get('iptv_channels_updated_at', 'nunca') }}</small>
-                    @endif
+                    <div class="d-flex align-items-center gap-3">
+                        @if(count($channels) > 0)
+                            <small class="text-muted">Última actualización: {{ \App\Models\Setting::get('iptv_channels_updated_at', 'nunca') }}</small>
+                            <form method="POST" action="{{ route('admin.iptv.clear-channels') }}"
+                                  onsubmit="return confirm('¿Vaciar la lista completa de canales? Esta acción no se puede deshacer.')">
+                                @csrf
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt me-1"></i>Vaciar lista
+                                </button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
                 @if(count($channels) > 0)
                 <div class="card-body p-0">

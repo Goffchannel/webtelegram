@@ -141,6 +141,14 @@ class IptvAdminController extends Controller
         return back()->with('success', $message);
     }
 
+    /** Clear the entire channel list. */
+    public function clearChannels()
+    {
+        Setting::set('iptv_channels_json', '[]', 'string');
+        Setting::set('iptv_channels_updated_at', now()->toDateTimeString());
+        return back()->with('success', 'Lista de canales vaciada.');
+    }
+
     // =========================================================================
     // Refresh x-tcdn-token for slot 1 from its external URL
     // =========================================================================

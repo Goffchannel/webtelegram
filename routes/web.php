@@ -162,6 +162,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('/admin/iptv/ban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'banIp'])->name('admin.iptv.ban-ip');
     Route::post('/admin/iptv/unban-ip', [\App\Http\Controllers\Admin\IptvAdminController::class, 'unbanIp'])->name('admin.iptv.unban-ip');
     Route::post('/admin/iptv/clear-log', [\App\Http\Controllers\Admin\IptvAdminController::class, 'clearLog'])->name('admin.iptv.clear-log');
+    Route::post('/admin/iptv/clear-channels', [\App\Http\Controllers\Admin\IptvAdminController::class, 'clearChannels'])->name('admin.iptv.clear-channels');
 
     // Bot Manager — group/channel moderation
     Route::prefix('admin/bot-manager')->name('admin.bot-manager.')->group(function () {

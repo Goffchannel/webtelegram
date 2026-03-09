@@ -5,12 +5,15 @@ namespace App\Services;
 class M3uParser
 {
     /**
-     * Parse an M3U playlist and return only .mpd channel entries.
+     * Parse an M3U playlist and return only MPD channel entries.
+     *
+     * A channel is considered MPD if its URL ends in .mpd OR if
+     * #KODIPROP:inputstream.adaptive.file_type=mpd is declared for it.
      *
      * Each returned channel array has:
      *   name       => string
      *   image      => string (may be empty)
-     *   url        => string (.mpd URL)
+     *   url        => string (stream URL)
      *   keys       => array of "keyid:keyvalue" strings
      *   referer    => string|null
      *   origin     => string|null
@@ -39,6 +42,7 @@ class M3uParser
                     'referer'    => null,
                     'origin'     => null,
                     'user_agent' => null,
+                    'is_mpd'     => false,
                 ];
 
                 // tvg-logo
@@ -65,6 +69,15 @@ class M3uParser
             //   Single plain:     keyid:keyvalue
             //   Multi-comma:      kid1:val1,kid2:val2,kid3:val3
             // -----------------------------------------------------------------
+            // file_type=mpd declaration (URL may not end in .mpd)
+            if (str_starts_with($line, '#KODIPROP:inputstream.adaptive.file_type=')) {
+                $fileType = strtolower(trim(substr($line, strlen('#KODIPROP:inputstream.adaptive.file_type='))));
+                if ($fileType === 'mpd') {
+                    $current['is_mpd'] = true;
+                }
+                continue;
+            }
+
             if (str_starts_with($line, '#KODIPROP:inputstream.adaptive.license_key=')) {
                 $raw = trim(substr($line, strlen('#KODIPROP:inputstream.adaptive.license_key=')));
 
@@ -119,8 +132,8 @@ class M3uParser
                 continue;
             }
 
-            // URL line — only .mpd
-            if (str_ends_with(strtolower($line), '.mpd')) {
+            // URL line — accept if ends in .mpd OR file_type=mpd was declared
+            if (str_ends_with(strtolower($line), '.mpd') || $current['is_mpd']) {
                 $current['url'] = $line;
                 $channels[]     = $current;
             }

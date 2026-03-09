@@ -109,17 +109,35 @@ class IptvAdminController extends Controller
 
         // Store channels WITHOUT baking in the CDN token.
         // The token is injected dynamically per-slot when the endpoint is served.
-        $stations = [];
+        $newStations = [];
         foreach ($parsed as $channel) {
-            $stations[] = M3uParser::toStation($channel, '');
+            $newStations[] = M3uParser::toStation($channel, '');
+        }
+
+        if ($request->boolean('merge')) {
+            // Merge: keep existing channels, append new ones (dedup by encrypted URL key)
+            $existing = $this->jsonSetting('iptv_channels_json');
+            $existingUrls = collect($existing)->pluck('url')->filter()->flip()->toArray();
+            $added = 0;
+            foreach ($newStations as $s) {
+                if (!isset($existingUrls[$s['url'] ?? ''])) {
+                    $existing[] = $s;
+                    $added++;
+                }
+            }
+            $stations = array_values($existing);
+            $message  = "$added canales añadidos (" . count($stations) . " en total).";
+        } else {
+            $stations = $newStations;
+            $message  = count($stations) . ' canales guardados (lista reemplazada).';
         }
 
         Setting::set('iptv_channels_json', json_encode($stations), 'string');
         Setting::set('iptv_channels_updated_at', now()->toDateTimeString());
 
-        Log::info('IPTV channel list updated', ['count' => count($stations)]);
+        Log::info('IPTV channel list updated', ['count' => count($stations), 'merge' => $request->boolean('merge')]);
 
-        return back()->with('success', count($stations) . ' canales guardados correctamente.');
+        return back()->with('success', $message);
     }
 
     // =========================================================================

@@ -1,0 +1,866 @@
+#EXTM3U
+
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/STAR_CHANNEL_176x122.png" ,STAR Channel
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=303ecdeeeac9010b45e684ebc9e17594:07121d8aed51c7bbd8046194517c3f12
+http://212.227.178.212/orange.php?channel=11001
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/WARNER_TV_B_176x122.png" ,Warner TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=572a50071aab3163383e6456fa170175:863ec7e82e8ad078d9e080b1c0ba62d2
+http://212.227.178.212/orange.php?channel=11007
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/calle_logo.png" ,Calle 13
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=316ddc301086d3a9121c1adbd67217c8:27a117c24907754f8bd7e8937b7210c6
+http://212.227.178.212/orange.php?channel=11003
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/syfy_logo.png" ,SYFY
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=316ddc301086d3a9121c1adbd67217c8:27a117c24907754f8bd7e8937b7210c6
+http://212.227.178.212/orange.php?channel=11004
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_dde0c997baec3438b3bfa0e25.png" ,ComedyCentr
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=67c02a672e7e87e297cfa7503de7b0e2:60adb12d722f924edc1a1a30f8c349d5
+http://212.227.178.212/orange.php?channel=11005
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/COSMO_176x122.png" ,Cosmo
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=e97beecf128b87730dce9385976f8f01:9687bd4dcaabfa195ea5d1fcf20ee72a
+http://212.227.178.212/orange.php?channel=11006
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/AMC_176x122.png" ,AMC
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11011
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/SOMOS_176x122.png" ,Somos
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11029
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CANAL_HOLLYWOOD_176x122.png" ,C Hollywood
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11010
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_fa98e6287f16390276d378bed.png" ,TCM
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=572a50071aab3163383e6456fa170175:863ec7e82e8ad078d9e080b1c0ba62d2
+http://212.227.178.212/orange.php?channel=11012
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/DISNEY_JR_176x122.png" ,DisneyJr
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=8f5099f4c0e2ff6fa6a0aa1fcf0a364c:2263ad497fbaac39fb09ad514824b718
+http://212.227.178.212/orange.php?channel=11015
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/NICKELODEON_176x122.png" ,Nick
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=67c02a672e7e87e297cfa7503de7b0e2:60adb12d722f924edc1a1a30f8c349d5
+http://212.227.178.212/orange.php?channel=11016
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/NICK_JR_176x122.png" ,Nick JR
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=67c02a672e7e87e297cfa7503de7b0e2:60adb12d722f924edc1a1a30f8c349d5
+http://212.227.178.212/orange.php?channel=11055
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/EUROSPORT_1_WHITE_176x122.png" ,Eurosport 1
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=bc1dd73a0a253410273e7c7745a26109:8e4c49701d5c5832c328c99d2282dda9
+http://212.227.178.212/orange.php?channel=11035
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/NAT_GEO_176x122.png" ,NatGeo
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=303ecdeeeac9010b45e684ebc9e17594:07121d8aed51c7bbd8046194517c3f12
+http://212.227.178.212/orange.php?channel=11017
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_e67df2e2a46eaef12bd81af43.png" ,NatGeo Wild
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=303ecdeeeac9010b45e684ebc9e17594:07121d8aed51c7bbd8046194517c3f12
+http://212.227.178.212/orange.php?channel=1008
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/ODISEA_4K_176x122.png" ,Odisea
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11018
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/discovery_logo.png" ,Discovery
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=bc1dd73a0a253410273e7c7745a26109:8e4c49701d5c5832c328c99d2282dda9
+http://212.227.178.212/orange.php?channel=1039
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CANAL_HISTORIA_LOGO_176x122.png" ,C Historia
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11019
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CANAL_COCINA_4K_176x122.png" ,CanalCocina
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11020
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MTV_176x122.png" ,MTV España
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=67c02a672e7e87e297cfa7503de7b0e2:60adb12d722f924edc1a1a30f8c349d5
+http://212.227.178.212/orange.php?channel=11050
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MEZZO_LOGO_BLANCO_176X122.png" ,Mezzo HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=e9d8b7b23badba15c52fc4b752a8b0f1:d6c16d3793adcd38edc4bb9145ce2020
+http://212.227.178.212/orange.php?channel=1031
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_b4e0f887b3797926215bd7e1f.png" ,CanalSur 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=1035
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_1428bbbe41c62edb722f0a7fc.png" ,TV3CAT
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=1036
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/eitb_176x122.png" ,ETB Basque
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=1037
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_7d9c2f184675b5590daba5f6b.png" ,Galicia TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=1038
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/caracoltv_x_e4e26c697cbf02a548743aeec.png" ,Caracol TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=1029
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_fa12d9e18a62937b9cbe11460.png" ,BBC WorldHD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11021
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_9983a748d1d335b8c291af8f1.png" ,CNN
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11022
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TV5MONDE_176x122.png" ,TV5MONDE
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11023
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/dw_channellogoapps_estandar_8cbfcaf2fb21a1b6f277cac5f.png" ,Deutsche W
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11024
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_8b18a895ff9aa613934f15ea4.png" ,Al Jazeera
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11025
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/PRO_TV_176x122.png" ,Pro TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11028
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/GOL_176x122.png" ,GOL
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11031
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LALIGA_2_176x122.png" ,M LALIGA 2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=61e9a16fd7fa4679cb51c81fcaa8729f:92999f97ff4ee6ec52a60d490fb3f14c
+http://212.227.178.212/orange.php?channel=11026
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LALIGA_176x122.png" ,M LALIGA
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11013
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LALIGA_3_176x122.png" ,M LALIGA 3
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1057
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LALIGA_4_COLOR_176x122.png" ,M LALIGA 4
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1058
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LALIGA_5_COLOR_176x122.png" ,M LALIGA 5
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1059
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_176x122.png" ,M Liga de Campeones
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1023
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_2_176x122.png" ,M Liga de Campeones 2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1050
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_3_176x122.png" ,M Liga de Campeones 3
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1051
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_4_176x122.png" ,M Liga de Campeones 4
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1052
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_5_176x122.png" ,M Liga de Campeones 5
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1053
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_6_176x122.png" ,M Liga de Campeones 6
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1054
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_7_176x122.png" ,M Liga de Campeones 7
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1055
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_8_176x122.png" ,M Liga de Campeones 8
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1056
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_9_176x122.png" ,M Liga de Campeones 9
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11036
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/BETISTV_176x122.png" ,Betis TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1019
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/EWTN_176x122.png" ,EWTN
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=1068
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/SELEKT_176x122.png" ,SELEKT
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11045
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/1_176x122.png" ,La 1 HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1010
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/ANTENA_3_176x122.png" ,Antena 3 HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1011
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CUATRO_176x122.png" ,Cuatro HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1012
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TELECINCO_176x122.png" ,Telecinco HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1013
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/LA_SEXTA_176x122.png" ,laSexta HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1014
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/EL_TORO_TV_176x122.png" ,El Toro TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11049
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_7b5bfe03e4ac4f998eb4419bf.png" ,TR3CE
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1017
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_tvapp_d08ea8ba24460741792758132.png" ,Divinity
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1034
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/NEOX_176x122.png" ,Neox
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1027
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_tvapp_c16e12c73e06b5817ec1a0f61.png" ,Nova
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1028
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_tvapp_f385e813212577284f34ccfad.png" ,FDF
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1032
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/ATRESERIES_176x122.png" ,Atreseries
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1042
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_tvapp_9c90602508997c18465afc959.png" ,Boing
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1021
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/DMAX_176x122.png" ,DMAX
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1018
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_tvapp_f95237777f3afd9751cc5b2fc.png" ,Energy
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1030
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/mega_x_2e651437c88238945ef1f89a7.png" ,Mega
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1016
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/IMAGES/O/x_080837da64455a1f9c6221d80.png" ,Be Mad TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1043
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/DKISS_176x122.png" ,DKISS
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1044
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/DREAMWORKS_White_176x122.png" ,Dreamworks
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=316ddc301086d3a9121c1adbd67217c8:27a117c24907754f8bd7e8937b7210c6
+http://212.227.178.212/orange.php?channel=1085
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/GAME_TOON_White_176x122.png" ,Gametoon
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=26325828369c0f651b1d028031671678:da855e2e9b88e371b2ac68f85b956069
+http://212.227.178.212/orange.php?channel=1086
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/EURONEWS_LOGO_176X122.png" ,Euronews
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=1090
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/AMC_BREAK_176x122.png" ,AMC BREAK
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11009
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/AMC_CRIME_176x122.png" ,AMC CRIME
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11042
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/1+1_MARATHON_176x122.png" ,1+1 Marathon
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11075
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/DAZN_LALIGA_176x122.png" ,DAZN LALIGA
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=61e9a16fd7fa4679cb51c81fcaa8729f:92999f97ff4ee6ec52a60d490fb3f14c
+http://212.227.178.212/orange.php?channel=11077
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/DAZN_LALIGA_2_176x122.png" ,DAZN LALIGA 2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=61e9a16fd7fa4679cb51c81fcaa8729f:92999f97ff4ee6ec52a60d490fb3f14c
+http://212.227.178.212/orange.php?channel=11080
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/LALIGA_HYPERMOTION_176x122.png" ,LALIGATV HYPERMOTION
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11083
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/LALIGA_HYPERMOTION_2_176x122.png" ,LALIGATV HYPERMOTION 2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=0224b135f2f9502afff9cb33551c0881:511705882bd08aca4e1a128a7d9ba813
+http://212.227.178.212/orange.php?channel=11084
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/LALIGA_HYPERMOTION_3_176x122.png" ,LALIGATV HYPERMOTION 3
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11085
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/TELEMADRID_INT_176x122.png" ,TelemadridI
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=12050
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/NAUTICAL_CHANNEL_176x122.png" ,Nautical Channel
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11128
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/BABYTV_WHITE_176x122.png" ,BabyTV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=8f5099f4c0e2ff6fa6a0aa1fcf0a364c:2263ad497fbaac39fb09ad514824b718
+http://212.227.178.212/orange.php?channel=11169
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/EUROSPORT_2_WHITE_176x122.png" ,Eurosport 2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=bc1dd73a0a253410273e7c7745a26109:8e4c49701d5c5832c328c99d2282dda9
+http://212.227.178.212/orange.php?channel=11059
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/2_176x122.png" ,La 2 HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=1062
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CLAN_176x122.png" ,Clan HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=1064
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TDP_159x110.png" ,TDP HD
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=1063
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/tenLOl.png" ,Ten 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=12054
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/MOTO_ADV_176x122.png" ,Moto ADV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=8ae911c21683ca48b10ed6b925127218:20fccd8b208922b20c72590459908a56
+http://212.227.178.212/orange.php?channel=1081
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/M_LIGA_DE_CAMPEONES_14_176x122.png" ,M Liga de Campeones 14
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11065
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/M_LIGA_DE_CAMPEONES_15_176x122.png" ,M Liga de Campeones 15
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11066
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/M_LIGA_DE_CAMPEONES_16_176x122.png" ,M Liga de Campeones 16
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11067
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/M_LIGA_DE_CAMPEONES_17_176x122.png" ,M Liga de Campeones 17
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11068
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/VIN_TV_176x122.png" ,VinTV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=176818f5ee860d5e0a3f4904ac88012a:05912dfc5342a13c7c612652ef64e08a
+http://212.227.178.212/orange.php?channel=11063
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/UBEAT_176x122.png" ,Ubeat
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=26325828369c0f651b1d028031671678:da855e2e9b88e371b2ac68f85b956069
+http://212.227.178.212/orange.php?channel=11061
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/XTRM_176x122.png" ,XTRM
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=12057
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments/REAL_MADRID_TV_176x122.png" ,Real Madrid
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=12052
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/24H_176x122.png" ,24 horas
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=f6757abdf714b3a4237ff4779e21435c:f877fdc849fa385da8e28ae78254a9d2
+http://212.227.178.212/orange.php?channel=12051
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_10_176x122.png" ,M Liga de Campeones 10
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1096
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_11_176x122.png" ,M Liga de Campeones 11
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1097
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_12_176x122.png" ,M Liga de Campeones 12
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1098
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_13_176x122.png" ,M Liga de Campeones 13
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=1099
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_18_176x122.png" ,M Liga de Campeones 18
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11158
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LIGA_DE_CAMPEONES_19_176x122.png" ,M Liga de Campeones 19
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11159
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/logo_pruebas ll1_176x122.png" ,Pruebas LL1
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dashll.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11166
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/logo_pruebas ll2_176x122.png" ,Pruebas LL2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dashll.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11167
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/SKYSHOWTIME_1_176x122.png" ,SkyShowtime 1
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11168
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/SQUIRREL_176x122.png" ,Squirrel TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11173
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/HORSE_TV_176x122.png" ,Horse TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11175
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/BOM_176x122.png" ,BOM Cine
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11174
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TV3_176x122.png" ,TV3
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11187
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/3CAT_INFO_176x122.png" ,3CatInfo
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11188
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/LA_OTRA_176x122.png" ,LaOtra 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11196
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TELEMADRID_176x122.png" ,Telemadrid 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11195
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/ASTURIAS_TV_176x122.png" ,A7 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11210
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CASTILLA_LEON_TV_LA_7_176x122.png" ,La 7
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11202
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CMM_176x122.png" ,CMM
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11203
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/IB3_176x122.png" ,IB3 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11204
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/EITB_176x122.png" ,ETB1 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11193
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/EITB2_176x122.png" ,ETB2 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11194
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TVG1_176x122.png" ,TVG1
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11197
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TVG2_176x122.png" ,TVG2 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11198
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/NAVARRA_TV_176x122.png" ,NAV1
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11208
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/NAVARRA_TV_2_176x122.png" ,NAV2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11209
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/VEO7_176x122.png" ,Veo7
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11223
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/TV_RIOJA_176x122.png" ,TVR 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11207
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/EUROSPORT_1_WHITE_176x122.png" ,Eurosport 1 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dashll.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=bc1dd73a0a253410273e7c7745a26109:8e4c49701d5c5832c328c99d2282dda9
+http://212.227.178.212/orange.php?channel=11224
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/ARAGON_TV_1 LINEA_176x122.png" ,Aragón Televisión
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11206
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MELILLA_TV_176x122.png" ,TV Melilla
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11214
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/RTVCE_CEUTA_176x122.png" ,Ceuta TV
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11213
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/APUNT_176x122.png" ,A Punt
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11201
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CEX_176x122.png" ,Canal Extremadura
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11211
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LALIGA_HDR_176x122.png" ,M LALIGA HDR
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11227
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/MOVISTAR_LALIGA_2_HDR_176x122.png" ,M LALIGA 2 HDR
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11228
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/CANAL_SUR_TV_176x122.png" ,Canal Sur
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11199
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/ANDALUCIA_TV_176x122.png" ,Andalucía TV 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11200
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/PRIMERA_FEDERACION_176x122.png" ,Primera Federación
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live12-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=850c1a430396ce4255f3902bf1f4e897:295b1db977f94dfbba012073901a019b
+http://212.227.178.212/orange.php?channel=11230
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/RTV_CANARIAS_176x122.png" ,RTV Canaria 
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=22c8e6508e0c701eb098d198a11f2b10:33393e286255c62e61a3d5ed938d2f1e
+http://212.227.178.212/orange.php?channel=11205
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/DAZN_BALONCESTO_176x122.png" ,DAZN Baloncesto
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=61e9a16fd7fa4679cb51c81fcaa8729f:92999f97ff4ee6ec52a60d490fb3f14c
+http://212.227.178.212/orange.php?channel=11231
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/DAZN_BALONCESTO_2_176x122.png" ,DAZN Baloncesto 2
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=61e9a16fd7fa4679cb51c81fcaa8729f:92999f97ff4ee6ec52a60d490fb3f14c
+http://212.227.178.212/orange.php?channel=11232
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/DAZN_BALONCESTO_3_176x122.png" ,DAZN Baloncesto 3
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live14-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=61e9a16fd7fa4679cb51c81fcaa8729f:92999f97ff4ee6ec52a60d490fb3f14c
+http://212.227.178.212/orange.php?channel=11270
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/SQUIRREL_DOS_176x122.png" ,Squirrel Dos
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=5b0c4c0fed4afcd22d5fba9acca6788a:36615370dd6f468dba12458fa0e3aafd
+http://212.227.178.212/orange.php?channel=11280
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/AMC_LIVING_176x122.png" ,AMC Living
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live11-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11282
+#EXTINF:-1 group-title="ORANGE" tvg-logo="https://smarttv.orangetv.orange.es/stv/api/rtv/v1/images/attachments_new/AMC_WESTERN_176x122.png" ,AMC Western
+#KODIPROP:inputstream.adaptive.file_type=mpd
+#KODIPROP:inputstream.adaptive.stream_headers=Host=live13-dash.cdns.cdn.orangetv.orange.es
+#KODIPROP:inputstream.adaptive.license_type=clearkey
+#KODIPROP:inputstream.adaptive.license_key=dbba3bce837cb7b2c7ec9ab957271332:f9fc69c3039bc47a6d431426b380be2c
+http://212.227.178.212/orange.php?channel=11281

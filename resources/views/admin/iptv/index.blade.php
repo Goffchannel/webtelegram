@@ -280,13 +280,19 @@
                     <textarea id="m3u-input" class="form-control font-monospace mb-3"
                         rows="12" placeholder="#EXTM3U&#10;#EXTINF:-1 tvg-logo=&quot;...&quot;,Canal 1&#10;#KODIPROP:...&#10;https://stream.com/video.mpd"></textarea>
 
-                    <div class="d-flex gap-2 mb-3">
+                    <div class="d-flex gap-2 align-items-center mb-3 flex-wrap">
                         <button id="btn-parse" class="btn btn-outline-secondary">
                             <i class="fas fa-search me-1"></i>Previsualizar
                         </button>
                         <button id="btn-save" class="btn btn-success" disabled>
                             <i class="fas fa-cloud-upload-alt me-1"></i>Cifrar y guardar
                         </button>
+                        <div class="form-check ms-2 mb-0">
+                            <input class="form-check-input" type="checkbox" id="chk-merge" value="1">
+                            <label class="form-check-label small" for="chk-merge">
+                                Añadir a los existentes <span class="text-muted">(no reemplazar)</span>
+                            </label>
+                        </div>
                     </div>
 
                     {{-- Preview result --}}
@@ -311,6 +317,7 @@
                     <form id="save-form" method="POST" action="{{ route('admin.iptv.save-channels') }}" class="d-none">
                         @csrf
                         <input type="hidden" name="m3u" id="save-m3u">
+                        <input type="hidden" name="merge" id="save-merge" value="0">
                     </form>
                 </div>
             </div>
@@ -481,8 +488,13 @@ btnParse.addEventListener('click', async () => {
 });
 
 btnSave.addEventListener('click', () => {
-    if (!confirm(`¿Cifrar y guardar la lista? Esto reemplazará la lista actual.`)) return;
+    const merging = document.getElementById('chk-merge').checked;
+    const msg = merging
+        ? '¿Añadir los canales del M3U a la lista actual? (No se borrarán los existentes)'
+        : '¿Cifrar y guardar la lista? Esto REEMPLAZARÁ la lista actual.';
+    if (!confirm(msg)) return;
     saveM3uInput.value = m3uInput.value;
+    document.getElementById('save-merge').value = merging ? '1' : '0';
     saveForm.classList.remove('d-none');
     saveForm.submit();
 });
